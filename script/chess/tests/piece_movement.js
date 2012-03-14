@@ -1,4 +1,4 @@
-define([ "../", "../lib", "doh" ], function( chess, lib, doh ){
+define([ "../", "lib", "doh" ], function( chess, lib, doh ){
 
 function wrap_tests( tests ){
 

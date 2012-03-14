@@ -2,8 +2,8 @@ define([ ], function( ){
 	
 	require({ 
 		packages: [
-			{ name: "lib",    location: "../../../chess/script/game/lib" },
-			{ name: "chess",  location: "../../../chess/script/game" }
+			{ name: "lib",    location: "../../../script/lib" },
+			{ name: "chess",  location: "../../../script/chess" }
 		]
 	});
 		
