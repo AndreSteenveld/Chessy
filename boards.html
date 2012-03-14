@@ -1,0 +1,260 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+
+<!--
+	Attributions, credit and copyright
+	
+	Copyright (C) 2012 André jr Steenveld all rights reserved
+	
+	Libaries and other sources used:
+		- Dojo toolkit under the new BSD license http://bugs.dojotoolkit.org/browser/dojo/trunk/LICENSE
+		- ES5 shim under https://github.com/kriskowal/es5-shim/blob/master/LICENSE
+-->
+
+<head>
+	
+	<link rel="stylesheet" type="text/css" href="./style/style.css"></link>
+</head>
+
+<body class="claro">
+	<div id="initial-overlay"></div>
+		
+	<div id="wrapper" 
+		data-dojo-type = "dijit.layout.BorderContainer"
+	>		
+		<div 
+			data-dojo-type   = "dijit.layout.ContentPane"
+			region = "center"
+		>
+			<div id="map">
+			</div>
+		</div>
+		
+		<div id="right" 
+			data-dojo-type = "dijit.layout.BorderContainer" 
+			region = "right"
+		>
+			<div id="logo-container"
+				data-dojo-type = "dijit.layout.ContentPane"
+				region = "top"
+				unselectable="on"
+			>
+				
+			</div>
+		
+			<div
+				data-dojo-type = "dijit.layout.ContentPane" 
+				region = "center"
+			>
+				<p> ... </p>				
+			</div>
+		
+			<div id="copyright-container"
+				data-dojo-type = "dijit.layout.ContentPane"
+				region = "bottom"
+			>			
+				
+			</div>
+		
+			<div id="submit-container" 
+				data-dojo-type   = "dijit.layout.ContentPane" 
+				region = "bottom"
+			>		
+				<button id="submit" data-dojo-type="dijit.form.Button">Submit!</button>
+			</div>
+								
+		</div> <!-- /#right -->
+				
+	</div> <!-- /#wrapper -->
+	
+	<div id="overlay" data-dojo-type="dojox.widget.Standby" target="wrapper" zIndex="1000"></div>
+	
+	<iframe class="hidden" id="communication-frame" name="communication-frame"></iframe>
+	<form class="hidden" id="communication-form" method="post" target="communication-frame">
+		<input type="hidden" id="result" name="result" />
+	</form>
+	
+	<script type="text/javascript">
+		PLUGIN_NAME = "chess";
+		dojoConfig = {
+			async:       true,
+			parseOnLoad: false,
+			
+			packages: [
+				{ name: "plugin", location: "../../../" + PLUGIN_NAME + "/script" },
+				{ name: "chess",  location: "../../../" + PLUGIN_NAME + "/script/game" }
+			],
+						
+			trace: {
+				// these are listed so it's simple to turn them on/off while debugging loading
+				"loader-inject":1,
+				"loader-define":0,
+				"loader-exec-module":0,
+				"loader-run-factory":0,
+				"loader-finish-exec":0,
+				"loader-define-module":0
+			}
+		};
+	</script>	
+	
+	<script type="text/javascript" src="./script/lib/es5.js"></script>
+	<script type="text/javascript" src="./script/dojo171/dojo/dojo.js"></script>	
+	<script type="text/javascript">
+
+		require([ 
+			"chess", "chess/lib", 
+			
+			"dojo", "dojo/dom-construct", 
+			
+			"chess/Game", "chess/Player", 
+			
+			"dojox/string/Builder", "dojo/string" 
+		], 
+		function( chess, lib, dojo, dom, Game, Player, StringBuilder ){ 
+			
+			var FIELD_TEMPLATE = "<td class='cell row-${row} col-${col} color-${color} ${piece_class}'>${piece}</td>";
+						
+			var ROW_TEMPLATE = ""
+				+ "<tr class='row row-${row}'>"
+					+ "<td class='row-name-${name} name-cell'>${name}</td>"
+					+ "${fields}"
+					+ "<td class='row-name-${name} name-cell'>${name}</td>"
+				+ "</tr>";
+				
+			var BOARD_TEMPLATE = ""
+				+ "<table class='board'>"
+					+ "<thead></thead>"
+					+ "<tbody>"
+						+ "<tr><td class='name-cell'>&nbsp;</td><td class='name-cell'>A</td><td class='name-cell'>B</td><td class='name-cell'>C</td><td class='name-cell'>D</td><td class='name-cell'>E</td><td class='name-cell'>F</td><td class='name-cell'>G</td><td class='name-cell'>H</td><td class='name-cell'>&nbsp;</td></tr>"
+						+ "${rows}"
+						+ "<tr><td class='name-cell'>&nbsp;</td><td class='name-cell'>A</td><td class='name-cell'>B</td><td class='name-cell'>C</td><td class='name-cell'>D</td><td class='name-cell'>E</td><td class='name-cell'>F</td><td class='name-cell'>G</td><td class='name-cell'>H</td><td class='name-cell'>&nbsp;</td></tr>"
+					+ "</tbody>"
+				+ "</table>";
+				
+			var xNames = [ "a", "b", "c", "d", "e", "f", "g", "h" ],
+				yNames = [ "8", "7", "6", "5", "4", "3", "2", "1" ],
+				color  = function( ){
+					var color = "black";
+					
+					return function( ){
+						return color === "black"
+							? ( color = "white" )
+							: ( color = "black" );						
+					}					
+				}( );
+						
+			function htmlBoard( board ){
+				var rows = new StringBuilder( );	
+				
+				yNames.forEach( function( y ){
+					var fields = new StringBuilder( );
+					
+					xNames.forEach( function( x ){
+						var piece      = "&nbsp;",
+							pieceClass = "";
+						
+						if( board.fields[ x + y ].piece ){
+							piece = board.fields[ x + y ].piece.color === "white"
+								? { "Bishop": "&#9815;", "King": "&#9812;", "Knight": "&#9816;", "Pawn": "&#9817;", "Queen": "&#9813;", "Rook": "&#9814;" }[ board.fields[ x + y ].piece.type ]
+								: { "Bishop": "&#9821;", "King": "&#9818;", "Knight": "&#9822;", "Pawn": "&#9823;", "Queen": "&#9819;", "Rook": "&#9820;" }[ board.fields[ x + y ].piece.type ]
+								
+							pieceClass = "piece-" + board.fields[ x + y ].piece.color;
+						}
+						
+						var field = dojo.string.substitute( FIELD_TEMPLATE, {
+							row: y.toUpperCase( ),
+							col: x.toUpperCase( ),
+							color: color( ),
+							piece: piece,
+							piece_class: pieceClass
+						});
+					
+						fields.append( field );
+						
+						
+					});
+					
+					color( );
+					
+					rows.append( 
+						dojo.string.substitute( ROW_TEMPLATE, {
+							row:  "z",
+							name: y.toUpperCase( ),
+							fields: fields.toString( )
+						})
+					);					
+				});
+				
+				return dojo.string.substitute( BOARD_TEMPLATE, { rows: rows });
+				
+			}
+			
+			dojo.ready( function( ){		
+				var board = new chess.board.Board( ),				
+					game  = new chess.Game({ board: board });
+					
+				console.log( "Created game and board..." );
+					
+				var whitePlayer = new chess.Player({ game: game, color: "white" }),
+					blackPlayer = new chess.Player({ game: game, color: "black" });
+					
+				console.log( "Created players..." );
+				
+				var bishop = new chess.pieces.Queen({
+						color: "white",
+						board: board,
+						field: board.fields[ "h2" ]
+					});
+				
+				var king = new chess.pieces.King({
+						color: "black",
+						board: board,
+						field: board.fields[ "a1" ]
+					});
+					
+				var rook = new chess.pieces.Rook({
+						color: "black",
+						board: board,
+						field: board.fields[ "a8" ]
+					});
+					
+				var queen = new chess.pieces.Queen({
+						color: "black",
+						board: board,
+						field: board.fields[ "b2" ]
+					});
+					
+				var	pawn = new chess.pieces.Pawn({
+						color: "white",
+						board: board,
+						field: board.fields[ "c3" ]
+					});
+					
+				var bPawn = new chess.pieces.Pawn({
+						color: "black",
+						board: board,
+						field: board.fields[ "d3" ]
+					});
+						
+				console.log( "Game ::", game );
+				console.log( "Board ::", board );
+						
+				console.log( "Created pieces and placed on board..." );
+						
+				//console.log( "King attacked by ::", king.attackedBy( ) );
+				
+				console.log( "King relations ::", king.relations( ) );
+				
+				console.log( "King movement ::", king.movement( ) );
+				console.log( "King attacking ::", king.attacks( ) );
+				console.log( "King moves ::", king.moves( ) );	
+				
+				console.log( "black pawn attacks ::", bPawn.attacks( ) );		
+							
+				dojo.body( ).innerHTML = htmlBoard( board );
+			});
+		});
+	</script>
+</body>
+
+</html>

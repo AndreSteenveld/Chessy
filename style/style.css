@@ -1,0 +1,56 @@
+@import "../script/dojo171/dojo/resources/dojo.css";
+
+/* If you are going to change the style, don't forget to change the class on <body> aswell! */
+@import "./script/dojo171/dijit/themes/claro/claro.css"; 
+
+@import "./base.css";
+@import "./default-layout.css";
+
+#map {
+	position: absolute;	
+	top: 0px; bottom: 0px;
+	left: 0px; right: 0px;	
+}
+
+body { font-family: "Courier New"; }
+
+/*
+ * Chessboard styling
+ */
+
+td:not(.name-cell) {
+	font-size: 3em;
+	width: 1.5em;
+	height: 1.5em;
+}
+
+td.name-cell {
+	padding: .2em .2em .2em .2em;	
+}
+
+.board td { 
+	border: 1px solid black; 
+	text-align: center;
+}
+
+.board td.color-black { background-color: #000; }
+
+.board td.color-white { background-color: #FFF; }
+
+.board td.color-black.piece-white { 
+	color: #FFF;
+	font-weight: bolder;
+}
+
+.board td.color-black.piece-black {
+	text-shadow: -.5px .5px 0px #FFF, .5px -.5px 0px #FFF, -.5px -.5px 0px #FFF, .5px .5px 0px #FFF;
+}
+
+.board td.color-white.piece-white,
+.board td.color-black.piece-black { 
+	color: #000; 
+}
+
+.board td.highlight {
+	border: 5px solid #F00;	
+}

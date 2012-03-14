@@ -1,0 +1,195 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+
+<!--
+	Attributions, credit and copyright
+	
+	Copyright (C) 2012 André jr Steenveld all rights reserved
+	
+	Libaries and other sources used:
+		- Dojo toolkit under the new BSD license http://bugs.dojotoolkit.org/browser/dojo/trunk/LICENSE
+		- ES5 shim under https://github.com/kriskowal/es5-shim/blob/master/LICENSE
+-->
+
+<head>
+	<link rel="stylesheet" type="text/css" href="./style/style.css"></link>
+	<style type="text/css">
+		body { 
+			overflow: auto; 
+			padding: 1em 1em 1em 1em;	
+		}
+	</style>
+</head>
+
+<body class="claro chess">
+
+	<script type="text/javascript">
+		dojoConfig = {
+			async:       true,
+			parseOnLoad: false,
+			
+			packages: [
+				{ name: "lib",    location: "../../lib" },
+				{ name: "chess",  location: "../../chess" }
+			],
+						
+			trace: {
+				// these are listed so it's simple to turn them on/off while debugging loading
+				"loader-inject":1,
+				"loader-define":0,
+				"loader-exec-module":0,
+				"loader-run-factory":0,
+				"loader-finish-exec":0,
+				"loader-define-module":0
+			}
+		};
+	</script>	
+	
+	<script type="text/javascript" src="./script/lib/es5.js"></script>
+	<script type="text/javascript" src="./script/dojo171/dojo/dojo.js"></script>
+	<script type="text/javascript">
+		require([ 
+			"chess", "lib", 
+			
+			"dojo", "dojo/dom-construct", 
+			
+			"chess/Game", "chess/Player", 
+			
+			"dojox/string/Builder", "dojo/string",
+			
+			"dojo/dom-construct"
+		], 
+		function( chess, lib, dojo, dom, Game, Player, StringBuilder ){ 
+			
+			var FIELD_TEMPLATE = "<td class='cell row-${row} col-${col} color-${color} ${piece_class}'>${piece}</td>";
+						
+			var ROW_TEMPLATE = ""
+				+ "<tr class='row row-${row}'>"
+					+ "<td class='row-name-${name} name-cell'>${name}</td>"
+					+ "${fields}"
+					+ "<td class='row-name-${name} name-cell'>${name}</td>"
+				+ "</tr>";
+				
+			var BOARD_TEMPLATE = ""
+				+ "<table class='board'>"
+					+ "<thead></thead>"
+					+ "<tbody>"
+						+ "<tr><td class='name-cell'>&nbsp;</td><td class='name-cell'>A</td><td class='name-cell'>B</td><td class='name-cell'>C</td><td class='name-cell'>D</td><td class='name-cell'>E</td><td class='name-cell'>F</td><td class='name-cell'>G</td><td class='name-cell'>H</td><td class='name-cell'>&nbsp;</td></tr>"
+						+ "${rows}"
+						+ "<tr><td class='name-cell'>&nbsp;</td><td class='name-cell'>A</td><td class='name-cell'>B</td><td class='name-cell'>C</td><td class='name-cell'>D</td><td class='name-cell'>E</td><td class='name-cell'>F</td><td class='name-cell'>G</td><td class='name-cell'>H</td><td class='name-cell'>&nbsp;</td></tr>"
+					+ "</tbody>"
+				+ "</table>";
+				
+			var xNames = [ "a", "b", "c", "d", "e", "f", "g", "h" ],
+				yNames = [ "8", "7", "6", "5", "4", "3", "2", "1" ],
+				color  = function( ){
+					var color = "black";
+					
+					return function( ){
+						return color === "black"
+							? ( color = "white" )
+							: ( color = "black" );						
+					}					
+				}( );
+						
+			function htmlBoard( board ){
+				var rows = new StringBuilder( );	
+				
+				yNames.forEach( function( y ){
+					var fields = new StringBuilder( );
+					
+					xNames.forEach( function( x ){
+						var piece      = "&nbsp;",
+							pieceClass = "";
+						
+						if( board.fields[ x + y ].piece ){
+							piece = board.fields[ x + y ].piece.color === "white"
+								? { "Bishop": "&#9815;", "King": "&#9812;", "Knight": "&#9816;", "Pawn": "&#9817;", "Queen": "&#9813;", "Rook": "&#9814;" }[ board.fields[ x + y ].piece.type ]
+								: { "Bishop": "&#9821;", "King": "&#9818;", "Knight": "&#9822;", "Pawn": "&#9823;", "Queen": "&#9819;", "Rook": "&#9820;" }[ board.fields[ x + y ].piece.type ]
+								
+							pieceClass = "piece-" + board.fields[ x + y ].piece.color;
+						}
+						
+						var field = dojo.string.substitute( FIELD_TEMPLATE, {
+							row: y.toUpperCase( ),
+							col: x.toUpperCase( ),
+							color: color( ),
+							piece: piece,
+							piece_class: pieceClass
+						});
+					
+						fields.append( field );
+						
+						
+					});
+					
+					color( );
+					
+					rows.append( 
+						dojo.string.substitute( ROW_TEMPLATE, {
+							row:  "z",
+							name: y.toUpperCase( ),
+							fields: fields.toString( )
+						})
+					);					
+				});
+				
+				return dojo.string.substitute( BOARD_TEMPLATE, { rows: rows });
+				
+			}
+		
+			var boards = [ "Bishop", "King", "Knight", "Pawn", "Queen", "Rook" ]
+				.map( function( type ){
+					var board = new chess.board.Board( ),
+						piece = new chess.pieces[ type ]({
+							color: "white",
+							board: board,
+							field: board.fields.d4
+						});
+						
+					var movement = piece.moves( );
+					
+					console.log( type, " ( ", movement.length, " ) :: ", 
+						movement
+							.sort( function( l, r ){ return l.x < r.x ? -1 : l.x === r.x ? l.y < r.y ? -1 : 1 : 1; })
+							.map( function( f ){ return f.name; })
+							.join( "," )
+					);
+				
+					var html = ""
+						+ "<p id='" + type.toLowerCase( ) + "'>" 
+							+ "<h1>" + type.toLowerCase( ) + ":</h1>" 
+							+ htmlBoard( board ) 
+						+ "</p>";
+						
+					var fragment = dojo.toDom( html );
+					
+					dojo.query( ".cell", fragment )
+						.filter( function( cell ){
+							// I thought this would be possible with dojo by using the "hasClass" method,
+							// it appears to work with an indexOf instead of a proper compare. I pressume
+							// for efficienty.
+							//var classNames = dojo.classNames( cell ),
+							var classNames = cell.className + " ",
+								x = /col-([a-h])/i.exec( classNames )[ 1 ].toLowerCase( ),
+								y = /row-([1-8])/i.exec( classNames )[ 1 ].toLowerCase( );
+								
+							return movement.indexOf( board.fields[ x + y ] ) !== -1;								
+						})
+						.addClass( "highlight" );
+					
+					return fragment;				
+				});
+				
+			dojo.ready( function( ){
+				
+				boards.forEach( function( board ){
+					dojo.place( board, dojo.body( ) );					
+				});
+				
+			});
+		});
+	
+	</script>
+</body>
+</html>

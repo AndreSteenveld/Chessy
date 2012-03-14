@@ -1,0 +1,184 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+
+<!--
+	Attributions, credit and copyright
+	
+	Copyright (C) 2012 André jr Steenveld all rights reserved
+	
+	Libaries and other sources used:
+		- Dojo toolkit under the new BSD license http://bugs.dojotoolkit.org/browser/dojo/trunk/LICENSE
+		- ES5 shim under https://github.com/kriskowal/es5-shim/blob/master/LICENSE
+-->
+
+<head>
+
+	<title>Random vs. Random</title>
+	<link rel="stylesheet" type="text/css" href="./style/style.css"></link>
+	<link rel="stylesheet" type="text/css" href="./script/dojo171/dijit/themes/tundra/tundra.css"></link>
+
+</head>
+
+<body class="tundra">
+
+	<div>
+		<p id="board-container"></p>
+		
+		<p id="button-container"></p>
+		
+	</div>
+
+	<script type="text/javascript">
+		dojoConfig = {
+			async:       true,
+			parseOnLoad: false,
+			
+			packages: [
+				{ name: "lib",    location: "../../lib" },
+				{ name: "chess",  location: "../../chess" }
+			],
+						
+			trace: {
+				// these are listed so it's simple to turn them on/off while debugging loading
+				"loader-inject":1,
+				"loader-define":0,
+				"loader-exec-module":0,
+				"loader-run-factory":0,
+				"loader-finish-exec":0,
+				"loader-define-module":0
+			}
+		};
+	</script>	
+	
+	<script type="text/javascript" src="./script/lib/es5.js"></script>
+	<script type="text/javascript" src="./script/dojo171/dojo/dojo.js"></script>	
+	<script type="text/javascript">
+	
+		var board = null,
+			game  = null,
+			bPlayer = null,
+			wPlayer = null;
+	
+		var chess_timer = ( function( ){
+				var start = new Date( ).getTime( );
+				return function( ){
+					return ( new Date( ) ).getTime( ) - start;
+				}
+			} )( );
+	
+		require([ 
+			"chess", "chess/lib", 
+			
+			"dojo", "dojo/dom-construct", 
+			
+			"chess/Game", "chess/ai/Random", 
+			
+			"chess/Renderer",
+			
+			"dojo/query",
+			
+			"dijit/form/Button",
+			
+			"dojo/on"
+			
+		], 
+		
+		function( chess, lib, dojo, dom, Game, Random, Renderer, $, Button, connect ){
+			
+			var BlockingRandom = lib.declare( [ Random ], {
+							
+					constructor: function( ){
+
+						lib.aspect.around( this, "turn", 
+							Function.bind( this, function( original_turn ){
+								console.log( "Being called for player ::", this.color );
+								return Function.bind( this, function( ){							
+									
+									console.log( "The turn is actually being called ::", this.color );
+									
+									var button = dijit.byId( "button" ),
+										turn   = original_turn.bind( this, arguments );
+									
+									button.set( "label", this.color + " move" );
+									
+									connect.once( button, "click", function( ){
+										turn( );						
+										
+										$( ".board" ).forEach( dojo.destroy );
+										dojo.place( dojo.toDom( Renderer.render( board ) ), dojo.byId( "board-container" ) );
+									});	
+																	
+								});
+								
+							})
+						);				
+					
+					}
+					
+				});
+						
+			board = new chess.board.Board( );
+			game  = new chess.Game({ board: board });
+			
+			// White pieces in starting position
+			new chess.pieces.Pawn({ color: "white", board: board, field: board.fields.a2 }); new chess.pieces.Rook({   color: "white", board: board, field: board.fields.a1 });
+			new chess.pieces.Pawn({ color: "white", board: board, field: board.fields.b2 }); new chess.pieces.Knight({ color: "white", board: board, field: board.fields.b1 });
+			new chess.pieces.Pawn({ color: "white", board: board, field: board.fields.c2 }); new chess.pieces.Bishop({ color: "white", board: board, field: board.fields.c1 });
+			new chess.pieces.Pawn({ color: "white", board: board, field: board.fields.d2 }); new chess.pieces.Queen({  color: "white", board: board, field: board.fields.d1 });
+			new chess.pieces.Pawn({ color: "white", board: board, field: board.fields.e2 }); new chess.pieces.King({   color: "white", board: board, field: board.fields.e1 });
+			new chess.pieces.Pawn({ color: "white", board: board, field: board.fields.f2 }); new chess.pieces.Bishop({ color: "white", board: board, field: board.fields.f1 });
+			new chess.pieces.Pawn({ color: "white", board: board, field: board.fields.g2 }); new chess.pieces.Knight({ color: "white", board: board, field: board.fields.g1 });
+			new chess.pieces.Pawn({ color: "white", board: board, field: board.fields.h2 }); new chess.pieces.Rook({   color: "white", board: board, field: board.fields.h1 });
+			
+			// Black pieces in stating position
+			new chess.pieces.Pawn({ color: "black", board: board, field: board.fields.a7 }); new chess.pieces.Rook({   color: "black", board: board, field: board.fields.a8 });
+			new chess.pieces.Pawn({ color: "black", board: board, field: board.fields.b7 }); new chess.pieces.Knight({ color: "black", board: board, field: board.fields.b8 });
+			new chess.pieces.Pawn({ color: "black", board: board, field: board.fields.c7 }); new chess.pieces.Bishop({ color: "black", board: board, field: board.fields.c8 });
+			new chess.pieces.Pawn({ color: "black", board: board, field: board.fields.d7 }); new chess.pieces.Queen({  color: "black", board: board, field: board.fields.d8 });
+			new chess.pieces.Pawn({ color: "black", board: board, field: board.fields.e7 }); new chess.pieces.King({   color: "black", board: board, field: board.fields.e8 });
+			new chess.pieces.Pawn({ color: "black", board: board, field: board.fields.f7 }); new chess.pieces.Bishop({ color: "black", board: board, field: board.fields.f8 });
+			new chess.pieces.Pawn({ color: "black", board: board, field: board.fields.g7 }); new chess.pieces.Knight({ color: "black", board: board, field: board.fields.g8 });
+			new chess.pieces.Pawn({ color: "black", board: board, field: board.fields.h7 }); new chess.pieces.Rook({   color: "black", board: board, field: board.fields.h8 });
+			
+			// Because we want to do some debugging we will attach ourselfs to the game object
+			// and log all the events.
+				
+			var placed    = game.on( "placed",    function( ){ console.log( "Game#onPlaced ( " + chess_timer( ) + "ms )::", arguments ); } ),
+				moved     = game.on( "moved",     function( ){ console.log( "Game#onMoved ( " + chess_timer( ) + "ms )::", arguments ); } ),
+				check     = game.on( "check",     function( ){ console.log( "Game#onCheck ( " + chess_timer( ) + "ms )::", arguments ); } ),
+				staleMate = game.on( "staleMate", function( ){ console.log( "Game#onStaleMate ( " + chess_timer( ) + "ms )::", arguments ); } ),
+				checkMate = game.on( "checkMate", function( ){ console.log( "Game#onCheckMate ( " + chess_timer( ) + "ms )::", arguments ); } ),
+				surrender = game.on( "surrender", function( ){ console.log( "Game#onSurrender ( " + chess_timer( ) + "ms )::", arguments ); } ),
+				start     = game.on( "start",     function( ){ console.log( "Game#onStart ( " + chess_timer( ) + "ms )::", arguments ); } ),
+				draw      = game.on( "draw",      function( ){ console.log( "Game#onDraw ( " + chess_timer( ) + "ms )::", arguments ); } ),
+				end       = game.on( "end",       function( ){ console.log( "Game#onEnd ( " + chess_timer( ) + "ms )::", arguments ); } ),
+				playerJoin  = game.on( "playerJoin",  function( ){ console.log( "Game#onPlayerJoin ( " + chess_timer( ) + "ms )::", arguments ); } ),
+				playerLeave = game.on( "playerLeave", function( ){ console.log( "Game#onPlayerLeaver ( " + chess_timer( ) + "ms )::", arguments ); } );
+							
+			dojo.ready( function( ){
+				var button = new Button({ 
+						id: "button",
+						label: "Start game" 
+					});		
+									
+				dojo.place( dojo.toDom( Renderer.render( board ) ), dojo.byId( "board-container" ) );
+				dojo.place( button.get( "domNode" ), dojo.byId( "button-container" ) );
+				
+				button.startup( );
+				
+				// The players need the button to be properly intialized... Buh.. not neat but it works.
+				bPlayer = new BlockingRandom({ color: "black", game: game });
+				wPlayer = new BlockingRandom({ color: "white", game: game });
+				
+				game.start( );
+				
+			});
+			
+			
+		});
+		
+	</script>
+
+</body>
+
+</html>

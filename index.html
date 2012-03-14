@@ -1,0 +1,55 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+
+<!--
+	Attributions, credit and copyright
+	
+	Copyright (C) 2012 André jr Steenveld all rights reserved
+	
+	Libaries and other sources used:
+		- Dojo toolkit under the new BSD license http://bugs.dojotoolkit.org/browser/dojo/trunk/LICENSE
+		- ES5 shim under https://github.com/kriskowal/es5-shim/blob/master/LICENSE
+-->
+
+<head>
+	<link rel="stylesheet" type="text/css" href="./style/style.css"></link>
+	<style type="text/css">
+		body { 
+			overflow: auto; 
+			padding: 1em 1em 1em 1em;	
+		}
+	</style>
+</head>
+
+<body class="claro chess">
+
+	<script type="text/javascript">
+		dojoConfig = {
+			async:       true,
+			parseOnLoad: false,
+			
+			packages: [
+				{ name: "lib",    location: "../../lib" },
+				{ name: "chess",  location: "../../chess" }
+			],
+						
+			trace: {
+				// these are listed so it's simple to turn them on/off while debugging loading
+				"loader-inject":1,
+				"loader-define":0,
+				"loader-exec-module":0,
+				"loader-run-factory":0,
+				"loader-finish-exec":0,
+				"loader-define-module":0
+			}
+		};
+	</script>	
+	
+	<script type="text/javascript" src="./script/lib/es5.js"></script>
+	<script type="text/javascript" src="./script/dojo171/dojo/dojo.js"></script>
+	<script type="text/javascript">
+		//require([ "lib" ], function( lib ){ console.log( "lib ::", lib ); } );
+		require([ "chess" ], function( chess ){ console.log( "chess ::", chess ); } );	
+	</script>
+</body>
+</html>
