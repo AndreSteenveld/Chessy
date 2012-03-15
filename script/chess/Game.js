@@ -83,23 +83,23 @@ define( [ ".", "lib" ], function( chess, lib ){
 			}]);
 		},
 		
-		onMoved: function( _moved_ ){ 
+		onMoved: function( _moved_ ){ 			
 			// If we don't have players it can't be a move so lets ignore it..
 			if( !this.white || !this.black ){ return; }
 			
 			var color = this.turn( );
-						
+
 			if( this.board.isStaleMate( color ) ){
 			
 				this[ this.color ].staleMates.onIdle( this[ this.color ] );
 				this.emit.onIdle( this, [ "Draw" ] );				
 				
-			} else if( this.isCheckMate( color ) ){
+			} else if( this.board.isCheckMate( color ) ){
 				
 				this[ color ].mates.onIdle( this[ color ] );
 				this.emit.onIdle( this, [ "CheckMate", { color: color } ] );
 							
-			} else if( this.isCheck( color ) ){
+			} else if( this.board.isCheck( color ) ){
 				
 				this[ color ].checked.onIdle( this[ color ] );
 				this.emit.onIdle( this, [ "Check", { color: color } ] );

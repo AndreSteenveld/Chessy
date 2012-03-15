@@ -93,10 +93,7 @@
 
 						lib.aspect.around( this, "turn", 
 							Function.bind( this, function( original_turn ){
-								console.log( "Being called for player ::", this.color );
 								return Function.bind( this, function( ){							
-									
-									console.log( "The turn is actually being called ::", this.color );
 									
 									var button = dijit.byId( "button" ),
 										turn   = original_turn.bind( this, arguments );
@@ -120,7 +117,6 @@
 				});
 						
 			board = new chess.board.Board( );
-			game  = new chess.Game({ board: board });
 			
 			// White pieces in starting position
 			new chess.pieces.Pawn({ color: "white", board: board, field: board.fields.a2 }); new chess.pieces.Rook({   color: "white", board: board, field: board.fields.a1 });
@@ -142,20 +138,22 @@
 			new chess.pieces.Pawn({ color: "black", board: board, field: board.fields.g7 }); new chess.pieces.Knight({ color: "black", board: board, field: board.fields.g8 });
 			new chess.pieces.Pawn({ color: "black", board: board, field: board.fields.h7 }); new chess.pieces.Rook({   color: "black", board: board, field: board.fields.h8 });
 			
+			game  = new chess.Game({ board: board });
+			
 			// Because we want to do some debugging we will attach ourselfs to the game object
 			// and log all the events.
 				
-			var placed    = game.on( "placed",    function( ){ console.log( "Game#onPlaced ( " + chess_timer( ) + "ms )::", arguments ); } ),
-				moved     = game.on( "moved",     function( ){ console.log( "Game#onMoved ( " + chess_timer( ) + "ms )::", arguments ); } ),
-				check     = game.on( "check",     function( ){ console.log( "Game#onCheck ( " + chess_timer( ) + "ms )::", arguments ); } ),
-				staleMate = game.on( "staleMate", function( ){ console.log( "Game#onStaleMate ( " + chess_timer( ) + "ms )::", arguments ); } ),
-				checkMate = game.on( "checkMate", function( ){ console.log( "Game#onCheckMate ( " + chess_timer( ) + "ms )::", arguments ); } ),
-				surrender = game.on( "surrender", function( ){ console.log( "Game#onSurrender ( " + chess_timer( ) + "ms )::", arguments ); } ),
-				start     = game.on( "start",     function( ){ console.log( "Game#onStart ( " + chess_timer( ) + "ms )::", arguments ); } ),
-				draw      = game.on( "draw",      function( ){ console.log( "Game#onDraw ( " + chess_timer( ) + "ms )::", arguments ); } ),
-				end       = game.on( "end",       function( ){ console.log( "Game#onEnd ( " + chess_timer( ) + "ms )::", arguments ); } ),
-				playerJoin  = game.on( "playerJoin",  function( ){ console.log( "Game#onPlayerJoin ( " + chess_timer( ) + "ms )::", arguments ); } ),
-				playerLeave = game.on( "playerLeave", function( ){ console.log( "Game#onPlayerLeaver ( " + chess_timer( ) + "ms )::", arguments ); } );
+			var placed    = game.on( "Placed",    function( ){ console.log( "Game#onPlaced ( " + chess_timer( ) + "ms )::", arguments ); } ),
+				moved     = game.on( "Moved",     function( ){ console.log( "Game#onMoved ( " + chess_timer( ) + "ms )::", arguments ); } ),
+				check     = game.on( "Check",     function( ){ console.log( "Game#onCheck ( " + chess_timer( ) + "ms )::", arguments ); } ),
+				staleMate = game.on( "StaleMate", function( ){ console.log( "Game#onStaleMate ( " + chess_timer( ) + "ms )::", arguments ); } ),
+				checkMate = game.on( "CheckMate", function( ){ console.log( "Game#onCheckMate ( " + chess_timer( ) + "ms )::", arguments ); } ),
+				surrender = game.on( "Surrender", function( ){ console.log( "Game#onSurrender ( " + chess_timer( ) + "ms )::", arguments ); } ),
+				start     = game.on( "Start",     function( ){ console.log( "Game#onStart ( " + chess_timer( ) + "ms )::", arguments ); } ),
+				draw      = game.on( "Draw",      function( ){ console.log( "Game#onDraw ( " + chess_timer( ) + "ms )::", arguments ); } ),
+				end       = game.on( "End",       function( ){ console.log( "Game#onEnd ( " + chess_timer( ) + "ms )::", arguments ); } ),
+				playerJoin  = game.on( "PlayerJoin",  function( ){ console.log( "Game#onPlayerJoin ( " + chess_timer( ) + "ms )::", arguments ); } ),
+				playerLeave = game.on( "PlayerLeave", function( ){ console.log( "Game#onPlayerLeaver ( " + chess_timer( ) + "ms )::", arguments ); } );
 							
 			dojo.ready( function( ){
 				var button = new Button({ 
