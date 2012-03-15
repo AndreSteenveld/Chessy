@@ -27,13 +27,13 @@ define([ "..", ".", "lib", "./Piece" ], function( chess, pieces, lib, Piece ){
 				   this.board.fields[ this.x + 1 ]
 				&& this.board.fields[ this.x + 1 ][ this.y + 2 ].piece
 				&& this.board.fields[ this.x + 1 ][ this.y + 2 ].piece.color !== this.color
-				&& this.board.fields[ this.x + 1 ][ this.y + 2 ].piece.instanceOf( pieces.Pawn )
+				&& this.board.fields[ this.x + 1 ][ this.y + 2 ].piece.isInstanceOf( pieces.Pawn )
 				&& ( this.board.fields[ this.x + 1 ][ this.y + 2 ].piece.enPassant = this.board.fields[ this.x ][ this.y + 1 ] );
 				
 				   this.board.fields[ this.x - 1 ]
 				&& this.board.fields[ this.x - 1 ][ this.y + 2 ].piece
 				&& this.board.fields[ this.x - 1 ][ this.y + 2 ].piece.color !== this.color
-				&& this.board.fields[ this.x - 1 ][ this.y + 2 ].piece.instanceOf( pieces.Pawn )
+				&& this.board.fields[ this.x - 1 ][ this.y + 2 ].piece.isInstanceOf( pieces.Pawn )
 				&& ( this.board.fields[ this.x - 1 ][ this.y + 2 ].piece.enPassant = this.board.fields[ this.x ][ this.y + 1 ] );				
 			}
 			
