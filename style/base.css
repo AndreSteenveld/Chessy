@@ -1,12 +1,18 @@
+/*	Attributions, credit and copyright
+ *	
+ *	Copyright (C) 2012 André jr Steenveld all rights reserved
+ *	
+ *	Licensed under the MIT public license for the full license see the LICENSE file
+ *	
+ *	Libaries and other sources used:
+ *		- Dojo toolkit under the new BSD license http://bugs.dojotoolkit.org/browser/dojo/trunk/LICENSE
+ *		- ES5 shim under https://github.com/kriskowal/es5-shim/blob/master/LICENSE
+ */
+
 /* Utility classes */
 body{ overflow: hidden; }
 
 .dojoTabular { margin: 0 0 0 0; }
-
-.olControlScaleLine {
-	left: auto !important;	
-	right: 10px;
-}
 
 .hidden { display: none; }
 

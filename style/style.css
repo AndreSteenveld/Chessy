@@ -1,3 +1,15 @@
+/*	Attributions, credit and copyright
+ *	
+ *	Copyright (C) 2012 André jr Steenveld all rights reserved
+ *	
+ *	Licensed under the MIT public license for the full license see the LICENSE file
+ *	
+ *	Libaries and other sources used:
+ *		- Dojo toolkit under the new BSD license http://bugs.dojotoolkit.org/browser/dojo/trunk/LICENSE
+ *		- ES5 shim under https://github.com/kriskowal/es5-shim/blob/master/LICENSE
+ */
+
+
 @import "../script/dojo171/dojo/resources/dojo.css";
 
 /* If you are going to change the style, don't forget to change the class on <body> aswell! */

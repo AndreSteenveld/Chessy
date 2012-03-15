@@ -1,3 +1,8 @@
+/*
+ *	Copyright (C) 2012 André jr Steenveld all rights reserved
+ *	Licensed under the MIT public license for the full license see the LICENSE file
+ *
+ */
 define([ "dojo/string", "dojox/string/Builder"  ], function( String, StringBuilder ){
 
 	var WHITE_PIECES = { "Bishop": "&#9815;", "King": "&#9812;", "Knight": "&#9816;", "Pawn": "&#9817;", "Queen": "&#9813;", "Rook": "&#9814;" },
