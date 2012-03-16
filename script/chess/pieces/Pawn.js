@@ -16,10 +16,14 @@ define([ "..", ".", "lib", "./Piece" ], function( chess, pieces, lib, Piece ){
 		 
 		movement: function( ){
 			
-			var movement = [[ this.x, this.y + 1 ]];
+			var movement = [ ];			
 			
+			   this.board.fields[ this.x ][ this.y + 1 ] 
+			&& this.board.fields[ this.x ][ this.y + 1 ].piece === null
+			&& movement.push( [ this.x, this.y + 1 ] );
+						
 			// If we are on the second row we are aloud to move two fields
-			if( this.y === 1 ){
+			if( this.y === 1 && movement.length ){
 				movement.push( [ this.x, this.y + 2 ] );
 				
 				// Update the possible pawns that are looking to our traveling fields and update them

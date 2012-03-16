@@ -44,6 +44,24 @@ doh.register(
 			);
 		},
 		
+		pawn_blocked_line_of_sight: function( board, pieces ){
+			pieces.pawn = new chess.pieces.Pawn({
+				color: "white",
+				board: board,
+				field: board.fields.d2
+			});
+			
+			pieces.rook = new chess.pieces.Rook({
+				color: "white",
+				board: board,
+				field: board.fields.d3
+			});
+			
+			doh.t( !pieces.pawn.moves( ).length );
+				
+			
+		},
+		
 		knight_line_of_sight: function( board, pieces ){
 			pieces.knight = new chess.pieces.Knight({
 				color: "white",
