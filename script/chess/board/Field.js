@@ -56,7 +56,7 @@ define([ ".", "lib" ], function( board, lib ){
 			this.piece && this.board.removeFromPlay( this.piece );
 			this.piece = piece;
 			
-			this.piece.movement( ).forEach( function( field ){ field.looking.push( piece ); });
+			this.piece.moves( ).forEach( function( field ){ field.looking.push( piece ); });
 		},
 		
 		coordinates: function( color ){

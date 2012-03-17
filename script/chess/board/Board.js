@@ -95,7 +95,7 @@ define([
 			return this[ color + "PiecesInPlay" ].some( function( piece ){
 				
 				return piece.type === "King"
-					&& piece.movement( ).length
+					&& piece.moves( ).length
 					&& piece.attackedBy( ).length;
 				
 			});								
@@ -105,7 +105,7 @@ define([
 			return this[ color + "PiecesInPlay" ].some( function( piece ){
 				
 				return piece.type === "King"
-					&& !piece.movement( ).length
+					&& !piece.moves( ).length
 					&& piece.attackedBy( ).length;
 				
 			});			
@@ -115,8 +115,8 @@ define([
 			return this[ color + "PiecesInPlay" ].every( function( piece ){
 				
 				return piece.type === "King" 
-					? !piece.movement( ).length && !piece.attackedBy( ).length
-					: !piece.movement( ).length;
+					? !piece.moves( ).length && !piece.attackedBy( ).length
+					: !piece.moves( ).length;
 				
 			});
 		},

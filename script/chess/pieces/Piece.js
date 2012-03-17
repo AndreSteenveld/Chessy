@@ -190,8 +190,8 @@ define([ "..", ".", "lib" ], function( chess, pieces, lib ){
 					
 				}, [ ]);			
 		},		
-				
-		moves: function( ){ 
+		
+		looks: function( ){ 
 			return this.movement( ).filter( function( field ){ return field.piece === null; } ); 
 		},
 		
@@ -203,6 +203,11 @@ define([ "..", ".", "lib" ], function( chess, pieces, lib ){
 		covers: function( ){ 
 			var color = this.color;
 			return this.movement( ).filter( function( field ){ return field.piece && field.piece.color === color; } );	
+		},
+		
+		moves: function( ){
+			var color = this.color;	
+			return this.movement( ).filter( function( field ){ return field.piece === null || field.piece.color !== color; } );	
 		},
 		
 		//
