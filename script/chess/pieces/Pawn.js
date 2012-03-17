@@ -18,11 +18,13 @@ define([ "..", ".", "lib", "./Piece" ], function( chess, pieces, lib, Piece ){
 			
 			var movement = [ ];			
 			
+			// Check if we can move one field forward
 			   this.board.fields[ this.x ][ this.y + 1 ] 
 			&& this.board.fields[ this.x ][ this.y + 1 ].piece === null
 			&& movement.push( [ this.x, this.y + 1 ] );
 						
-			// If we are on the second row we are aloud to move two fields
+			// If we are on the second row we are aloud to move two fields but only
+			// if the field in front of us is not occupied.
 			if( this.y === 1 && movement.length ){
 				movement.push( [ this.x, this.y + 2 ] );
 				
