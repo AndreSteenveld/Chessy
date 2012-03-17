@@ -33,9 +33,9 @@ doh.register(
 		
 		check_mate: function( board, pieces ){ 
 			new chess.pieces.King({ color: "white", board: board, field: board.fields.a1 });
-			new chess.pieces.Pawn({ color: "white", board: board, field: board.fields.a2 });
-			
-			new chess.pieces.Queen({ color: "white", board: board, field: board.fields.c1 });
+
+			new chess.pieces.Rook({ color: "black", board: board, field: board.fields.c2 });
+			new chess.pieces.Rook({ color: "black", board: board, field: board.fields.c1 });
 			
 			doh.t( board.isCheckMate( "white" ) );
 			
