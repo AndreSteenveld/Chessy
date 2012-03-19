@@ -47,25 +47,29 @@ define([ "..", ".", "lib", "./Piece" ], function( chess, pieces, lib, Piece ){
 				   board[ 0 ][ 0 ].piece
 				&& board[ 0 ][ 0 ].piece.color === this.color
 				&& board[ 0 ][ 0 ].piece.type === "Rook"
-				&& [
-				       board[ 2 ][ 0 ],
-				       board[ 3 ][ 0 ]
-				   ].every( function( field ){
+				&& 
+					[
+						board[ 2 ][ 0 ],
+						board[ 3 ][ 0 ]
+					]
+					.every( function( field ){
 						return !field.piece
 							&& field.looking.every( function( piece ){ return piece.color === color; } );					
-				   })
+					})
 				&& fields.push( [ this.x - 2, this.y ] );
 				
 				   board[ 7 ][ 0 ].piece
 				&& board[ 7 ][ 0 ].piece.color === this.color
 				&& board[ 7 ][ 0 ].piece.type === "Rook"
-				&& [
-				       board[ 5 ][ 0 ],
-				       board[ 6 ][ 0 ]
-				   ].every( function( field ){
+				&& 
+					[
+						board[ 5 ][ 0 ],
+						board[ 6 ][ 0 ]
+					]
+					.every( function( field ){
 						return !field.piece
 							&& field.looking.every( function( piece ){ return piece.color === color; } );					
-				   })
+					})
 				&& fields.push( [ this.x + 2, this.y ] );
 				
 			}
