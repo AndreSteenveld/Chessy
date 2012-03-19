@@ -219,8 +219,92 @@ doh.register(
 			
 		},
 		
-		king_castleing: function( ){ doh.t( 0 ); },
-		king_not_castleing: function( ){ doh.t( 0 ); }
+		king_castleing: function( board, pieces ){ 			
+			pieces.king = new chess.pieces.King({ 
+				color: "white",
+				board: board,
+				field: board.fields.e1	
+			});
+			
+			pieces.lRook = new chess.pieces.Rook({ 
+				color: "white",
+				board: board,
+				field: board.fields.a1
+			});
+			
+			pieces.rRook = new chess.pieces.Rook({ 
+				color: "white",
+				board: board,
+				field: board.fields.h1	
+			});
+				
+			var moves = pieces.king.moves( );
+			
+			doh.t( -1 !== moves.indexOf( board.fields.c1 ) );
+			doh.t( -1 !== moves.indexOf( board.fields.g1 ) );
+		},
+		
+		king_not_castleing_becuase_checked: function( board, pieces ){
+			pieces.king = new chess.pieces.King({ 
+				color: "white",
+				board: board,
+				field: board.fields.e1	
+			});
+			
+			pieces.lRook = new chess.pieces.Rook({ 
+				color: "white",
+				board: board,
+				field: board.fields.a1
+			});
+			
+			pieces.rRook = new chess.pieces.Rook({ 
+				color: "white",
+				board: board,
+				field: board.fields.h1	
+			});
+			
+			pieces.queen = new chess.pieces.Queen({
+				color: "black",
+				board: board,
+				field: board.fields.e3				
+			});
+				
+			var moves = pieces.king.moves( );
+			
+			doh.t( -1 === moves.indexOf( board.fields.c1 ) );
+			doh.t( -1 === moves.indexOf( board.fields.g1 ) );			
+		},
+		
+		king_not_castleing_becuase_looking_apponent: function( board, pieces ){
+			pieces.king = new chess.pieces.King({ 
+				color: "white",
+				board: board,
+				field: board.fields.e1	
+			});
+			
+			pieces.lRook = new chess.pieces.Rook({ 
+				color: "white",
+				board: board,
+				field: board.fields.a1
+			});
+			
+			pieces.rRook = new chess.pieces.Rook({ 
+				color: "white",
+				board: board,
+				field: board.fields.h1	
+			});
+			
+			pieces.queen = new chess.pieces.Bishop({
+				color: "black",
+				board: board,
+				field: board.fields.e3				
+			});
+				
+			var moves = pieces.king.moves( );
+			
+			doh.t( -1 === moves.indexOf( board.fields.c1 ) );
+			doh.t( -1 === moves.indexOf( board.fields.g1 ) );			
+		}
 		
 	})
 	
