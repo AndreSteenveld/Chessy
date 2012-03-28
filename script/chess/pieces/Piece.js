@@ -235,6 +235,16 @@ define([ "..", ".", "lib" ], function( chess, pieces, lib ){
 			var isLegal = possibleFields.indexOf( toField ) !== -1;
 						
 			if( isLegal ){
+				// Hitting other pawns en passant is only a valid move for the move
+				// direcly after the oppertunity arrises. On all the next turns 
+				// we need to make sure we can't.
+				this.board[ this.color + "PiecesInPlay" ].forEach( function( piece ){
+					piece.type === "Pawn" && ( piece.enPassant = [ ] );					
+				});
+				
+				// Now we we will leave our current field, update it and then update
+				// ourselfs with the coordinates. Use the field.occupy and field.leave
+				// methods because events could be bound to it.
 				this.field.leave( this );
 				
 				toField.occupy( this );

@@ -46,6 +46,17 @@ define([ ".", "lib" ], function( board, lib ){
 					
 				});	
 				
+				if( piece.type === "Pawn" && piece.enPassant ){
+				
+					piece.enPassant.forEach( function( field ){
+					
+						var index = field.looking.indexOf( piece );
+						field.looking.splice( index, 1 );					
+					
+					});
+					
+				}
+				
 				// And were out of here...
 				this.piece = null;
 				
@@ -57,6 +68,10 @@ define([ ".", "lib" ], function( board, lib ){
 			this.piece = piece;
 			
 			this.piece.moves( ).forEach( function( field ){ field.looking.push( piece ); });
+			
+			this.piece.enPassant && this.piece.enPassant.forEach( function( field ){
+				field.looking.push( piece );				
+			});
 		},
 		
 		coordinates: function( color ){

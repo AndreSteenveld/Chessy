@@ -62,6 +62,25 @@ doh.register(
 			
 		},
 		
+		pawn_enpassant: function( board, pieces ){
+			pieces.bPawn = new chess.pieces.Pawn({
+				color: "black",
+				board: board,
+				field: board.fields.a5
+			});
+			
+			pieces.wPawn = new chess.pieces.Pawn({
+				color: "white",
+				board: board,
+				field: board.fields.b5,
+				
+				enPassant: [ bPawn ]
+			});
+			
+			doh.t( -1 !== pieces.bPawn.attackedBy( ).indexOf( pieces.wPawn ), "Black pawn is not being attacked by white pawn." );
+			doh.t( -1 !== pieces.wPawn.moves( ).indexOf( board.fields.a6 ), "White pawn can't move to A6." );			
+		},
+		
 		knight_line_of_sight: function( board, pieces ){
 			pieces.knight = new chess.pieces.Knight({
 				color: "white",
