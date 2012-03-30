@@ -23,7 +23,7 @@ define([ "..", ".", "lib", "./Piece" ], function( chess, pieces, lib, Piece ){
 		movement: function( ){
 			
 			var movement = [ ],
-				fields   = this.board.fields;			
+				fields   = this.board[ this.color ];			
 			
 			// Check if we can move one field forward
 			   fields[ this.x ][ this.y + 1 ] 
@@ -100,25 +100,67 @@ define([ "..", ".", "lib", "./Piece" ], function( chess, pieces, lib, Piece ){
 			// state is cleared in the Piece#move function.
 			this.inherited( arguments );
 			
-			if( coordinates.y === 4 ){
+			if( coordinates.y === 3 ){
 				//
 				// If we are moving to a field where is possible to get hit en passant we 
 				// will need to update our opponent. we update it with the field we are on.
 				//								
 				
-				   this.board[ coordinates.x - 1 ]
-				&& this.board[ coordinates.x - 1 ][ coordinates.y ].piece
-				&& this.board[ coordinates.x - 1 ][ coordinates.y ].piece.color !== this.color
-				&& this.board[ coordinates.x - 1 ][ coordinates.y ].piece.type === "Pawn"
-				&& ( this.board[ coordinates.x - 1 ][ coordinates.y ].piece.enPassant = toField );
+				if(    this.board[ this.color ][ coordinates.x - 1 ]
+					&& this.board[ this.color ][ coordinates.x - 1 ][ coordinates.y ].piece
+					&& this.board[ this.color ][ coordinates.x - 1 ][ coordinates.y ].piece.color !== this.color
+					&& this.board[ this.color ][ coordinates.x - 1 ][ coordinates.y ].piece.type === "Pawn"
+				){
+					this.board[ this.color ][ coordinates.x - 1 ][ coordinates.y ].piece.enPassant = toField;
+					toField.looking.push( this );
+				}
 				
-				   this.board[ coordinates.x + 1 ]
-				&& this.board[ coordinates.x + 1 ][ coordinates.y ].piece
-				&& this.board[ coordinates.x + 1 ][ coordinates.y ].piece.color !== this.color
-				&& this.board[ coordinates.x + 1 ][ coordinates.y ].piece.type === "Pawn"
-				&& ( this.board[ coordinates.x + 1 ][ coordinates.y ].piece.enPassant = toField );
-
+				if(    this.board[ this.color ][ coordinates.x + 1 ]
+					&& this.board[ this.color ][ coordinates.x + 1 ][ coordinates.y ].piece
+					&& this.board[ this.color ][ coordinates.x + 1 ][ coordinates.y ].piece.color !== this.color
+					&& this.board[ this.color ][ coordinates.x + 1 ][ coordinates.y ].piece.type === "Pawn"
+				){
+					this.board[ this.color ][ coordinates.x + 1 ][ coordinates.y ].piece.enPassant = toField;
+					toField.looking.push( this );
+				}
 			}			
+		},
+		
+		attackedBy: function( ){
+			var attackedBy  = this.inherited( arguments ),
+				coordinates = null;	
+			
+			// Ok, figure out if we are being attacked by some en passant pawns next to us.
+			if( this.y === 3 ){
+				//
+				// If we are moving to a field where is possible to get hit en passant we 
+				// will need to update our opponent. we update it with the field we are on.
+				//								
+			
+				if(    this.board[ this.color ][ this.x - 1 ]
+					&& this.board[ this.color ][ this.x - 1 ][ this.y ].piece
+					&& this.board[ this.color ][ this.x - 1 ][ this.y ].piece.enPassant
+				){
+					coordinates = this.board[ this.color ][ this.x - 1 ][ this.y ].piece.enPassant.coordinates( this.color );
+					
+					   this.x === coordinates.x
+					&& this.y === coordinates.y
+					&& attackedBy.push( this.board[ this.color ][ this.x - 1 ][ this.y ].piece );
+				}
+			
+				if(    this.board[ this.color ][ this.x + 1 ]
+					&& this.board[ this.color ][ this.x + 1 ][ this.y ].piece
+					&& this.board[ this.color ][ this.x + 1 ][ this.y ].piece.enPassant
+				){
+					coordinates = this.board[ this.color ][ this.x + 1 ][ this.y ].piece.enPassant.coordinates( this.color );
+					
+					   this.x === coordinates.x
+					&& this.y === coordinates.y
+					&& attackedBy.push( this.board[ this.color ][ this.x + 1 ][ this.y ].piece );
+				}
+			}
+			
+			return attackedBy;			
 		}
 		
 	});

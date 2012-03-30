@@ -80,9 +80,42 @@ doh.register(
 			doh.is( 1, board.piecesOutOfPlay.length, "There are [ " + board.piecesOutOfPlay.length + " ] out of play" );
 		},
 		
+		pawn_moveing_into_en_passant: function( board, pieces ){
+			
+			pieces.bPawn = new chess.pieces.Pawn({
+				color: "black",
+				board: board,
+				field: board.fields.a7
+			});
+			
+			pieces.wPawn = new chess.pieces.Pawn({
+				color: "white",
+				board: board,
+				field: board.fields.b5
+			});
+			
+			pieces.bPawn.move( board.fields.a5 );
+			
+			doh.t( -1 !== pieces.bPawn.attackedBy( ).indexOf( pieces.wPawn ), "Black pawn is not being attacked by white pawn." );
+			doh.t( -1 !== pieces.wPawn.moves( ).indexOf( board.fields.a6 ), "White pawn can't move to A6." );
+			
+		},
+		
 		pawn_promotion: function( board, pieces ){
 			
-			throw "Test not implementd";
+			throw "Test not implemented";
+			
+		},
+		
+		king_castleing: function( board, pieces ){
+			
+			throw "Test not implemented";	
+		},
+		
+		king_not_castlering_because_it_already_did: function( board, pieces ){
+			
+			
+			throw "Test not implemented"; 
 			
 		}
 	})
