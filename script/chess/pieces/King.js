@@ -10,8 +10,12 @@ define([ "..", ".", "lib", "./Piece" ], function( chess, pieces, lib, Piece ){
 		
 		castled: false,
 		
+		// Just like the pawn we want to do some king specific intialization first
+		// and then hand it on onto the Piece#constructor
+		"-chains-": { constructor: "manual" },		
 		constructor: function( _king_ ){
 			"castled" in _king_ && ( this.castled = _king_.castled );
+			this.inherited( arguments );
 		},
 		
 		movement: function( ){
