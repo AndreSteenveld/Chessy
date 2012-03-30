@@ -69,9 +69,7 @@ define([ ".", "lib" ], function( board, lib ){
 			
 			this.piece.moves( ).forEach( function( field ){ field.looking.push( piece ); });
 			
-			this.piece.enPassant && this.piece.enPassant.forEach( function( field ){
-				field.looking.push( piece );				
-			});
+			this.piece.enPassant && this.piece.enPassant.looking.push( piece );
 		},
 		
 		coordinates: function( color ){

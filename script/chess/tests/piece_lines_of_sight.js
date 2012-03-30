@@ -74,7 +74,7 @@ doh.register(
 				board: board,
 				field: board.fields.b5,
 				
-				enPassant: [ bPawn ]
+				enPassant: board.fields.a5
 			});
 			
 			doh.t( -1 !== pieces.bPawn.attackedBy( ).indexOf( pieces.wPawn ), "Black pawn is not being attacked by white pawn." );
@@ -226,7 +226,7 @@ doh.register(
 					/* north */ board.fields.d5,
 					/* south */ board.fields.d3,
 					/* east  */ board.fields.e4,
-					/* west  */ board.fields.c4,
+					/* west  */ board.fields.c4
 				]
 				.every( function( field ){
 					

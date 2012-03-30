@@ -16,7 +16,7 @@ define([ "..", ".", "lib", "./Piece" ], function( chess, pieces, lib, Piece ){
 		// we do Piece#constructor
 		"-chains-": { constructor: "manual" },
 		constructor: function( _pawn_ ){
-			this.enPassant = "enPassant" in _pawn_ ? _pawn_.enPassant : [ ];
+			"enPassant" in _pawn_ && ( this.enPassant = _pawn_.enPassant );
 			this.inherited( arguments );
 		},
 		 
@@ -71,20 +71,18 @@ define([ "..", ".", "lib", "./Piece" ], function( chess, pieces, lib, Piece ){
 			// Check if we can hit an opponent en passant, if so add the diagonal fields even though
 			// they are empty. They will not be added by the attack pieces because they are empty
 			// otherwise the pawn we are attacking en passant couldn't have passed the field legally.
-			//this.enPassant && movement.push.apply( movement, 
-			//	this.enPassant.map( function( field ){
-			//		return fields[ field.x ][ field.y + 1 ];
-			//	})
-			//);
+			if( this.enPassant ){
+				var coordinates = this.enPassant.coordinates( this.color );
+				movement.push( [ coordinates.x, coordinates.y + 1 ] );				
+			}
 			
-			return this.inherited( arguments, [ movement ] );
-			
+			return this.inherited( arguments, [ movement ] );			
 		},
 		
 		move: function( toField ){
 			var coordinates    = toField.coordinates( this.color ),
 				enPassantPiece = null;
-			
+						
 			   coordinates.y === this.y + 1 
 			&& toField.piece === null
 			&& ( enPassantPiece = this.board[ this.x ][ this.y + 1 ].piece );
@@ -98,33 +96,29 @@ define([ "..", ".", "lib", "./Piece" ], function( chess, pieces, lib, Piece ){
 				enPassantPiece.board.removeFromPlay( enPassantPiece );
 			}
 			
+			// We will do the actual move first and then update our opponents, the en passant
+			// state is cleared in the Piece#move function.
+			this.inherited( arguments );
+			
 			if( coordinates.y === 4 ){
-				// We are moving two fields, this means we will have to check if we
-				// are going to be attacked by a pawn from the opponent by en passant.
 				//
-				// This will be done by checking for the following conditions
-				// 1. Is there a piece left/righ of us
-				// 2. Is it an not my colour
-				// 3. Is it a pawn
-				// 
-				// If these conditions are met we will add ourselfs to the en passant 
-				// list of the opponent pawn. 
+				// If we are moving to a field where is possible to get hit en passant we 
+				// will need to update our opponent. we update it with the field we are on.
+				//								
 				
 				   this.board[ coordinates.x - 1 ]
 				&& this.board[ coordinates.x - 1 ][ coordinates.y ].piece
 				&& this.board[ coordinates.x - 1 ][ coordinates.y ].piece.color !== this.color
 				&& this.board[ coordinates.x - 1 ][ coordinates.y ].piece.type === "Pawn"
-				&& this.board[ coordinates.x - 1 ][ coordinates.y ].enPassant.push( this );
+				&& ( this.board[ coordinates.x - 1 ][ coordinates.y ].piece.enPassant = toField );
 				
 				   this.board[ coordinates.x + 1 ]
 				&& this.board[ coordinates.x + 1 ][ coordinates.y ].piece
 				&& this.board[ coordinates.x + 1 ][ coordinates.y ].piece.color !== this.color
 				&& this.board[ coordinates.x + 1 ][ coordinates.y ].piece.type === "Pawn"
-				&& this.board[ coordinates.x + 1 ][ coordinates.y ].enPassant.push( this );
+				&& ( this.board[ coordinates.x + 1 ][ coordinates.y ].piece.enPassant = toField );
 
-			}
-			
-			this.inherited( arguments );
+			}			
 		}
 		
 	});

@@ -239,7 +239,7 @@ define([ "..", ".", "lib" ], function( chess, pieces, lib ){
 				// direcly after the oppertunity arrises. On all the next turns 
 				// we need to make sure we can't.
 				this.board[ this.color + "PiecesInPlay" ].forEach( function( piece ){
-					piece.type === "Pawn" && ( piece.enPassant = [ ] );					
+					piece.type === "Pawn" && ( piece.enPassant = null );					
 				});
 				
 				// Now we we will leave our current field, update it and then update
