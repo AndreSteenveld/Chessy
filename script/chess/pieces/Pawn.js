@@ -85,11 +85,11 @@ define([ "..", ".", "lib", "./Piece" ], function( chess, pieces, lib, Piece ){
 						
 			   coordinates.y === this.y + 1 
 			&& toField.piece === null
-			&& ( enPassantPiece = this.board[ this.x ][ this.y + 1 ].piece );
+			&& ( enPassantPiece = this.board[ this.color ][ this.x ][ this.y + 1 ].piece );
 				
 			   coordinates.y === this.y - 1 
 			&& toField.piece === null
-			&& ( enPassantPiece = this.board[ this.x ][ this.y - 1 ].piece );
+			&& ( enPassantPiece = this.board[ this.color ][ this.x ][ this.y - 1 ].piece );
 						
 			if( enPassantPiece ){ 
 				enPassantPiece.field.leave( enPassantPiece );
