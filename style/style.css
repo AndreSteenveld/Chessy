@@ -49,19 +49,19 @@ td.name-cell {
 
 .board td.color-white { background-color: #FFF; }
 
-.board td.color-black.piece-white { 
-	color: #FFF;
-	font-weight: bolder;
-}
-
-.board td.color-black.piece-black {
-	text-shadow: -.5px .5px 0px #FFF, .5px -.5px 0px #FFF, -.5px -.5px 0px #FFF, .5px .5px 0px #FFF;
-}
-
 .board td.color-white.piece-white,
-.board td.color-black.piece-black { 
-	color: #000; 
+.board td.color-black.piece-white { 
+	color: #999;
+	font-weight: bold;
 }
+
+.board td.color-white.piece-black,
+.board td.color-black.piece-black {
+	/* text-shadow: -.5px .5px 0px #FFF, .5px -.5px 0px #FFF, -.5px -.5px 0px #FFF, .5px .5px 0px #FFF; */
+	color: #900;
+	font-weight: bold;
+}
+
 
 .board td.highlight {
 	border: 5px solid #F00;	
