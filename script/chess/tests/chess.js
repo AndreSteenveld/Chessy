@@ -19,6 +19,7 @@ define([ ], function( ){
 		require( [ "chess/tests/piece_lines_of_sight" ], function( ){ console.info( "Completed line of sight tests (" + ( ( new Date( ) ).getTime( ) - start ) + "ms)" ); } );
 		require( [ "chess/tests/piece_movement" ], function( ){ console.info( "Completed movement tests (" + ( ( new Date( ) ).getTime( ) - start ) + "ms)" ); } );
 		require( [ "chess/tests/board" ], function( ){ console.info( "Completed board tests (" + ( ( new Date( ) ).getTime( ) - start ) + "ms)" ); } );
+		require( [ "chess/tests/game" ], function( ){ console.info( "Completed game tests (" + ( ( new Date( ) ).getTime( ) - start ) + "ms)" ); } );
 	
 	
 	} catch( exception ){

@@ -14,9 +14,11 @@ define([
 	"dojo/aspect", 
 	"dojo/Evented",
 	
+	"dojo/DeferredList",
+	
 	"./Function" /*jsl:import ./lib/Function.js*/
 	
-], function( lib, lang, declare, Deferred, topic, aspect, Evented ){
+], function( lib, lang, declare, Deferred, topic, aspect, Evented, DeferredList ){
 	//
 	// Some functionality we need in the chess engine. To ensure we stay library independent it is
 	// all required in here. So if for some reason we need to strip dojo away we only need to add
@@ -26,7 +28,9 @@ define([
 	lang.mixin( lib, lang );
 	lang.mixin( lib, {
 		declare  : declare,
-		Deferred : Deferred,
+		
+		Deferred     : Deferred,
+		DeferredList : DeferredList,
 		
 		subscribe : topic.subscribe,
 		publish   : topic.publish,
