@@ -27,10 +27,10 @@ define( [ ".", "lib" ], function( chess, lib ){
 				})
 			);
 						
-			_game_.white && _game_.white.join( this, "white" );
-			_game_.black && _game_.black.join( this, "black" );
+			"white" in _game_ && _game_.white.join( this, "white" );
+			"black" in _game_ && _game_.black.join( this, "black" );			
 			
-			_game_.color && ( this.color = _game_.color );
+			"color" in _game_ && ( this.color = _game_.color );
 		},
 		
 		turn: function( ){ 
@@ -40,9 +40,20 @@ define( [ ".", "lib" ], function( chess, lib ){
 		},
 		
 		start: function( ){
-			this.color || this.turn( );			
-			this.emit.onIdle( this, [ "start", { color: this.color } ] );
-			this[ this.color ].turn.onIdle( this[ this.color ] );
+			if(
+				   this.white && this.white.isInstanceOf( chess.Player )
+				&& this.black && this.black.isInstanceOf( chess.Player )				
+			){
+				
+				this.color || this.turn( );			
+				this.emit.onIdle( this, [ "Start", { color: this.color } ] );
+				this[ this.color ].turn.onIdle( this[ this.color ] );
+				
+			} else {
+				
+				console.warn( "Game#start :: Not enough players to start the game" );
+				
+			}
 		},
 		
 		end: function( conditions ){

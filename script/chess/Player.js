@@ -15,8 +15,8 @@ define( [ ".", "lib" ], function( chess, lib ){
 		board: null,
 		
 		constructor: function( _player_ ){ 
-			_player_.color && ( this.color = _player_.color );
-			_player_.game && this.join( _player_.game );		
+			"color" in _player_ && ( this.color = _player_.color );
+			"game" in _player_ && this.join( _player_.game );		
 		},
 		
 		//

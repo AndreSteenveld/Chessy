@@ -57,8 +57,8 @@ doh.register(
 				
 			game.on( "PlayerJoin", function( playerJoined ){
 				playerJoined.color === "white"
-					? wPlayerAdded.resolve( )
-					: bPlayerAdded.resolve( );
+					? wPlayerAdded.resolve( true )
+					: bPlayerAdded.resolve( true );
 			});
 			
 			game.join( wPlayer, "white" );
@@ -67,11 +67,103 @@ doh.register(
 			return playersAdded;
 		},
 		
+		intially_starting_a_game: function( ){
+			var board   = setup_board( ),
+				wPlayer = new chess.Player({ color: "white" }),
+				bPlayer = new chess.Player({ color: "black" }),
+				game    = new chess.Game({
+						board: board,
+						white: wPlayer,
+						black: bPlayer					
+					});
+					
+			var result = new lib.Deferred( );
+					
+			game.on( "Start", function( _start_ ){
+				
+				"color" in _start_ && _start_.color === "white"
+					? result.resolve( true )
+					: result.reject( new doh._AssertFailure( "The starting color was not white" ) );
+				
+			});
+			
+			game.start( );
+			
+			return result;
+		},
+		
+		starting_the_game_with_black_on_move: function( ){
+			var board   = setup_board( ),
+				wPlayer = new chess.Player({ color: "white" }),
+				bPlayer = new chess.Player({ color: "black" }),
+				game    = new chess.Game({
+						board: board,
+						white: wPlayer,
+						black: bPlayer,
+						
+						color: "black"
+					});
+					
+			var result = new lib.Deferred( );
+			
+			game.on( "Start", function( _start_ ){
+				
+				"color" in _start_ && _start_.color === "black"
+					? result.resolve( true )
+					: result.reject( new doh._AssertFailure( "The starting color was not black" ) );
+				
+			});
+			
+			game.start( );
+			
+			return result;			
+		},
+		
 		making_a_move: function( ){
 			
-			throw "Test not implemented correctly";
+			var board   = setup_board( ),
+				wPlayer = new chess.Player({ color: "white" }),
+				bPlayer = new chess.Player({ color: "black" }),
+				game    = new chess.Game({
+						board: board,
+						white: wPlayer,
+						black: bPlayer					
+					});
 			
-		}	
+			var result = new lib.Deferred( );
+			
+			game.start( );
+			
+			//lib.on( wPlayer, wPlayer.turn, function( ){ result.resolve( true ); } );
+			
+			board.fields.d2.piece.move( board.fields.d3 );
+			
+			return result;
+			
+		},
+		
+		making_an_illegal_move: function( ){
+			
+			var board   = setup_board( ),
+				wPlayer = new chess.Player({ color: "white" }),
+				bPlayer = new chess.Player({ color: "black" }),
+				game    = new chess.Game({
+						board: board,
+						white: wPlayer,
+						black: bPlayer					
+					});
+			
+			var result = new lib.Deferred( );	
+			
+			game.start( );
+			
+			//lib.on( bPlayer, bPlayer.turn, function( ){ result.reject( "Move was illegal, black" ); } );
+			//lib.on( wPlayer, wPlayer.turn, function( ){ result.reject( "Move was illegal, white" ); } );
+			
+			board.fields.d7.piece.move( board.fields.d6 );
+			
+			return result;
+		}
 		
 	}
 );
