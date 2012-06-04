@@ -7,7 +7,7 @@ define( [ ".", "lib" ], function( chess, lib ){
 
 	chess.Player = lib.declare( [ ], {
 		
-		_gameEvents: null,
+		handles: null,
 		
 		game: null,
 		
@@ -18,6 +18,91 @@ define( [ ".", "lib" ], function( chess, lib ){
 			"color" in _player_ && ( this.color = _player_.color );
 			"game" in _player_ && this.join( _player_.game );		
 		},
+		
+		//
+		// Player methods
+		// 
+		join: function( game, color ){ 
+
+			if( ( this.color = game.join( this, this.color ) ) ){
+				
+				this.game  = game;
+				this.board = game.board;
+				
+				this.handles = {
+					//
+					// General game events
+					//
+					start: game.on( "Start", this.started.bind( this ) ),
+					draw:  game.on( "Draw",  this.draw.bind( this ) ),
+					
+					end: game.on( "End", 
+						Function.bind( this, function( _end_ ){
+						
+							// The game doesn't do all the triggering of events, its more a general thing
+							// so if we want to fire win/lose events and then the more general end event 
+							// we will have to do a little event routing of our own.
+							if( _end_.result === "check mate" || _end_.result === "surrender" ){
+								
+								_end_.winner === this
+									? this.win.onIdle( this ).then( this.ended.bind( this, [ _end_ ] ) )
+									: this.lose.onIdle( this ).then( this.ended.bind( this, [ _end_ ] ) )
+									
+							} else { // This is a stale mate, a draw or 3 board repetition
+								
+								this.ended.onIdle( this, [ _end_ ] );
+								
+							}
+								
+						})
+					),
+					
+					//
+					// Event handlers involving the state on the board
+					//
+					staleMate: game.on( "StaleMate", this.staleMate.bind( this ) ),
+										
+					mate: game.on( "CheckMate", 
+						Function.bind( this, function( player ){
+							this === player && this.mates.onIdle( this );
+						}) 
+					),
+					
+					checked: game.on( "Check",
+						Function.bind( this, function( player ){
+							this === player && this.checked.onIdle( this );
+						})
+					),
+					
+					
+					
+					
+					
+				};		
+				
+			}		
+			
+		},
+		
+		leave: function( ){ 
+			this.game = null;
+			this.board = null;
+			
+			this.game.leave( this );			
+		},
+
+		//
+		// Handlers for general game events
+		//
+		started: function( ){ /* when the game has started */ },
+		
+		ended: function( ){ /* called when the game comes to an end */ },
+		
+		lose: function( ){ /* Called when the player loses */ },
+		
+		draw: function( ){ /* Called when the players have agreed on a draw */ },
+		
+		win: function( ){ /* Called when the player wins the game */ },
 		
 		//
 		// Actions involving the other player
@@ -37,47 +122,6 @@ define( [ ".", "lib" ], function( chess, lib ){
 		},
 		
 		//
-		// Game actions
-		//
-		lose: function( ){ /* Called when the player loses */ },
-		
-		draw: function( ){ /* Called when the players have agreed on a draw */ },
-		
-		win: function( ){ /* Called when the player wins the game */ },
-		
-		join: function( game, color ){ 
-			if( ( this.color = game.join( this, this.color ) ) ){
-				
-				this.game  = game;
-				this.board = game.board;
-				
-			}
-			
-			this._gameEvents = {
-				//turn: function( ){ /* when this player recieves the turn */ },
-		
-				placed: this.game.on( "placed", this.placed.bind( this ) ),
-				
-				moved: this.game.on( "moved", this.moved.bind( this ) ),
-				
-				started: this.game.on( "start", this.started.bind( this ) ),
-				
-				ended: this.game.on( "end", this.ended.bind( this ) )
-			};			
-		},
-		
-		leave: function( ){ 
-			Object.keys( this._gameEvents ).forEach( 
-				Function.bind( this._gameEvents, function( key ){ this[ key ].remove( ); } )
-			);
-			
-			this.game = null;
-			this.board = null;
-			
-			this.game.leave( this );			
-		},
-		
-		//
 		// Game event handlers
 		//
 		turn: function( ){ /* when this player recieves the turn */ },
@@ -86,15 +130,15 @@ define( [ ".", "lib" ], function( chess, lib ){
 		
 		moved: function( ){ /* when any player has moved a piece */ },
 		
-		started: function( ){ /* when the game has started */ },
-		
+		//
+		// Handlers for events after something happend to the player
+		//
 		checked: function( ){ /* Called when the other player checked you */ },
 		
 		mates: function( ){ /* Called when the other player mates you */ },
 		
-		staleMates: function( ){ /* Called when you are stale mated */ },
+		staleMates: function( ){ /* Called when you are stale mated */ }
 		
-		ended: function( ){ /* called when the game comes to an end */ }
 	});
 
 

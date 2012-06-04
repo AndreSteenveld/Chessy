@@ -134,23 +134,23 @@ define( [ ".", "lib" ], function( chess, lib ){
 			});			
 		},
 						
-		onCheck: function( ){ },
+		onCheck: function( ){ /* Fired when any player is checked */ },
 		
-		onStaleMate: function( ){ },
+		onStaleMate: function( ){ /* Fired when there is a stale mate, fired before the onEnd event */ },
 		
-		onCheckMate: function( ){ },
+		onCheckMate: function( ){ /* Fired when eiter player is mated, fired before the onEnd event */ ,
 		
-		onSurrender: function( ){ },
+		onSurrender: function( ){ /* Fired when a player surrenders the match, fired before the onEnd event */ },
 						
-		onStart: function( ){ },
+		onStart: function( ){ /* Fired when a game is started */ },
 		
-		onDraw: function( ){ },
+		onDraw: function( ){ /* Fired when a game ended in a draw, fired before the onEnd event */ },
 		
-		onEnd: function( ){ },
+		onEnd: function( ){ /* Fired when the game has eneded */ },
 		
-		onPlayerJoin: function( ){ },
+		onPlayerJoin: function( ){ /* When a player joins the game */},
 		
-		onPlayerLeave: function( ){ },
+		onPlayerLeave: function( ){ /* When a player leaves and the the game wasn't started */ },
 		
 		//
 		// Actions

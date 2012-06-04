@@ -132,11 +132,24 @@ doh.register(
 			
 			var result = new lib.Deferred( );
 			
+			var piece = board.fields.d2.piece,
+				from  = board.fields.d2,
+				to    = board.fields.d3;
+									
+			lib.aspect.after( wPlayer, "turn", function( _turn_ ){
+				
+				
+				
+				
+			}, true );
+			
+			lib.aspect.after( wPlayer, "moved", function( _moved_ ){
+				
+			}, true );
+				
+			
+			
 			game.start( );
-			
-			//lib.on( wPlayer, wPlayer.turn, function( ){ result.resolve( true ); } );
-			
-			board.fields.d2.piece.move( board.fields.d3 );
 			
 			return result;
 			
@@ -160,7 +173,9 @@ doh.register(
 			//lib.on( bPlayer, bPlayer.turn, function( ){ result.reject( "Move was illegal, black" ); } );
 			//lib.on( wPlayer, wPlayer.turn, function( ){ result.reject( "Move was illegal, white" ); } );
 			
-			board.fields.d7.piece.move( board.fields.d6 );
+			//board.fields.d7.piece.move( board.fields.d6 );
+			
+			result.reject( "Test not done implemented..." );
 			
 			return result;
 		}
