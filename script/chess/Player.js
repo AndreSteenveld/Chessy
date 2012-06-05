@@ -58,25 +58,22 @@ define( [ ".", "lib" ], function( chess, lib ){
 					),
 					
 					//
-					// Event handlers involving the state on the board
+					// Movement stuff
 					//
-					staleMate: game.on( "StaleMate", this.staleMate.bind( this ) ),
-										
-					mate: game.on( "CheckMate", 
-						Function.bind( this, function( player ){
-							this === player && this.mates.onIdle( this );
-						}) 
-					),
+					turn: game.on( this.color === "white" ? "WhiteTurn" : "BlackTurn", this.turn.bind( this ) ),
 					
-					checked: game.on( "Check",
-						Function.bind( this, function( player ){
-							this === player && this.checked.onIdle( this );
-						})
-					),
+					placed: game.on( "Placed", this.placed.bind( this ) ),
 					
+					moved: game.on( "Moved", this.moved.bind( this ) ),
 					
+					//
+					// To the player
+					//
+					check: game.on( "Checked", this.check.bind( this ) ),
 					
+					mated: game.on( "CheckMate", this.mate.bind( this ) ),
 					
+					staleMate: game.on( "StaleMate", this.staleMate.bind( this ) )
 					
 					
 				};		

@@ -124,22 +124,35 @@ define( [ ".", "lib" ], function( chess, lib ){
 			if( this.board.isStaleMate( color ) ){
 			
 				this.emit.onIdle( this, [ "StaleMate" ] )
-					.then( this.emit.async( this, [ "Draw", { /* game result... */ } ] ) )
-					.then( this.emit.async( this, [ "End",  { /* game result... */ } ] ) );
+					.then( this.emit.async( this, [ "Draw", { result: "StaleMate" } ] ) )
+					.then( this.emit.async( this, [ "End",  { result: "StaleMate" } ] ) );
 				
 			} else if( this.board.isCheckMate( color ) ){
 				
 				this.emit.onIdle( this, [ "CheckMate" ] )
-					.then( this.emit.async( this, [ "End", { /* game result... */ } ] ) );
+					.then( 
+						this.emit.async( this, 
+							[ "End", 
+								{ 
+									result: "CheckMate", 
+									
+									winner: turn === "white" ? this.black : this.white,
+									loser:  turn === "white" ? this.black : this.white
+									
+								}
+							] 
+						) 
+						
+					);
 							
 			} else if( this.board.isCheck( color ) ){
 				
-				this.emit.onIdle( this, [ "Check", /* turn */ ] )
-					.then( this.emit.async( this, [ "turn for player", { /* turn */ } ] ) );
+				this.emit.onIdle( this, [ "Check", _moved_ ] )
+					.then( this.emit.async( this, [ turnEvent, _moved_ ] ) );
 							
 			} else {
 				
-				this.emit.onIdle( this, [ "turn for player", [ /* turn */ } ] ) );
+				this.emit.onIdle( this, [ turnEvent, _moved_ ] ) );
 				
 			}
 			
