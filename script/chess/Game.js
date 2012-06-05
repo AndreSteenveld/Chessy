@@ -16,13 +16,13 @@ define( [ ".", "lib" ], function( chess, lib ){
 		constructor: function( _game_ ){
 			var board = this.board = _game_.board;
 					
-			lib.aspect.after( board, "place", this._onPlaced.bind( this ), true );
+			lib.aspect.after( board, "place", this._placeHandler.bind( this ), true );
 			
 			Object.keys( board.fieldsByName ).forEach( 
 				Function.bind( this, function( name ){
 				
-					var field = board.fieldsByName[ name ];				
-					lib.aspect.around( field, "occupy", this._onMoved.bind( this, field ) );				
+					var field = board.fieldsByName[ name ];							
+					lib.aspect.around( field, "occupy", this._occupyHandler.bind( this, field ) );
 				
 				})
 			);
@@ -84,71 +84,86 @@ define( [ ".", "lib" ], function( chess, lib ){
 		},
 		
 		//
-		// Game events
+		// Handlers for the place and occupy methods from the board
 		//
-		onPlaced: function( _placed_ ){ },
-		_onPlaced: function( field, piece ){ 
+		_placeHandler: function( field, piece ){ 
 			this.emit.onIdle( this, [ "Placed", {
 				field: field,
 				piece: piece
 			}]);
 		},
 		
-		onMoved: function( _moved_ ){ 			
-			// If we don't have players it can't be a move so lets ignore it..
+		_occupyHandler: function( field, occupy ){ 
+			return Function.bind( this, function( piece ){
+				// Check if the piece is still on the board, if not it was hit.
+				piece.field && this.emit.onIdle( this, [ "Moved", {
+					occupant: field.piece, // The current puece on the field
+					piece:    piece,       // The piece we are moving
+					from:     piece.field, // Where did the moving piece come from
+					to:       field        // Where are we going?
+				});			
+				
+				return occupy.call( field, piece );
+			});
+		},
+		
+				
+		//
+		// Game events
+		//
+		onPlaced: function( _placed_ ){ /* When a piece is placed on the board (setup or pawn promotion) */ },
+				
+		onMoved: function( _moved_ ){ 
 			if( !this.white || !this.black ){ return; }
 			
-			var color = this.turn( );
+			var color     = this.turn( ),
+				turnEvent = color === "white"
+					? "WhiteTurn"
+					: "BlackTurn";
 
 			if( this.board.isStaleMate( color ) ){
 			
-				this[ this.color ].staleMates.onIdle( this[ this.color ] );
-				this.emit.onIdle( this, [ "Draw" ] );				
+				this.emit.onIdle( this, [ "StaleMate" ] )
+					.then( this.emit.async( this, [ "Draw", { /* game result... */ } ] ) )
+					.then( this.emit.async( this, [ "End",  { /* game result... */ } ] ) );
 				
 			} else if( this.board.isCheckMate( color ) ){
 				
-				this[ color ].mates.onIdle( this[ color ] );
-				this.emit.onIdle( this, [ "CheckMate", { color: color } ] );
+				this.emit.onIdle( this, [ "CheckMate" ] )
+					.then( this.emit.async( this, [ "End", { /* game result... */ } ] ) );
 							
 			} else if( this.board.isCheck( color ) ){
 				
-				this[ color ].checked.onIdle( this[ color ] );
-				this.emit.onIdle( this, [ "Check", { color: color } ] );
+				this.emit.onIdle( this, [ "Check", /* turn */ ] )
+					.then( this.emit.async( this, [ "turn for player", { /* turn */ } ] ) );
 							
 			} else {
 				
-				this[ color ].turn.onIdle( this[ color ] );
+				this.emit.onIdle( this, [ "turn for player", [ /* turn */ } ] ) );
 				
 			}
+			
 		},
-		_onMoved: function( field, occupy ){
-			return Function.bind( this, function( piece ){
-				piece.field && this.emit.onIdle( this, [ "Moved", {
-					occupant: field.piece,
-					piece:    piece,
-					from:     piece.field,
-					to:       field
-				}]);
-				
-				return occupy.call( field, piece );					
-			});			
-		},
+			
+		onWhiteTurn: function( _turn_ ){ /* The white player recieved the turn */ },
+		
+		onBlackTurn: function( _turn_ ){ /* The black player recieced the turn */ },
 						
-		onCheck: function( ){ /* Fired when any player is checked */ },
+		onCheck: function( _turn_ ){ /* Fired when any player is checked */ },
 		
-		onStaleMate: function( ){ /* Fired when there is a stale mate, fired before the onEnd event */ },
+		onStaleMate: function( _result_ ){ /* Fired when there is a stale mate, fired before the onEnd event */ },
 		
-		onCheckMate: function( ){ /* Fired when eiter player is mated, fired before the onEnd event */ ,
+		onCheckMate: function( _result_ ){ /* Fired when eiter player is mated, fired before the onEnd event */ ,
 		
-		onSurrender: function( ){ /* Fired when a player surrenders the match, fired before the onEnd event */ },
+		onSurrender: function( _result_ ){ /* Fired when a player surrenders the match, fired before the onEnd event */ },
 						
 		onStart: function( ){ /* Fired when a game is started */ },
 		
-		onDraw: function( ){ /* Fired when a game ended in a draw, fired before the onEnd event */ },
+		onDraw: function( _result_ ){ /* Fired when a game ended in a draw, fired before the onEnd event */ },
 		
-		onEnd: function( ){ /* Fired when the game has eneded */ },
+		onEnd: function( _result_ ){ /* Fired when the game has eneded */ },
 		
-		onPlayerJoin: function( ){ /* When a player joins the game */},
+		onPlayerJoin: function( _newPlayer_ ){ /* When a player joins the game */},
 		
 		onPlayerLeave: function( ){ /* When a player leaves and the the game wasn't started */ },
 		

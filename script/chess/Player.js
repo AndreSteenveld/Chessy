@@ -78,6 +78,7 @@ define( [ ".", "lib" ], function( chess, lib ){
 					
 					
 					
+					
 				};		
 				
 			}		
