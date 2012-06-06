@@ -47,7 +47,7 @@ doh.register(
 			
 			doh.is( true, pieces.piece === board.fields.d4.piece, "Piece is not at the D4" );
 			
-			pieces.piece.move( board.fields.d5 );
+			doh.is( true, pieces.piece.move( board.fields.d5 ), "The move was unsuccessfull" );
 			
 			doh.is( false, pieces.piece === board.fields.d4.piece, "Piece is still at D4" );
 			doh.is( true,  pieces.piece === board.fields.d5.piece, "Piece is not at D5" );
@@ -68,7 +68,7 @@ doh.register(
 			
 			doh.is( 2, board.piecesInPlay.length, "There are [ " + board.piecesInPlay.length + " ] in play." );
 			
-			pieces.white.move( board.fields.d5 );
+			doh.is( true, pieces.white.move( board.fields.d5 ), "The move was not successfull" );
 			
 			doh.is( false, pieces.black === board.fields.d5.piece, "The piece is still the black piece" );
 			doh.is( true,  pieces.white === board.fields.d5.piece, "It's not the white piece on D5" );
@@ -78,6 +78,17 @@ doh.register(
 			
 			doh.is( 1, board.piecesInPlay.length, "There are still [ " + board.piecesInPlay.length + " ] in play" );
 			doh.is( 1, board.piecesOutOfPlay.length, "There are [ " + board.piecesOutOfPlay.length + " ] out of play" );
+		},
+		
+		illegal_move: function( board, pieces ){
+			pieces.piece = new Piece({
+				color: "white",
+				board: board,
+				field: board.fields.d4
+			});
+			
+			doh.is( false, pieces.piece.move( board.fields.d6 ), "It was possible to make an illegal move" );			
+			
 		},
 		
 		pawn_moveing_into_en_passant: function( board, pieces ){
@@ -94,7 +105,7 @@ doh.register(
 				field: board.fields.b5
 			});
 			
-			pieces.bPawn.move( board.fields.a5 );
+			doh.is( true, pieces.bPawn.move( board.fields.a5 ), "The move was unsuccessfull" );
 			
 			doh.t( -1 !== pieces.bPawn.attackedBy( ).indexOf( pieces.wPawn ), "Black pawn is not being attacked by white pawn." );
 			doh.t( -1 !== pieces.wPawn.moves( ).indexOf( board.fields.a6 ), "White pawn can't move to A6." );
