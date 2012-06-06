@@ -131,11 +131,11 @@ define( [ ".", "lib" ], function( chess, lib ){
 		//
 		// Handlers for events after something happend to the player
 		//
-		checked: function( ){ /* Called when the other player checked you */ },
+		check: function( ){ /* Called when the other player checked you */ },
 		
-		mates: function( ){ /* Called when the other player mates you */ },
+		mate: function( ){ /* Called when the other player mates you */ },
 		
-		staleMates: function( ){ /* Called when you are stale mated */ }
+		staleMate: function( ){ /* Called when you are stale mated */ }
 		
 	});
 
