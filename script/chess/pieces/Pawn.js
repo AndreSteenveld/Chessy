@@ -98,7 +98,13 @@ define([ "..", ".", "lib", "./Piece" ], function( chess, pieces, lib, Piece ){
 			
 			// We will do the actual move first and then update our opponents, the en passant
 			// state is cleared in the Piece#move function.
-			this.inherited( arguments );
+			var success = this.inherited( arguments );
+			
+			if( !success ){
+				// TODO: Rafactor this so that we can take care of the en passant situations aswell.
+				console.error( "Illegal pawn move..." );
+				return false;				
+			}
 			
 			if( coordinates.y === 3 ){
 				//
@@ -123,7 +129,9 @@ define([ "..", ".", "lib", "./Piece" ], function( chess, pieces, lib, Piece ){
 					this.board[ this.color ][ coordinates.x + 1 ][ coordinates.y ].piece.enPassant = toField;
 					toField.looking.push( this );
 				}
-			}			
+			}
+			
+			return success;			
 		},
 		
 		attackedBy: function( ){
