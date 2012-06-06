@@ -46,7 +46,7 @@ define( [ ".", "lib" ], function( chess, lib ){
 								
 								_end_.winner === this
 									? this.win.onIdle( this ).then( this.ended.bind( this, [ _end_ ] ) )
-									: this.lose.onIdle( this ).then( this.ended.bind( this, [ _end_ ] ) )
+									: this.lose.onIdle( this ).then( this.ended.bind( this, [ _end_ ] ) );
 									
 							} else { // This is a stale mate, a draw or 3 board repetition
 								

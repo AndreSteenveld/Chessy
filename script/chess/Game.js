@@ -101,7 +101,7 @@ define( [ ".", "lib" ], function( chess, lib ){
 					piece:    piece,       // The piece we are moving
 					from:     piece.field, // Where did the moving piece come from
 					to:       field        // Where are we going?
-				});			
+				}]);			
 				
 				return occupy.call( field, piece );
 			});
@@ -116,8 +116,8 @@ define( [ ".", "lib" ], function( chess, lib ){
 		onMoved: function( _moved_ ){ 
 			if( !this.white || !this.black ){ return; }
 			
-			var color     = this.turn( ),
-				turnEvent = color === "white"
+			var color = this.turn( ),
+				turn  = color === "white"
 					? "WhiteTurn"
 					: "BlackTurn";
 
@@ -136,8 +136,8 @@ define( [ ".", "lib" ], function( chess, lib ){
 								{ 
 									result: "CheckMate", 
 									
-									winner: turn === "white" ? this.black : this.white,
-									loser:  turn === "white" ? this.black : this.white
+									winner: color === "white" ? this.black : this.white,
+									loser:  color === "white" ? this.black : this.white
 									
 								}
 							] 
@@ -148,11 +148,11 @@ define( [ ".", "lib" ], function( chess, lib ){
 			} else if( this.board.isCheck( color ) ){
 				
 				this.emit.onIdle( this, [ "Check", _moved_ ] )
-					.then( this.emit.async( this, [ turnEvent, _moved_ ] ) );
+					.then( this.emit.async( this, [ turn, _moved_ ] ) );
 							
 			} else {
 				
-				this.emit.onIdle( this, [ turnEvent, _moved_ ] ) );
+				this.emit.onIdle( this, [ turn, _moved_ ] );
 				
 			}
 			
@@ -166,7 +166,7 @@ define( [ ".", "lib" ], function( chess, lib ){
 		
 		onStaleMate: function( _result_ ){ /* Fired when there is a stale mate, fired before the onEnd event */ },
 		
-		onCheckMate: function( _result_ ){ /* Fired when eiter player is mated, fired before the onEnd event */ ,
+		onCheckMate: function( _result_ ){ /* Fired when eiter player is mated, fired before the onEnd event */ },
 		
 		onSurrender: function( _result_ ){ /* Fired when a player surrenders the match, fired before the onEnd event */ },
 						
