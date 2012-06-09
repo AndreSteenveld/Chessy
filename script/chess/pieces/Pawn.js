@@ -98,11 +98,8 @@ define([ "..", ".", "lib", "./Piece" ], function( chess, pieces, lib, Piece ){
 			
 			// We will do the actual move first and then update our opponents, the en passant
 			// state is cleared in the Piece#move function.
-			var success = this.inherited( arguments );
-			
-			if( !success ){
+			if( !this.inherited( arguments ) ){
 				// TODO: Rafactor this so that we can take care of the en passant situations aswell.
-				console.error( "Illegal pawn move..." );
 				return false;				
 			}
 			
@@ -131,7 +128,7 @@ define([ "..", ".", "lib", "./Piece" ], function( chess, pieces, lib, Piece ){
 				}
 			}
 			
-			return success;			
+			return true;			
 		},
 		
 		attackedBy: function( ){
