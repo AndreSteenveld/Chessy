@@ -124,30 +124,32 @@ doh.register(
 			var board   = setup_board( ),
 				wPlayer = new chess.Player({ color: "white" }),
 				bPlayer = new chess.Player({ color: "black" }),
-				game    = new chess.Game({
-						board: board,
-						white: wPlayer,
-						black: bPlayer					
-					});
+				game    = new chess.Game({ board: board });
 			
 			var result = new lib.Deferred( );
 			
 			var piece = board.fields.d2.piece,
 				from  = board.fields.d2,
 				to    = board.fields.d3;
-									
-			lib.aspect.after( wPlayer, "turn", function( _turn_ ){
-				
-				
-				
-				
-			}, true );
 			
-			lib.aspect.after( wPlayer, "moved", function( _moved_ ){
-				
-			}, true );
-				
+			// We have to setup the handlers before we join the game. The normal and sane way
+			// to do this would be to create a class and implement the methods.
+			lib.aspect.after( wPlayer, "turn", piece.move.bind( piece, to ) );
 			
+			game.on( "Moved", function( _move_ ){ 
+			
+				// Check if the event object is more or less sane, if a false is supplie
+				   _move_.occupant === null
+				&& _move_.piece === piece
+				&& _move_.from  === from
+				&& _move_.to    === to
+					? result.resolve( true )
+					: result.reject( "The supplied event object in the after move event is not sane." );
+				
+			});
+			
+			game.join( wPlayer, "white" );
+			game.join( bPlayer, "black" );
 			
 			game.start( );
 			
@@ -166,16 +168,36 @@ doh.register(
 						black: bPlayer					
 					});
 			
-			var result = new lib.Deferred( );	
+			var result = new lib.Deferred( );
+			
+			var piece = board.fields.d2.piece,
+				from  = board.fields.d2,
+				to    = board.fields.d8;
+			
+			// We have to setup the handlers before we join the game. The normal and sane way
+			// to do this would be to create a class and implement the methods.
+			lib.aspect.after( wPlayer, "turn", function( ){
+				
+				piece.move( to );
+				
+			});
+			
+			lib.aspect.after( bPlayer, "turn", function( ){
+				
+				result.reject( "The move was found valid..." );
+				
+			});
+			
+			game.on( "IllegalMove", function( exception ){
+				
+				result.resolve( exception );
+				
+			});
+						
+			game.join( wPlayer, "white" );
+			game.join( bPlayer, "black" );
 			
 			game.start( );
-			
-			//lib.on( bPlayer, bPlayer.turn, function( ){ result.reject( "Move was illegal, black" ); } );
-			//lib.on( wPlayer, wPlayer.turn, function( ){ result.reject( "Move was illegal, white" ); } );
-			
-			//board.fields.d7.piece.move( board.fields.d6 );
-			
-			result.reject( "Test not done implemented..." );
 			
 			return result;
 		}

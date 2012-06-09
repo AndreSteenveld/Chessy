@@ -21,12 +21,20 @@ define( [ ".", "lib" ], function( chess, lib ){
 			Object.keys( board.fieldsByName ).forEach( 
 				Function.bind( this, function( name ){
 				
-					var field = board.fieldsByName[ name ];							
+					var field = board.fieldsByName[ name ];
 					lib.aspect.around( field, "occupy", this._occupyHandler.bind( this, field ) );
 				
 				})
 			);
-						
+			
+			board.piecesInPlay.forEach( 
+				Function.bind( this, function( piece ){
+										
+					lib.aspect.around( piece, "move", this._moveHandler.bind( this, piece ) );				
+				
+				})
+			);
+			
 			"white" in _game_ && _game_.white.join( this, "white" );
 			"black" in _game_ && _game_.black.join( this, "black" );			
 			
@@ -57,30 +65,9 @@ define( [ ".", "lib" ], function( chess, lib ){
 		},
 		
 		end: function( conditions ){
-			if( conditions.result === "check mate" ){
-				this.emit.onIdle( this, [ "checkMate", {
-					winner: conditions.winner,
-					loser:  conditions.loser
-				}]);
-				
-			} else if( conditions.result === "surrender" ){
-				this.emit.onIdle( this, [ "surrender", {
-					winner: conditions.winner,
-					loser:  conditions.loser
-				}]);
-				
-			} else if( conditions.result === "stale mate" ){
-				this.emit.onIdle( this, [ "staleMate", {
-					winner: conditions.winner,
-					loser:  conditions.loser
-				}]);
-				
-			} else if( conditions.result === "draw" ){
-				this.emit.onIdle( this, [ "draw" ] );					
-				
-			}
-			
-			this.emit.onIdle( this, [ "end", { result: conditions.result } ] );			
+			//
+			// Implement the draw (remise) and surrender here.
+			//
 		},
 		
 		//
@@ -105,9 +92,28 @@ define( [ ".", "lib" ], function( chess, lib ){
 				
 				return occupy.call( field, piece );
 			});
+			
 		},
 		
+		_moveHandler: function( piece, move ){
+			
+			return Function.bind( this, function( toField ){
 				
+				if( move.call( piece, toField ) ){
+					
+					return true;
+					
+				} else {
+				
+					this.emit.onIdle( this, [ "IllegalMove", new Error( "Failed to move piece", { piece: piece, toField: toField } ) ] );
+					return false;	 
+					
+				}			
+				
+			});
+			
+		},
+
 		//
 		// Game events
 		//
@@ -126,7 +132,9 @@ define( [ ".", "lib" ], function( chess, lib ){
 				this.emit.onIdle( this, [ "StaleMate" ] )
 					.then( this.emit.async( this, [ "Draw", { result: "StaleMate" } ] ) )
 					.then( this.emit.async( this, [ "End",  { result: "StaleMate" } ] ) );
-				
+			
+				return;
+					
 			} else if( this.board.isCheckMate( color ) ){
 				
 				this.emit.onIdle( this, [ "CheckMate" ] )
@@ -144,19 +152,20 @@ define( [ ".", "lib" ], function( chess, lib ){
 						) 
 						
 					);
-							
-			} else if( this.board.isCheck( color ) ){
 				
-				this.emit.onIdle( this, [ "Check", _moved_ ] )
-					.then( this.emit.async( this, [ turn, _moved_ ] ) );
+				return;
 							
 			} else {
+			
+				this.board.isCheck( color ) 
+					&& this.emit.onIdle( this, [ "Check", _moved_ ] );
 				
 				this.emit.onIdle( this, [ turn, _moved_ ] );
 				
 			}
-			
 		},
+		
+		onIllegalMove: function( _illegal_ ){ /* When a player makes an illegal move */ },
 			
 		onWhiteTurn: function( _turn_ ){ /* The white player recieved the turn */ },
 		
