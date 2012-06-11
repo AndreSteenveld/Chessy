@@ -200,6 +200,126 @@ doh.register(
 			game.start( );
 			
 			return result;
+		},
+		
+		check_event: function( ){
+			var board   = new chess.board.Board( ),
+				wPlayer = new chess.Player({ color: "white" }),
+				bPlayer = new chess.Player({ color: "black" }),
+				game    = new chess.Game({
+						board: board,
+						white: wPlayer,
+						black: bPlayer,
+						
+						color: "black"				
+					});
+			
+			var wKing = new chess.pieces.King({ color: "white", board: board, field: board.fields.a1 }),
+				bRook = new chess.pieces.Rook({ color: "black", board: board, field: board.fields.f2 });
+				
+			var onCheck_game   = new lib.Deferred( ),
+				onCheck_player = new lib.Deferred( ),
+				result         = new lib.DeferredList([ onCheck_game, onCheck_player ], false, true, true );
+			
+			lib.aspect.after( bPlayer, "turn", function( ){
+				
+				bRook.move( board.fields.f1 );
+				
+			});			
+			
+			lib.aspect.after( wPlayer, "check", function( ){
+				
+				onCheck_player.resolve( "The player had a check event" );
+				
+			});
+			
+			game.on( "Check", function( ){ 
+			
+				onCheck_game.resolve( "The game had a onCheck event" ); 
+				
+			});
+						
+			game.join( wPlayer, "white" );
+			game.join( bPlayer, "black" );
+			
+			game.start( );
+			
+			return result;
+		},
+		
+		stale_mate_event: function( ){
+			var board   = new chess.board.Board( ),
+				wPlayer = new chess.Player({ color: "white" }),
+				bPlayer = new chess.Player({ color: "black" }),
+				game    = new chess.Game({
+						board: board,
+						white: wPlayer,
+						black: bPlayer,
+						
+						color: "black"				
+					});
+			
+			// Create a bunch of pieces, moving the black pawn to a3 will create a stale mate.
+			var wKing = new chess.pieces.King({ color: "white", board: board, field: board.fields.a1 }),
+				wPawn = new chess.pieces.Pawn({ color: "white", board: board, field: board.fields.a2 });
+				
+			var bPawn = new chess.pieces.Pawn({ color: "black", board: board, field: board.fields.a4 }),
+				bRook = new chess.pieces.Rook({ color: "black", board: board, field: board.fields.b8 });
+						
+			var onStaleMate_game   = new lib.Deferred( ),
+				onStaleMate_player = new lib.Deferred( ),
+				result             = new lib.DeferredList([ onStaleMate_game, onStaleMate_player ]);
+						
+			// move black pawn to a3 to stale mate.
+			lib.aspect.after( bPlayer, "turn", function( ){
+				
+				bPawn.move( board.fields.a3 );
+				
+			});
+			
+			lib.aspect.after( wPlayer, "staleMate", function( ){
+				
+				onStaleMate_player.resolve( "The player recieved a stale mate event" );
+				
+			});
+			
+			lib.aspect.after( wPlayer, "turn", function( ){
+				
+				result.reject( "We have a stale mate yet, we get the turn"  );
+				
+			});
+			
+			game.on( "StaleMate", function( ){
+				
+				onStaleMate_game.resolve( "We have a stale mate" );
+				
+			});
+			
+			game.join( wPlayer, "white" );
+			game.join( bPlayer, "black" );
+			
+			game.start( );
+			
+			return result;		
+			
+		},
+		
+		surrender_event: function( ){
+			
+			throw "Test not implemented";
+			
+		},
+		
+		draw_event: function( ){
+			
+			throw "Test not implemented";
+			
+		},
+		
+		end_of_game: function( ){
+			
+			throw "Test not implemented";
+			
 		}
 		
 	}
