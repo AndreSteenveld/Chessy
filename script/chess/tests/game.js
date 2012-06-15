@@ -200,6 +200,70 @@ doh.register(
 			game.start( );
 			
 			return result;
+		},
+		
+		check_event: function( ){ 
+			var board   = new chess.board.Board( ),
+				wPlayer = new chess.Player({ color: "white" }),
+				bPlayer = new chess.Player({ color: "black" }),
+				game    = new chess.Game({ 
+					board: board,						
+					color: "black" 
+				});
+			
+			var wKing  = new chess.pieces.King({  board: board, color: "white", field: board.fields.a1 }),
+				bQueen = new chess.pieces.Queen({ board: board, color: "black", field: board.fields.c2 });
+			
+			var gameCheck   = new lib.Deferred( ),
+				playerCheck = new lib.Deferred( ),			
+				result      = new lib.DeferredList([ gameCheck, playerCheck ], false, true, false ); // list, fire on one, fire on one err, consume err
+			
+			
+			lib.aspect.after( wPlayer, "check", function( ){ 
+				
+				console.log( "The white player check event" );
+				playerCheck.resolve( true ); 
+				
+			});
+			
+			lib.aspect.after( bPlayer, "turn", function( ){
+				
+				console.log( "The black player turn event" );
+				bQueen.move( board.fields.c1 );
+				
+			});
+			
+			game.on( "Check", function( ){ 
+				
+				console.log( "The game check event" );	
+				gameCheck.resolve( true ); 
+				
+			});
+			
+			game.on( "Moved", function( _move_ ){
+				
+				console.log( "The game moved event ::", _move_ );
+				
+			});
+							
+			game.join( wPlayer, "white" );
+			game.join( bPlayer, "black" );
+			
+			game.start( );
+			
+			return result;			
+		},
+		
+		mate_event: function (  ){
+			doh.t( false, "Not implemented" );
+		},
+		
+		surrender_event: function (  ){
+			doh.t( false, "Not implemented" );
+		},
+		
+		stale_event: function (  ){
+			doh.t( false, "Not implemented" );
 		}
 		
 	}
