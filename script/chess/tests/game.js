@@ -137,19 +137,21 @@ doh.register(
 			lib.aspect.after( wPlayer, "turn", piece.move.bind( piece, to ) );
 			
 			game.on( "Moved", function( _move_ ){ 
-			
-				// Check if the event object is more or less sane, if a false is supplie
-				   _move_.occupant === null
-				&& _move_.piece === piece
-				&& _move_.from  === from
-				&& _move_.to    === to
-					? result.resolve( true )
-					: result.reject( "The supplied event object in the after move event is not sane." );
+						
+				// Check if the event object is more or less sane, if a false is supplied
+				if( _move_.counter ){
+					   _move_.occupant === null
+					&& _move_.piece === piece
+					&& _move_.from  === from
+					&& _move_.to    === to
+						? result.resolve( true )
+						: result.reject( "The supplied event object in the after move event is not sane." );
+				}
 				
 			});
 			
-			game.join( wPlayer, "white" );
-			game.join( bPlayer, "black" );
+			wPlayer.join( game, "white" );
+			bPlayer.join( game, "black" );
 			
 			game.start( );
 			
@@ -176,11 +178,7 @@ doh.register(
 			
 			// We have to setup the handlers before we join the game. The normal and sane way
 			// to do this would be to create a class and implement the methods.
-			lib.aspect.after( wPlayer, "turn", function( ){
-				
-				piece.move( to );
-				
-			});
+			lib.aspect.after( wPlayer, "turn", piece.move.bind( piece, to ) );
 			
 			lib.aspect.after( bPlayer, "turn", function( ){
 				
@@ -194,8 +192,8 @@ doh.register(
 				
 			});
 						
-			game.join( wPlayer, "white" );
-			game.join( bPlayer, "black" );
+			wPlayer.join( game, "white" );
+			bPlayer.join( game, "black" );
 			
 			game.start( );
 			
@@ -221,33 +219,24 @@ doh.register(
 			
 			lib.aspect.after( wPlayer, "check", function( ){ 
 				
-				console.log( "The white player check event" );
 				playerCheck.resolve( true ); 
 				
 			});
 			
 			lib.aspect.after( bPlayer, "turn", function( ){
 				
-				console.log( "The black player turn event" );
 				bQueen.move( board.fields.c1 );
 				
 			});
 			
 			game.on( "Check", function( ){ 
 				
-				console.log( "The game check event" );	
 				gameCheck.resolve( true ); 
 				
 			});
-			
-			game.on( "Moved", function( _move_ ){
-				
-				console.log( "The game moved event ::", _move_ );
-				
-			});
 							
-			game.join( wPlayer, "white" );
-			game.join( bPlayer, "black" );
+			wPlayer.join( game, "white" );
+			bPlayer.join( game, "black" );
 			
 			game.start( );
 			

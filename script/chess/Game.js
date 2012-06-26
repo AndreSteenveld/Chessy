@@ -6,6 +6,8 @@
 define( [ ".", "lib" ], function( chess, lib ){
 	
 	chess.Game = lib.declare( [ lib.Evented ], {
+		counter: 0,
+		
 		color: null,
 		
 		board: null,
@@ -17,15 +19,6 @@ define( [ ".", "lib" ], function( chess, lib ){
 			var board = this.board = _game_.board;
 					
 			lib.aspect.after( board, "place", this._placeHandler.bind( this ), true );
-			
-			Object.keys( board.fieldsByName ).forEach( 
-				Function.bind( this, function( name ){
-				
-					var field = board.fieldsByName[ name ];
-					lib.aspect.around( field, "occupy", this._occupyHandler.bind( this, field ) );
-				
-				})
-			);
 			
 			board.piecesInPlay.forEach( 
 				Function.bind( this, function( piece ){
@@ -52,10 +45,12 @@ define( [ ".", "lib" ], function( chess, lib ){
 				   this.white && this.white.isInstanceOf( chess.Player )
 				&& this.black && this.black.isInstanceOf( chess.Player )				
 			){
-				
-				this.color || this.turn( );			
+				// Flip the color, hackish but effective
+				!this.color || this.color === "white"
+					? ( this.color = "white" )
+					: ( this.color = "black" );
+					
 				this.emit.onIdle( this, [ "Start", { color: this.color } ] );
-				this[ this.color ].turn.onIdle( this[ this.color ] );
 				
 			} else {
 				
@@ -80,26 +75,23 @@ define( [ ".", "lib" ], function( chess, lib ){
 			}]);
 		},
 		
-		_occupyHandler: function( field, occupy ){ 
-			return Function.bind( this, function( piece ){
-				// Check if the piece is still on the board, if not it was hit.
-				piece.field && this.emit.onIdle( this, [ "Moved", {
-					occupant: field.piece, // The current puece on the field
-					piece:    piece,       // The piece we are moving
-					from:     piece.field, // Where did the moving piece come from
-					to:       field        // Where are we going?
-				}]);			
-				
-				return occupy.call( field, piece );
-			});
-			
-		},
-		
 		_moveHandler: function( piece, move ){
 			
 			return Function.bind( this, function( toField ){
 				
+				var occupant = toField.piece || null,
+					field    = piece.field;
+				
 				if( move.call( piece, toField ) ){
+					
+					piece.field && this.emit.onIdle( this, [ "Moved", {
+						counter:  this.counter++,
+						color:    this.color,
+						occupant: occupant,       // The current puece on the field
+						piece:    piece,          // The piece we are moving
+						from:     field,          // Where did the moving piece come from
+						to:       toField         // Where are we going?
+					}]);
 					
 					return true;
 					
@@ -124,8 +116,8 @@ define( [ ".", "lib" ], function( chess, lib ){
 			
 			var color = this.turn( ),
 				turn  = color === "white"
-					? "WhiteTurn"
-					: "BlackTurn";
+					? "BlackTurn"
+					: "WhiteTurn";
 
 			if( this.board.isStaleMate( color ) ){
 			
@@ -179,7 +171,16 @@ define( [ ".", "lib" ], function( chess, lib ){
 		
 		onSurrender: function( _result_ ){ /* Fired when a player surrenders the match, fired before the onEnd event */ },
 						
-		onStart: function( ){ /* Fired when a game is started */ },
+		onStart: function( _start_ ){ 
+				
+			this.emit.onIdle( this, [ "Moved", 
+				{ 
+					counter: this.counter++,
+					color:   _start_.color	
+				}				
+			]);	
+			
+		},
 		
 		onDraw: function( _result_ ){ /* Fired when a game ended in a draw, fired before the onEnd event */ },
 		
