@@ -51,8 +51,8 @@ doh.register(
 				bPlayer = new chess.Player({ color: "black" }),
 				game    = new chess.Game({ board: board });
 				
-			var wPlayerAdded = new lib.Deferred( ),
-				bPlayerAdded = new lib.Deferred( ),
+			var wPlayerAdded = new doh.Deferred( ),
+				bPlayerAdded = new doh.Deferred( ),
 				playersAdded = new lib.DeferredList([ wPlayerAdded, bPlayerAdded ]);
 				
 			game.on( "PlayerJoin", function( playerJoined ){
@@ -77,7 +77,7 @@ doh.register(
 						black: bPlayer					
 					});
 					
-			var result = new lib.Deferred( );
+			var result = new doh.Deferred( );
 					
 			game.on( "Start", function( _start_ ){
 				
@@ -104,7 +104,7 @@ doh.register(
 						color: "black"
 					});
 					
-			var result = new lib.Deferred( );
+			var result = new doh.Deferred( );
 			
 			game.on( "Start", function( _start_ ){
 				
@@ -126,7 +126,7 @@ doh.register(
 				bPlayer = new chess.Player({ color: "black" }),
 				game    = new chess.Game({ board: board });
 			
-			var result = new lib.Deferred( );
+			var result = new doh.Deferred( );
 			
 			var piece = board.fields.d2.piece,
 				from  = board.fields.d2,
@@ -164,13 +164,9 @@ doh.register(
 			var board   = setup_board( ),
 				wPlayer = new chess.Player({ color: "white" }),
 				bPlayer = new chess.Player({ color: "black" }),
-				game    = new chess.Game({
-						board: board,
-						white: wPlayer,
-						black: bPlayer					
-					});
+				game    = new chess.Game({ board: board });
 			
-			var result = new lib.Deferred( );
+			var result = new doh.Deferred( );
 			
 			var piece = board.fields.d2.piece,
 				from  = board.fields.d2,
@@ -180,15 +176,16 @@ doh.register(
 			// to do this would be to create a class and implement the methods.
 			lib.aspect.after( wPlayer, "turn", piece.move.bind( piece, to ) );
 			
-			lib.aspect.after( bPlayer, "turn", function( ){
+			game.on( "Moved", function( _move_ ){
 				
-				result.reject( "The move was found valid..." );
+				_move_.counter && result.reject( "The move was successfull" );
 				
 			});
 			
 			game.on( "IllegalMove", function( exception ){
 				
-				result.resolve( exception );
+				//result.resolve( exception );
+				result.resolve( true );
 				
 			});
 						
@@ -201,6 +198,9 @@ doh.register(
 		},
 		
 		check_event: function( ){ 
+			
+			throw "Problem using deferred lists";
+			
 			var board   = new chess.board.Board( ),
 				wPlayer = new chess.Player({ color: "white" }),
 				bPlayer = new chess.Player({ color: "black" }),
@@ -212,8 +212,8 @@ doh.register(
 			var wKing  = new chess.pieces.King({  board: board, color: "white", field: board.fields.a1 }),
 				bQueen = new chess.pieces.Queen({ board: board, color: "black", field: board.fields.c2 });
 			
-			var gameCheck   = new lib.Deferred( ),
-				playerCheck = new lib.Deferred( ),			
+			var gameCheck   = new doh.Deferred( ),
+				playerCheck = new doh.Deferred( ),			
 				result      = new lib.DeferredList([ gameCheck, playerCheck ], false, true, false ); // list, fire on one, fire on one err, consume err
 			
 			

@@ -24,7 +24,7 @@ define( [ ".", "lib" ], function( chess, lib ){
 		// 
 		join: function( game, color ){ 
 
-			if( ( this.color = game.join( this, this.color ) ) ){
+			if( ( this.color = game.join( this, color || this.color ) ) ){
 				
 				this.game  = game;
 				this.board = game.board;

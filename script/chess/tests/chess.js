@@ -3,7 +3,15 @@
  *	Licensed under the MIT public license for the full license see the LICENSE file
  *
  */
-define([ ], function( ){
+define([ "dojo", "doh" ], function( dojo, doh ){
+	
+	dojo.extend( doh.Deferred, {
+		
+		resolve: doh.Deferred.prototype.callback,
+		reject: doh.Deferred.prototype.errback,
+		then: function( ){ return this.addCallbacks.apply( this, arguments ); }
+		
+	});
 	
 	require({ 
 		packages: [
