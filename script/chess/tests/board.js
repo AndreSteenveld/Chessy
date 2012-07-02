@@ -24,6 +24,27 @@ doh.register(
 	
 	wrap_tests({
 	
+		field_orientation: function( board ){
+			
+			// Normal fields
+			doh.t( board.fields[ 0 ][ 0 ] === board.fields.a1, "South west is not A1" );
+			doh.t( board.fields[ 0 ][ 7 ] === board.fields.a8, "North west is not A8" );
+			doh.t( board.fields[ 7 ][ 0 ] === board.fields.h1, "South east is not H1" );
+			doh.t( board.fields[ 7 ][ 7 ] === board.fields.h8, "North east is not H8" );
+			
+			// Color specific boards
+			doh.t( board.white[ 0 ][ 0 ] === board.fields.a1, "White - South west is not A1" );
+			doh.t( board.white[ 0 ][ 7 ] === board.fields.a8, "White - North west is not A8" );
+			doh.t( board.white[ 7 ][ 0 ] === board.fields.h1, "White - South east is not H1" );
+			doh.t( board.white[ 7 ][ 7 ] === board.fields.h8, "White - North east is not H8" );
+			
+			doh.t( board.black[ 0 ][ 0 ] === board.fields.h8, "Black - South west is not H8" );
+			doh.t( board.black[ 0 ][ 7 ] === board.fields.h1, "Black - North west is not H1" );
+			doh.t( board.black[ 7 ][ 0 ] === board.fields.a8, "Black - South east is not A8" );
+			doh.t( board.black[ 7 ][ 7 ] === board.fields.a1, "Black - North east is not A1" );
+			
+		},
+	
 		check: function( board, pieces ){ 
 			new chess.pieces.King({ color: "white", board: board, field: board.fields.a1 });
 			new chess.pieces.Rook({ color: "black", board: board, field: board.fields.h1 });
