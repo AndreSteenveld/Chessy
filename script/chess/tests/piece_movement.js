@@ -118,9 +118,65 @@ doh.register(
 			
 		},
 		
-		king_castleing: function( board, pieces ){
+		king_castleing_left: function( board, pieces ){
+
+					
+			pieces.king = new chess.pieces.King({ 
+				color: "white", 
+				board: board,
+				field: board.fields.e1
+			});
 			
-			throw "Test not implemented";	
+			pieces.rook = new chess.pieces.Rook({ 
+				color: "white",
+				board: board,
+				field: board.fields.a1				
+			});
+	
+			doh.is( true, pieces.king.move( board.fields.c1 ), "Castleing move failed" );
+			
+			// Make sure the pieces have moved
+			doh.is( true, null === board.fields.a1.piece, "The castle hasn't moved" );
+			doh.is( true, null === board.fields.e1.piece, "The king hasn't moved" );
+			
+			// Make sure they are occupying the correct fields
+			doh.is( true, board.fields.e1.piece === pieces.king, "The king is not occupying e1" );
+			doh.is( true, board.fields.d1.piece === pieces.rook, "The rook is not occupying d1" );
+			
+			// Make sure the pieces know what field they are occupying
+			doh.is( true, board.fields.e1 === pieces.king.field, "King doesn't know what field he is occupying" );
+			doh.is( true, board.fields.d1 === pieces.king.field, "Rook doesn't know what field he is occupying" );
+			
+		},
+		
+		king_castleing_right: function( board, pieces ){
+			
+			pieces.king = new chess.pieces.King({ 
+				color: "white", 
+				board: board,
+				field: board.fields.e1
+			});
+			
+			pieces.rook = new chess.pieces.Rook({ 
+				color: "white",
+				board: board,
+				field: board.fields.h1				
+			});
+	
+			doh.is( true, pieces.king.move( board.fields.g1 ), "Castleing move failed" );
+			
+			// Make sure the pieces have moved
+			doh.is( true, null === board.fields.g1.piece, "The castle hasn't moved" );
+			doh.is( true, null === board.fields.e1.piece, "The king hasn't moved" );
+			
+			// Make sure they are occupying the correct fields
+			doh.is( true, board.fields.g1.piece === pieces.king, "The king is not occupying e1" );
+			doh.is( true, board.fields.f1.piece === pieces.rook, "The rook is not occupying d1" );
+			
+			// Make sure the pieces know what field they are occupying
+			doh.is( true, board.fields.g1 === pieces.king.field, "King doesn't know what field he is occupying" );
+			doh.is( true, board.fields.f1 === pieces.king.field, "Rook doesn't know what field he is occupying" );
+			
 		},
 		
 		king_not_castlering_because_it_already_did: function( board, pieces ){

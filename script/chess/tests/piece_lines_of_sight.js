@@ -245,6 +245,11 @@ doh.register(
 				field: board.fields.e1	
 			});
 			
+			var moves = pieces.king.moves( );
+			
+			doh.f( -1 !== moves.indexOf( board.fields.c1 ), "Not possible to castle left because the rook is not on the board yet" );
+			doh.f( -1 !== moves.indexOf( board.fields.g1 ), "Not possible to castle right because the rook is not on the board yet" );
+			
 			pieces.lRook = new chess.pieces.Rook({ 
 				color: "white",
 				board: board,
@@ -257,10 +262,10 @@ doh.register(
 				field: board.fields.h1	
 			});
 				
-			var moves = pieces.king.moves( );
+			moves = pieces.king.moves( );
 			
-			doh.t( -1 !== moves.indexOf( board.fields.c1 ) );
-			doh.t( -1 !== moves.indexOf( board.fields.g1 ) );
+			doh.t( -1 !== moves.indexOf( board.fields.c1 ), "King not able to castle left" );
+			doh.t( -1 !== moves.indexOf( board.fields.g1 ), "King not able to castle right" );
 		},
 		
 		king_not_castleing_becuase_checked: function( board, pieces ){
