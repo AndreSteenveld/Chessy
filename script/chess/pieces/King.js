@@ -92,20 +92,53 @@ define([ "..", ".", "lib", "./Piece" ], function( chess, pieces, lib, Piece ){
 		},
 		
 		move: function( toField ){
-			if( this.field === this.board[ this.color ][ 0 ][ 4 ] ){
-			
-				if( toField === this.board[ this.color ][ 0 ][ 2 ] ){
-					// We are castleing left
-					this.board[ this.color ][ 0 ][ 0 ].move( this.board[ this.color ][ 0 ][ 3 ] );
-					this.castled = true;
+		
+			// Check if we can castle and if we want to castle, if so make sure we do some
+			// adminstration for the rook. Then move the king as it should and wire up the
+			// rook manually. When we are done the move has been successfull.
+			if(    this.castled === false 
+				&& this.field === this.board[ this.color ][ 4 ][ 0 ]
+				&& (
+					   toField === this.board[ this.color ][ 2 ][ 0 ]
+					|| toField === this.board[ this.color ][ 6 ][ 0 ]
+				)				
+			){
+				
+				var rook        = null,
+					rookToField = null;
+				
+				if( toField === this.board[ this.color ][ 2 ][ 0 ] ){
 					
-				} else if( toField === this.board[ this.color ][ 0 ][ 6 ] ){
-					// We are castleing right
-					this.board[ this.color ][ 0 ][ 7 ].move( this.board[ this.color ][ 0 ][ 5 ] );
-					this.castled = true;
+					rook        = this.board[ this.color ][ 0 ][ 0 ].piece;
+					rookToField = this.board[ this.color ][ 3 ][ 0 ];
+					
+				} else if( toField === this.board[ this.color ][ 6 ][ 0 ] ){
+					
+					rook        = this.board[ this.color ][ 7 ][ 0 ].piece;
+					rookToField = this.board[ this.color ][ 5 ][ 0 ];
 					
 				}
-			}	
+				
+				// Now were done with the wiring move the king as intended.
+				this.inherited( arguments );
+				
+				// Do the rook administration, we can't really call move( ... ) here because
+				// it is hooked? Maybe this should be refactored into more little functions.
+				rook.field.leave( rook );
+				
+				rookToField.occupy( rook );
+				
+				rook.field = rookToField;
+				
+				var coordinates = rook.field.coordinates( rook.color );
+				
+				rook.x = coordinates.x;
+				rook.y = coordinates.y;
+				
+				this.castled = true;
+				
+				return true;			
+			}
 			
 			return this.inherited( arguments );
 		}
