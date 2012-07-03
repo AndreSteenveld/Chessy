@@ -149,8 +149,29 @@ define([ "..", ".", "lib" ], function( chess, pieces, lib ){
 					return line;
 				}))
 				.map( Function.bind( this, function( coordinateLine ){
-							
-					var board = this.board[ this.color ];
+										
+					/**
+					//
+					// After messing around with the profiler for a bit of fun it seems
+					// this is a bit faster. Probably because it doesn't have to make the 
+					// function call to the callback in the map every time and there are 
+					// basically no checks. The commented code does exactly the same.
+					//					
+					var board       = this.board[ this.color ],
+						currentLine = null,
+						lineLength  = coordinateLine.length,
+						result      = new Array( lineLength );
+					
+					while( currentLine = coordinateLine[ --lineLength ] ){
+						
+						result[ lineLength ] = board[ currentLine[ 0 ] ][ currentLine[ 1 ] ];
+						
+					}
+					
+					return result;
+					**/					
+					
+					var board = this.board[ this.color ]
 					
 					return coordinateLine.map( function( coordinate ){	
 						return board[ coordinate[ 0 ] ][ coordinate[ 1 ] ];
