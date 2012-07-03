@@ -83,7 +83,7 @@ doh.register(
 				
 				"color" in _start_ && _start_.color === "white"
 					? result.resolve( true )
-					: result.reject( new doh._AssertFailure( "The starting color was not white" ) );
+					: result.reject( "The starting color was not white" );
 				
 			});
 			
@@ -110,7 +110,7 @@ doh.register(
 				
 				"color" in _start_ && _start_.color === "black"
 					? result.resolve( true )
-					: result.reject( new doh._AssertFailure( "The starting color was not black" ) );
+					: result.reject( "The starting color was not black" );
 				
 			});
 			
@@ -137,7 +137,7 @@ doh.register(
 			lib.aspect.after( wPlayer, "turn", piece.move.bind( piece, to ) );
 			
 			game.on( "Moved", function( _move_ ){ 
-						
+					
 				// Check if the event object is more or less sane, if a false is supplied
 				if( _move_.counter ){
 					   _move_.occupant === null
@@ -197,9 +197,108 @@ doh.register(
 			return result;
 		},
 		
-		check_event: function( ){ 
+		play_a_few_moves: function( ){
 			
-			throw "Problem using deferred lists";
+			var board   = setup_board( ),
+				wPlayer = new chess.Player({ color: "white" }),
+				bPlayer = new chess.Player({ color: "balck" }),
+				game    = new chess.Game({ board: board });
+			
+			var moves = [
+					new doh.Deferred( ), // white | D2 - D4
+					new doh.Deferred( ), // black | D7 - D5
+					new doh.Deferred( )  // white | D1 - D3
+				];
+				
+			var result = new lib.DeferredList( moves, false, true, false );
+			
+			lib.aspect.after( wPlayer, "turn", function( _turn_ ){
+				
+				if( _turn_.counter === 0 ){
+					
+					board.fields.d2.piece.move( board.fields.d4 );
+					
+				} else if( _turn_.counter === 2 ){
+					
+					board.fields.d1.piece.move( board.fields.d3 );
+					
+				} else {
+					
+					result.reject( "The white player got an invalid turn" );
+					
+				}
+				
+			}, true );
+			
+			lib.aspect.after( bPlayer, "turn", function( _turn_ ){
+				
+				if( _turn_.counter === 1 ){
+					
+					board.fields.d7.piece.move( board.fields.d5 );
+					
+				} else {
+					
+					result.reject( "The black player got an invalid tunr" );
+					
+				}
+				
+			}, true );
+			
+			game.on( "Moved", function( _move_ ){
+				
+				if( _move_.counter === 1 ){
+					
+					   _move_.from === board.fields.d2
+					&& _move_.to   === board.fields.d4
+						? moves[ 0 ].resolve( true )
+						: moves[ 0 ].reject( "Move [white | D2 - D4] failed" );
+						
+				} else if( _move_.counter === 2 ){
+					
+					   _move_.from === board.fields.d7
+					&& _move_.to   === board.fields.d5
+						? moves[ 1 ].resolve( true )
+						: moves[ 1 ].reject( "Move [black | D7 - D5] failed" );
+						
+				} else if( _move_.counter === 3 ){
+					
+					   _move_.from === board.fields.d1
+					&& _move_.to   === board.fields.d3
+						? moves[ 2 ].resolve( true )
+						: moves[ 2 ].reject( "Move [white | D1 - D3] failed" );
+						
+				} else if( _move_.counter === 0 || _move_.counter === 4 ){
+					
+					// Do nothing, just making sure we are not going to throw an uneccesary`
+					// error about the move counter. Also add an expression so lint won't
+					// bother us.
+					"Lint Y U not understand?!";
+					
+				} else {
+					
+					throw "Invalid move counter[ " + _move_.counter + " ]";
+					
+				}
+			});
+			
+			wPlayer.join( game, "white" );
+			bPlayer.join( game, "black" );
+			
+			game.start( );
+			
+			// Wrap the deferred list or else the runner will explode in a ball of fire
+			// and sadness.
+			var r = new doh.Deferred( );
+			
+			result.then(
+				r.callback.bind( r ),
+				r.errback.bind( r )
+			);
+			
+			return r;			
+		},
+		
+		check_event: function( ){ 
 			
 			var board   = new chess.board.Board( ),
 				wPlayer = new chess.Player({ color: "white" }),
@@ -216,31 +315,51 @@ doh.register(
 				playerCheck = new doh.Deferred( ),			
 				result      = new lib.DeferredList([ gameCheck, playerCheck ], false, true, false ); // list, fire on one, fire on one err, consume err
 			
-			
 			lib.aspect.after( wPlayer, "check", function( ){ 
 				
+				console.log( "The white player check event has been triggerd" );
 				playerCheck.resolve( true ); 
+				
+			});
+			
+			lib.aspect.after( wPlayer, "turn", function( ){
+				
+				console.log( "The white player got the turn..." );
 				
 			});
 			
 			lib.aspect.after( bPlayer, "turn", function( ){
 				
+				console.log( "The black queen has moved" );
 				bQueen.move( board.fields.c1 );
 				
 			});
 			
 			game.on( "Check", function( ){ 
 				
+				console.log( "The game check evne has been trigeered" );
 				gameCheck.resolve( true ); 
 				
 			});
+							
+			game.on( "WhiteTurn", function( ){ console.log( "The white turn event has been triggered" ); } );
+			game.on( "BlackTurn", function( ){ console.log( "The black turn event has been triggered" ); } );
 							
 			wPlayer.join( game, "white" );
 			bPlayer.join( game, "black" );
 			
 			game.start( );
 			
-			return result;			
+			// For some reason the non-doh Deferreds don't play nice with testing, wrap the DeferredList
+			// so that the test doesn't freeze.			
+			var r = new doh.Deferred( );
+			
+			result.then( 
+				r.callback.bind( r ), 
+				r.errback.bind( r ) 
+			);
+			
+			return r;			
 		},
 		
 		mate_event: function (  ){

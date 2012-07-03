@@ -116,10 +116,10 @@ define( [ ".", "lib" ], function( chess, lib ){
 			
 			var color = this.turn( ),
 				turn  = color === "white"
-					? "BlackTurn"
-					: "WhiteTurn";
+					? "black"
+					: "white";
 
-			if( this.board.isStaleMate( color ) ){
+			if( this.board.isStaleMate( turn ) ){
 			
 				this.emit.onIdle( this, [ "StaleMate" ] )
 					.then( this.emit.async( this, [ "Draw", { result: "StaleMate" } ] ) )
@@ -127,7 +127,7 @@ define( [ ".", "lib" ], function( chess, lib ){
 			
 				return;
 					
-			} else if( this.board.isCheckMate( color ) ){
+			} else if( this.board.isCheckMate( turn ) ){
 				
 				this.emit.onIdle( this, [ "CheckMate" ] )
 					.then( 
@@ -136,8 +136,8 @@ define( [ ".", "lib" ], function( chess, lib ){
 								{ 
 									result: "CheckMate", 
 									
-									winner: color === "white" ? this.black : this.white,
-									loser:  color === "white" ? this.black : this.white
+									winner: color,
+									loser:  turn 
 									
 								}
 							] 
@@ -149,10 +149,15 @@ define( [ ".", "lib" ], function( chess, lib ){
 							
 			} else {
 			
-				this.board.isCheck( color ) 
+				this.board.isCheck( turn ) 
 					&& this.emit.onIdle( this, [ "Check", _moved_ ] );
 				
-				this.emit.onIdle( this, [ turn, _moved_ ] );
+				this.emit.onIdle( this, [ 
+					color === "white"
+						? "BlackTurn"
+						: "WhiteTurn", 
+					_moved_ 
+				]);
 				
 			}
 		},
