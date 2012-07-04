@@ -236,7 +236,7 @@ doh.register(
 					
 					board.fields.d7.piece.move( board.fields.d5 );
 					
-				} else {
+				} else if( _turn_.counter !== 3 ){
 					
 					result.reject( "The black player got an invalid tunr" );
 					
@@ -302,49 +302,47 @@ doh.register(
 			
 			var board   = new chess.board.Board( ),
 				wPlayer = new chess.Player({ color: "white" }),
-				bPlayer = new chess.Player({ color: "black" }),
-				game    = new chess.Game({ 
+				bPlayer = new chess.Player({ color: "black" });
+				
+			var wKing  = new chess.pieces.King({  board: board, color: "white", field: board.fields.a1 }),
+				//bQueen = new chess.pieces.Queen({ board: board, color: "black", field: board.fields.f2 });
+				bQueen = new chess.pieces.Rook({ board: board, color: "black", field: board.fields.h2 });
+				
+			var game = new chess.Game({ 
 					board: board,						
 					color: "black" 
 				});
-			
-			var wKing  = new chess.pieces.King({  board: board, color: "white", field: board.fields.a1 }),
-				bQueen = new chess.pieces.Queen({ board: board, color: "black", field: board.fields.c2 });
 			
 			var gameCheck   = new doh.Deferred( ),
 				playerCheck = new doh.Deferred( ),			
 				result      = new lib.DeferredList([ gameCheck, playerCheck ], false, true, false ); // list, fire on one, fire on one err, consume err
 			
 			lib.aspect.after( wPlayer, "check", function( ){ 
+								
+				playerCheck.resolve( true );
 				
-				console.log( "The white player check event has been triggerd" );
-				playerCheck.resolve( true ); 
 				
 			});
 			
 			lib.aspect.after( wPlayer, "turn", function( ){
 				
-				console.log( "The white player got the turn..." );
+				// if player check not resolved reject it!
 				
 			});
 			
 			lib.aspect.after( bPlayer, "turn", function( ){
 				
-				console.log( "The black queen has moved" );
-				bQueen.move( board.fields.c1 );
+				//bQueen.move( board.fields.f1 );
+				bQueen.move( board.fields.h1 );
 				
 			});
 			
 			game.on( "Check", function( ){ 
 				
-				console.log( "The game check evne has been trigeered" );
-				gameCheck.resolve( true ); 
+				gameCheck.resolve( true );
 				
 			});
-							
-			game.on( "WhiteTurn", function( ){ console.log( "The white turn event has been triggered" ); } );
-			game.on( "BlackTurn", function( ){ console.log( "The black turn event has been triggered" ); } );
-							
+										
 			wPlayer.join( game, "white" );
 			bPlayer.join( game, "black" );
 			
