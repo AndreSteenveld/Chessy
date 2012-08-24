@@ -183,6 +183,114 @@ doh.register(
 			
 			throw "Test not implemented"; 
 			
+		},
+		
+		moving_a_rook_on_an_empty_board: function( board, pieces ){
+			
+			var rook = new chess.pieces.Rook({ board: board, color: "white", field: board.fields.h8 });
+			
+			doh.t(
+				rook.movement( ).every( function( field ){ 
+					return field === board.fields.h7
+						|| field === board.fields.h6
+						|| field === board.fields.h5
+						|| field === board.fields.h4
+						|| field === board.fields.h3
+						|| field === board.fields.h2
+						|| field === board.fields.h1
+						|| field === board.fields.a8
+						|| field === board.fields.b8
+						|| field === board.fields.c8
+						|| field === board.fields.d8
+						|| field === board.fields.e8
+						|| field === board.fields.f8
+						|| field === board.fields.g8;
+				}),
+				"The rook is not looking at all the fields current fields"
+			);
+				
+			doh.t( rook.move( board.fields.h1 ), "Moving the rook failed" );
+			
+			doh.t(
+				rook.movement( ).every( function( field ){ 
+					return field === board.fields.h7
+						|| field === board.fields.h6
+						|| field === board.fields.h5
+						|| field === board.fields.h4
+						|| field === board.fields.h3
+						|| field === board.fields.h2
+						|| field === board.fields.h8
+						|| field === board.fields.a1
+						|| field === board.fields.b1
+						|| field === board.fields.c1
+						|| field === board.fields.d1
+						|| field === board.fields.e1
+						|| field === board.fields.f1
+						|| field === board.fields.g1;
+				}),
+				"The rook is not looking at all the new fields"
+			);			
+			
+		},
+		
+		moving_a_rook_to_attack_a_pawn: function( board, pieces ){
+			
+			var rook = new chess.pieces.Rook({ board: board, color: "white", field: board.fields.h8 }),
+				pawn = new chess.pieces.Pawn({ board: board, color: "black", field: board.fields.a1 });
+			
+			doh.t(
+				rook.movement( ).every( function( field ){ 
+					return field === board.fields.h7
+						|| field === board.fields.h6
+						|| field === board.fields.h5
+						|| field === board.fields.h4
+						|| field === board.fields.h3
+						|| field === board.fields.h2
+						|| field === board.fields.h1
+						|| field === board.fields.a8
+						|| field === board.fields.b8
+						|| field === board.fields.c8
+						|| field === board.fields.d8
+						|| field === board.fields.e8
+						|| field === board.fields.f8
+						|| field === board.fields.g8;
+				}),
+				"The rook is not looking at all the fields current fields"
+			);
+				
+			doh.t( rook.move( board.fields.h1 ), "Moving the rook failed" );
+			
+			doh.t(
+				rook.movement( ).every( function( field ){ 
+					return field === board.fields.h7
+						|| field === board.fields.h6
+						|| field === board.fields.h5
+						|| field === board.fields.h4
+						|| field === board.fields.h3
+						|| field === board.fields.h2
+						|| field === board.fields.h8
+						|| field === board.fields.a1
+						|| field === board.fields.b1
+						|| field === board.fields.c1
+						|| field === board.fields.d1
+						|| field === board.fields.e1
+						|| field === board.fields.f1
+						|| field === board.fields.g1;
+				}),
+				"The rook is not looking at all the new fields"
+			);
+			
+			doh.t(
+				rook.movement( ).some( function( field ){ return field === board.fields.a1; } ),
+				"The rook isn't looking at A1"			
+			);
+		
+			doh.t(
+				rook.attacks( ).some( function( field ){ return field === board.fields.a1; } ),
+				"The rook isn't attacking a1" 
+			);
+		
+			doh.t( pawn.attackedBy( )[ 0 ] && pawn.attackedBy( )[ 0 ] === rook, "Pawn wasn't being attacked" );
 		}
 	})
 );

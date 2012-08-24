@@ -305,8 +305,7 @@ doh.register(
 				bPlayer = new chess.Player({ color: "black" });
 				
 			var wKing  = new chess.pieces.King({  board: board, color: "white", field: board.fields.a1 }),
-				//bQueen = new chess.pieces.Queen({ board: board, color: "black", field: board.fields.f2 });
-				bQueen = new chess.pieces.Rook({ board: board, color: "black", field: board.fields.h2 });
+				bQueen = new chess.pieces.Rook({ board: board, color: "black", field: board.fields.h8 });
 				
 			var game = new chess.Game({ 
 					board: board,						
@@ -315,24 +314,27 @@ doh.register(
 			
 			var gameCheck   = new doh.Deferred( ),
 				playerCheck = new doh.Deferred( ),			
-				result      = new lib.DeferredList([ gameCheck, playerCheck ], false, true, false ); // list, fire on one, fire on one err, consume err
+				turnCheck   = new doh.Deferred( ),
+				result      = new lib.DeferredList([ gameCheck, playerCheck, turnCheck ], false, true, false ); // list, fire on one, fire on one err, consume err
 			
 			lib.aspect.after( wPlayer, "check", function( ){ 
 								
 				playerCheck.resolve( true );
-				
 				
 			});
 			
 			lib.aspect.after( wPlayer, "turn", function( ){
 				
 				// if player check not resolved reject it!
+				playerCheck.then( 
+					function( success ){ turnCheck.resolve( success ); },
+					function( failure ){ turnCheck.reject( failure ); }
+				);
 				
 			});
 			
 			lib.aspect.after( bPlayer, "turn", function( ){
 				
-				//bQueen.move( board.fields.f1 );
 				bQueen.move( board.fields.h1 );
 				
 			});
@@ -361,7 +363,121 @@ doh.register(
 		},
 		
 		mate_event: function (  ){
-			doh.t( false, "Not implemented" );
+			
+			var board   = new chess.board.Board( ),
+				wPlayer = new chess.Player({ color: "white" }),
+				bPlayer = new chess.Player({ color: "black" });
+				
+			var wKing = new chess.pieces.King({ board: board, color: "white", field: board.fields.a1 }),
+				wPawns = [
+					new chess.pieces.Pawn({ board: board, color: "white", field: board.fields.a2 }),
+					new chess.pieces.Pawn({ board: board, color: "white", field: board.fields.b2 }),
+					new chess.pieces.Pawn({ board: board, color: "white", field: board.fields.c2 })
+				];
+				
+			var bQueen = new chess.pieces.Queen({ board: board, color: "black", field: board.fields.h8 });			
+				
+			var game = new chess.Game({ 
+					board: board,						
+					color: "black" 
+				});
+			
+			var wMate = new doh.Deferred( ),
+				wLose = new doh.Deferred( ),
+				wEnd  = new doh.Deferred( ),
+				
+				bWin = new doh.Deferred( ),
+				bEnd = new doh.Deferred( ),
+				
+				gMate = new doh.Deferred( ),
+				gEnd  = new doh.Deferred( ),
+				
+				result = new lib.DeferredList([
+						wMate, wLose, wEnd,
+						bWin, bEnd,
+						gMate, gEnd
+					],
+					false, true, false
+				);
+			
+			//
+			// Hacking in the events for the white player, makte sure we are going to check if he
+			// recieves the mate event and then the end event.
+			//
+			lib.aspect.after( wPlayer, "mated", function( ){ 
+				
+				console.log( "Test#mate_event :: white player mate event" );		
+				wMate.resolve( true );
+								
+			});
+			
+			lib.aspect.after( wPlayer, "lose", function( ){
+				
+				console.log( "Test#mate_event :: white player lose event" );
+				wLose.resolve( true );
+				
+			});
+			
+			lib.aspect.after( wPlayer, "ended", function( ){ 
+								
+				console.log( "Test#mate_event :: white player end event" );
+				wEnd.resolve( true );
+								
+			});
+						
+			// Making sure they are made public on the Game object
+			game.on( "CheckMate", function( _mate_ ){ 
+				
+				console.log( "Test#mate_event :: game mate event" );
+				gMate.resolve( true );	
+			
+			});
+			
+			game.on( "End", function( _end_ ){ 
+					
+				console.log( "Test#mate_event :: game end event" );
+				gEnd.resolve( true );	
+				
+			});
+			
+			// Wire up the black player to make the move and have a win event.
+			lib.aspect.after( bPlayer, "turn", function( ){
+				
+				console.log( "Test#mate_event :: black player turn event" );
+				bQueen.move( board.fields.h1 );
+				
+			});
+			
+			lib.aspect.after( bPlayer, "win", function( ){
+				
+				console.log( "Test#mate_event :: black player win event" );
+				bWin.resolve( true );
+				
+			});
+			
+			lib.aspect.after( bPlayer, "ended", function( ){
+				
+				console.log( "Test#mate_event :: black player end event" );
+				bEnd.resolve( true );
+				
+			});
+			
+			wPlayer.join( game, "white" );
+			bPlayer.join( game, "black" );
+			
+			game.start( );
+			
+			// For some reason the non-doh Deferreds don't play nice with testing, wrap the DeferredList
+			// so that the test doesn't freeze.			
+			var r = new doh.Deferred( );
+			
+			result.then( 
+				r.callback.bind( r ), 
+				r.errback.bind( r ) 
+			);
+			
+			return r;
+			
 		},
 		
 		surrender_event: function (  ){

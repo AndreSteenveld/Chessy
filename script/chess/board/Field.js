@@ -67,7 +67,12 @@ define([ ".", "lib" ], function( board, lib ){
 			this.piece && this.board.removeFromPlay( this.piece );
 			this.piece = piece;
 			
-			this.piece.moves( ).forEach( function( field ){ field.looking.push( piece ); });
+			this.piece.movement( ).forEach( function( field ){ 
+				
+				//console.log( "Piece " + piece.toString( ) + " is looking at " + field.toString( ) );	
+				field.looking.push( piece ); 
+				
+			});
 		},
 		
 		coordinates: function( color ){

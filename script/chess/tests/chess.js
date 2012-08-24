@@ -10,7 +10,6 @@ define([ "dojo", "doh" ], function( dojo, doh ){
 		resolve: doh.Deferred.prototype.callback,
 		reject: doh.Deferred.prototype.errback,
 		then: function( ){ return this.addCallbacks.apply( this, arguments ); }
-		
 	});
 	
 	require({ 

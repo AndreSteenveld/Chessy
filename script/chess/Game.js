@@ -148,16 +148,38 @@ define( [ ".", "lib" ], function( chess, lib ){
 				return;
 							
 			} else {
-			
-				this.board.isCheck( turn ) 
-					&& this.emit.onIdle( this, [ "Check", _moved_ ] );
+						
+				// 
+				// We do want to make sure that the check event is triggered befire the
+				// actual turn event. This is becuase a player has to know he is check
+				// before considering any moves. Using the deferred returned from the 
+				// onIdle will gurantee that.
+				//
+				if( this.board.isCheck( turn ) ){
+					
+					this.emit.onIdle( this, [ "Check", _moved_ ] )
+						.then( 
+							this.emit.async( this, [ 
+									color === "white"
+										? "BlackTurn"
+										: "WhiteTurn", 
+									_moved_ 
+								]
+							)
+						);
+					
+					
+				} else {				
+					
+					// No check so just trigger the turn imediatly.								
+					this.emit.onIdle( this, [ 
+						color === "white"
+							? "BlackTurn"
+							: "WhiteTurn", 
+						_moved_ 
+					]);
 				
-				this.emit.onIdle( this, [ 
-					color === "white"
-						? "BlackTurn"
-						: "WhiteTurn", 
-					_moved_ 
-				]);
+				}
 				
 			}
 		},

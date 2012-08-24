@@ -194,7 +194,8 @@ define([ "..", ".", "lib" ], function( chess, pieces, lib ){
 						&& line[ 3 ] && !line[ 2 ].piece && fields.push( line[ 3 ] )
 						&& line[ 4 ] && !line[ 3 ].piece && fields.push( line[ 4 ] )
 						&& line[ 5 ] && !line[ 4 ].piece && fields.push( line[ 5 ] )
-						&& line[ 6 ] && !line[ 5 ].piece && fields.push( line[ 6 ] );
+						&& line[ 6 ] && !line[ 5 ].piece && fields.push( line[ 6 ] )
+						&& line[ 7 ] && !line[ 6 ].piece && fields.push( line[ 7 ] );
 						
 						return fields;
 						
@@ -228,7 +229,25 @@ define([ "..", ".", "lib" ], function( chess, pieces, lib ){
 		
 		moves: function( ){
 			var color = this.color;	
-			return this.movement( ).filter( function( field ){ return field.piece === null || field.piece.color !== color; } );	
+			//return this.movement( ).filter( function( field ){ return field.piece === null || field.piece.color !== color; } );	
+			return this.movement( ).filter( function( field ){ 
+				//return field.piece === null || field.piece.color !== color; 
+				
+				if( field.piece === null ){
+
+					return true;
+					
+				} else if( field.piece.color !== color ){
+					
+					return true; 
+					 
+				} else {
+					
+					return false;
+				
+				}
+				
+			});	
 		},
 		
 		//
@@ -264,14 +283,14 @@ define([ "..", ".", "lib" ], function( chess, pieces, lib ){
 				// methods because events could be bound to it.
 				this.field.leave( this );
 				
-				toField.occupy( this );
-				
 				this.field = toField;
 				
 				var coordinates = this.field.coordinates( this.color );
 				this.x = coordinates.x;
 				this.y = coordinates.y;
 				
+				toField.occupy( this );
+												
 				return true;
 				
 			} else {
