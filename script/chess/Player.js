@@ -69,7 +69,7 @@ define( [ ".", "lib" ], function( chess, lib ){
 					//
 					// To the player
 					//
-					check: game.on( "Checked", this.check.bind( this ) ),
+					check: game.on( "Check", this.check.bind( this ) ),
 					
 					mated: game.on( "CheckMate", this.mate.bind( this ) ),
 					
