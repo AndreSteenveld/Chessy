@@ -60,9 +60,13 @@ define( [ ".", "lib" ], function( chess, lib ){
 		},
 		
 		end: function( conditions ){
-			//
-			// Implement the draw (remise) and surrender here.
-			//
+			
+			if( conditions.result === "Surrender" ){
+				
+				this.emit.onIdle( this, [ "Surrender", conditions ] );
+									
+			} 
+			
 		},
 		
 		//
@@ -196,7 +200,11 @@ define( [ ".", "lib" ], function( chess, lib ){
 		
 		onCheckMate: function( _result_ ){ /* Fired when eiter player is mated, fired before the onEnd event */ },
 		
-		onSurrender: function( _result_ ){ /* Fired when a player surrenders the match, fired before the onEnd event */ },
+		onSurrender: function( _result_ ){ /* Fired when a player surrenders the match, fired before the onEnd event */ 
+			
+			this.emit.onIdle( this, [ "End", _result_ ] );
+				
+		},
 						
 		onStart: function( _start_ ){ 
 				

@@ -405,22 +405,19 @@ doh.register(
 			// recieves the mate event and then the end event.
 			//
 			lib.aspect.after( wPlayer, "mate", function( ){ 
-				
-				console.log( "Test#mate_event :: white player mate event" );		
+			
 				wMate.resolve( true );
 								
 			});
 			
 			lib.aspect.after( wPlayer, "lose", function( ){
 				
-				console.log( "Test#mate_event :: white player lose event" );
 				wLose.resolve( true );
 				
 			});
 			
 			lib.aspect.after( wPlayer, "ended", function( ){ 
-								
-				console.log( "Test#mate_event :: white player end event" );
+							
 				wEnd.resolve( true );
 								
 			});
@@ -428,14 +425,12 @@ doh.register(
 			// Making sure they are made public on the Game object
 			game.on( "CheckMate", function( _mate_ ){ 
 				
-				console.log( "Test#mate_event :: game mate event" );
 				gMate.resolve( true );	
 			
 			});
 			
 			game.on( "End", function( _end_ ){ 
 					
-				console.log( "Test#mate_event :: game end event" );
 				gEnd.resolve( true );	
 				
 			});
@@ -443,21 +438,18 @@ doh.register(
 			// Wire up the black player to make the move and have a win event.
 			lib.aspect.after( bPlayer, "turn", function( ){
 				
-				console.log( "Test#mate_event :: black player turn event" );
 				bQueen.move( board.fields.h1 );
 				
 			});
 			
 			lib.aspect.after( bPlayer, "win", function( ){
 				
-				console.log( "Test#mate_event :: black player win event" );
 				bWin.resolve( true );
 				
 			});
 			
 			lib.aspect.after( bPlayer, "ended", function( ){
 				
-				console.log( "Test#mate_event :: black player end event" );
 				bEnd.resolve( true );
 				
 			});
@@ -481,7 +473,55 @@ doh.register(
 		},
 		
 		surrender_event: function (  ){
-			doh.t( false, "Not implemented" );
+			var board   = setup_board( ),
+				wPlayer = new chess.Player({ color: "white" }),
+				bPlayer = new chess.Player({ color: "black" });
+				
+			var game = new chess.Game({ board: board });
+				
+			var gameSurrender = new lib.Deferred( ),
+				gameEnd       = new lib.Deferred( ),
+				
+				wEnd = new lib.Deferred( ),
+				wLose = new lib.Deferred( ),
+				
+				bEnd = new lib.Deferred( ),
+				bWin = new lib.Deferred( ),
+				
+				result = new lib.DeferredList([
+						gameSurrender, gameEnd,
+						wEnd, wLose,
+						bEnd, bWin
+					], 
+					false, true, false 
+				);
+				
+			game.on( "Surrender", function( ){ gameSurrender.resolve( true ); });
+			game.on( "End", function( ){ gameEnd.resolve( true ); });
+			
+			lib.aspect.after( wPlayer, "ended", function( ){ wEnd.resolve( true ); });
+			lib.aspect.after( wPlayer, "lose", function( ){ wLose.resolve( true ); });
+			
+			lib.aspect.after( bPlayer, "ended", function( ){ bEnd.resolve( true ); });
+			lib.aspect.after( bPlayer, "win", function( ){ bWin.resolve( true ); });
+			
+			lib.aspect.after( wPlayer, "turn", function( ){ wPlayer.surrender( ); });		
+			
+			wPlayer.join( game, "white" );
+			bPlayer.join( game, "black" );
+			
+			game.start( );
+			
+			// For some reason the non-doh Deferreds don't play nice with testing, wrap the DeferredList
+			// so that the test doesn't freeze.			
+			var r = new doh.Deferred( );
+			
+			result.then( 
+				r.callback.bind( r ), 
+				r.errback.bind( r ) 
+			);
+			
+			return r;			
 		},
 		
 		stale_event: function (  ){
