@@ -42,9 +42,9 @@ define( [ ".", "lib" ], function( chess, lib ){
 							// The game doesn't do all the triggering of events, its more a general thing
 							// so if we want to fire win/lose events and then the more general end event 
 							// we will have to do a little event routing of our own.
-							if( _end_.result === "check mate" || _end_.result === "surrender" ){
+							if( _end_.result === "CheckMate" || _end_.result === "surrender" ){
 								
-								_end_.winner === this
+								_end_.winner === this.color
 									? this.win.onIdle( this ).then( this.ended.bind( this, [ _end_ ] ) )
 									: this.lose.onIdle( this ).then( this.ended.bind( this, [ _end_ ] ) );
 									

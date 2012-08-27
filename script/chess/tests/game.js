@@ -404,7 +404,7 @@ doh.register(
 			// Hacking in the events for the white player, makte sure we are going to check if he
 			// recieves the mate event and then the end event.
 			//
-			lib.aspect.after( wPlayer, "mated", function( ){ 
+			lib.aspect.after( wPlayer, "mate", function( ){ 
 				
 				console.log( "Test#mate_event :: white player mate event" );		
 				wMate.resolve( true );
