@@ -62,13 +62,16 @@ define([
 				});
 			});
 			
-			this.white = this.fields = lib.delegate( fieldsByName, fieldsByCoordinate );
+			this.fields = lib.delegate( fieldsByName, fieldsByCoordinate );
+			
+			this.white = lib.delegate( this.fields, { pieces: this.whitePiecesInPlay });
 						
-			this.black = lib.delegate( fieldsByName, 
-				fieldsByCoordinate
+			var blackBoard = lib.delegate( fieldsByName, fieldsByCoordinate
 					.map( function( column ){ return [ ].concat( column ).reverse( ); })
-					.reverse( )
+					.reverse( )				
 			);
+						
+			this.black = lib.delegate( blackBoard, { pieces: this.blackPiecesInPlay });
 		},
 		
 		clone: function( ){
