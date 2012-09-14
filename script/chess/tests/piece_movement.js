@@ -112,6 +112,37 @@ doh.register(
 			
 		},
 		
+		pawn_looking_at_en_passant_but_not_moving: function( board, pieces ){
+			
+			pieces.bPawn = new chess.pieces.Pawn({
+				color: "black",
+				board: board,
+				field: board.fields.a7
+			});
+			
+			pieces.notEnPassant = new chess.pieces.Pawn({
+				color: "black",
+				board: board,
+				field: board.fields.h7
+			});
+			
+			pieces.wPawn = new chess.pieces.Pawn({
+				color: "white",
+				board: board,
+				field: board.fields.b5
+			});
+			
+			// Ok we are going to look if we can move in to an en passant situation, I think
+			// there is a little bug that assigns the moves before actually moving the pawn.
+			pieces.bPawn.moves( );
+			
+			doh.is( true, pieces.notEnPassant.move( board.fields.h6 ), "The move of the non en passant pawn didn't move" );
+			
+			doh.t( -1 === pieces.bPawn.attackedBy( ).indexOf( pieces.wPawn ), "Black pawn is being attacked by white pawn." );
+			doh.t( -1 === pieces.wPawn.moves( ).indexOf( board.fields.a6 ), "White pawn can move to A6." );
+				
+		},
+		
 		pawn_promotion: function( board, pieces ){
 			
 			throw "Test not implemented";
@@ -180,9 +211,29 @@ doh.register(
 		
 		king_not_castlering_because_it_already_did: function( board, pieces ){
 			
+			pieces.king = new chess.pieces.King({
+				color: "white",
+				board: board,
+				castled: true,
+				field: board.fields.e1
+			});
 			
-			throw "Test not implemented"; 
+			pieces.rook_left = new chess.pieces.Rook({
+				color: "white",
+				board: board,
+				field: board.fields.a1
+			});
 			
+			pieces.rook_right = new chess.pieces.Rook({
+				color: "white",
+				board: board,
+				field: board.fields.h8
+			});
+			
+			var moves = pieces.king.moves( );
+			
+			doh.t( -1 === moves.indexOf( board.fields.c1 ) );
+			doh.t( -1 === moves.indexOf( board.fields.g1 ) );
 		},
 		
 		moving_a_rook_on_an_empty_board: function( board, pieces ){
