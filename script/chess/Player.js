@@ -73,8 +73,7 @@ define( [ ".", "lib" ], function( chess, lib ){
 					
 					mated: game.on( "CheckMate", this.mate.bind( this ) ),
 					
-					staleMate: game.on( "StaleMate", this.staleMate.bind( this ) )
-					
+					staleMate: game.on( "StaleMate", this.staleMate.bind( this ) )			
 					
 				};		
 				
@@ -87,6 +86,33 @@ define( [ ".", "lib" ], function( chess, lib ){
 			this.board = null;
 			
 			this.game.leave( this );			
+		},
+		
+		offerDraw: function( ){ 
+			var deferred = new lib.Deferred( )
+				other = this.color === "white"
+					? this.game.black
+					: this.game.white;
+					
+			deferred.then(
+				function( result ){
+					
+					result && this.end({ result: "draw" });
+					
+				}
+			);
+			
+			this.game.once( "Moved", function( ){ deferred.resolve( false ); } );
+			
+			other.acceptDraw.onIdle( other, other.acceptDraw, [ deferred ] );
+		},
+		
+		surrender: function( ){ 
+			this.game.end({
+				result: "Surrender",
+				loser: this.color,
+				winner: this.color === "white" ? "black" : "white"
+			});
 		},
 
 		//
@@ -104,18 +130,8 @@ define( [ ".", "lib" ], function( chess, lib ){
 		
 		//
 		// Actions involving the other player
-		//			
-		offerDraw: function( ){ },
-		
-		acceptDraw: function( ){ /* called when the other player offers a draw. Returns true to accept, false to reject */ },
-			
-		surrender: function( ){ 
-			this.game.end({
-				result: "Surrender",
-				loser: this.color,
-				winner: this.color === "white" ? "black" : "white"
-			});
-		},
+		//		
+		acceptDraw: function( deferred ){ /* called when the other player offers a draw. Returns true to accept, false to reject */ },
 		
 		//
 		// Game event handlers

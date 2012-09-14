@@ -69,6 +69,11 @@ define( [ ".", "lib" ], function( chess, lib ){
 			
 		},
 		
+		draw: function( ){
+			
+			
+		},
+		
 		//
 		// Handlers for the place and occupy methods from the board
 		//
