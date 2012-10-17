@@ -6,71 +6,60 @@
 define( [ "..", ".", "lib", "../Player" ], function( chess, ai, lib, Player ){
 
 	ai.Random = lib.declare( [ Player ], {
-	
-		//
-		// Actions involving the other player
-		//			
-		acceptDraw: function( ){ /* called when the other player offers a draw. Returns true to accept, false to reject */ },
 		
-		//
-		// Game actions
-		//
-		lose: function( ){ /* Called when the player loses */ },
-		
-		draw: function( ){ /* Called when the players have agreed on a draw */ },
-		
-		win: function( ){ /* Called when the player wins the game */ },
-		
-		//
-		// Game event handlers
-		//
-		turn: function( ){ 
-			/* when this player recieves the turn */ 
+			//
+			// Handlers for general game events
+			//
+			started: function( ){ /* when the game has started */ },
 			
-			var pieces  = this.board[ this.color + "PiecesInPlay" ],
-				checked = this.board.isCheck( this.color );
+			ended: function( ){ /* called when the game comes to an end */ },
+			
+			lose: function( ){ /* Called when the player loses */ },
+			
+			draw: function( ){ /* Called when the players have agreed on a draw */ },
+			
+			win: function( ){ /* Called when the player wins the game */ },
+			
+			//
+			// Actions involving the other player
+			//		
+			acceptDraw: function( deferred ){ deferred.resolve( true ); /* called when the other player offers a draw. Returns true to accept, false to reject */ },
+			
+			//
+			// Game event handlers
+			//
+			turn: function( ){ 
 				
-			var piece = checked
-					? pieces.filter( function( piece ){ return piece.type === "King"; } )[ 0 ]
-					: pieces[ ~~( Math.random( ) * pieces.length - 1 ) ];
+				var pieces = this.board[ this.color ].pieces,
+					piece  = null;
 					
-			var moves = piece.moves( );
+				while( !piece || !piece.moves( ).length ){	
 					
-			while( true ){
-				if( checked && !moves.length ){
-					// We are checked and there are no moves, just give up!
-					this.surrender( );
-					break;	
+					piece = pieces[ ~~( Math.random( ) * pieces.length - 1 ) ];
+					
 				}
 				
-				if( moves.length ){
-					var move = moves[ ~~( Math.random( ) * moves.length - 1 ) ];
+				var fields = piece.moves( ),
+					field  = fields[ ~~( Math.random( ) * fields.length - 1 ) ];
 					
-					piece.move( move );
-					break;
-				}
-					
-				piece = pieces[ ~~( Math.random( ) * pieces.length - 1 ) ];
-				moves = piece.moves( );
-			}			
+				piece.move( field );
+				
+			},
 			
-		},
+			placed: function( ){ /* when a piece has been placed on the board */ },
+			
+			moved: function( ){ /* when any player has moved a piece */ },
+			
+			//
+			// Handlers for events after something happend to the player
+			//
+			check: function( ){ this.surrender( ); },
+			
+			mate: function( ){ /* Called when the other player mates you */ },
+			
+			staleMate: function( ){ /* Called when you are stale mated */ }
 		
-		placed: function( ){ /* when a piece has been placed on the board */ },
-		
-		moved: function( ){ /* when any player has moved a piece */ },
-		
-		started: function( ){ /* when the game has started */ },
-		
-		checked: function( ){ /* Called when the other player checked you */ },
-		
-		mates: function( ){ /* Called when the other player mates you */ },
-		
-		staleMates: function( ){ /* Called when you are stale mated */ },
-		
-		ended: function( ){ /* called when the game comes to an end */ }
-	
-	});
+		});	
 	
 	return ai.Random;
 

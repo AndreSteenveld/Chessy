@@ -65,7 +65,8 @@ define([
 			this.fields = lib.delegate( fieldsByName, fieldsByCoordinate );
 			
 			this.white = lib.delegate( this.fields, { pieces: this.whitePiecesInPlay });
-						
+
+			// TODO: Rewrite this to a reduce that makes sense.						
 			var blackBoard = lib.delegate( fieldsByName, fieldsByCoordinate
 					.map( function( column ){ return [ ].concat( column ).reverse( ); })
 					.reverse( )				
