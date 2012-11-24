@@ -3,6 +3,9 @@
  *	Licensed under the MIT public license for the full license see the LICENSE file
  *
  */
+ 
+console.info( "The ches main file is being executed" );
+ 
 define([ 
 	".",       
 	
@@ -16,6 +19,9 @@ define([
 	"./pieces/King"
 	
 ], function( chess ){
+	
+	console.info( "The main dependencies have been loaded now we are going to finishup on the module." );
+	
 	//
 	// The main chess module
 	//

@@ -3,7 +3,7 @@
  *	Licensed under the MIT public license for the full license see the LICENSE file
  *
  */
-define([ "../", "lib", "doh", "../Game", "../Player" ], function( chess, lib, doh ){
+define([ "chess", "lib", "doh", "../Game", "../Player" ], function( chess, lib, doh ){
 
 function setup_board( ){
 	

@@ -3,7 +3,7 @@
  *	Licensed under the MIT public license for the full license see the LICENSE file
  *
  */
-define([ "../", "lib", "doh" ], function( chess, lib, doh ){
+define([ "chess", "lib", "doh" ], function( chess, lib, doh ){
 
 function wrap_tests( tests ){
 
