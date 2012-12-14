@@ -14,8 +14,8 @@ define([ "dojo", "doh" ], function( dojo, doh ){
 	
 	require({ 
 		packages: [
-			{ name: "lib",    location: "../../../script/lib" },
-			{ name: "chess",  location: "../../../script/chess" }
+			{ name: "lib",    location: "../../script/lib" },
+			{ name: "chess",  location: "../../script/chess" }
 		]
 	});
 		

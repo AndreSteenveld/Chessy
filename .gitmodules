@@ -1,0 +1,13 @@
+[submodule "script/dojo"]
+	path = script/dojo
+	url = C:/Users/Andre/work/externals/dojo
+[submodule "script/dojox"]
+	path = script/dojox
+	url = C:/Users/Andre/work/externals/dojox
+[submodule "script/dijit"]
+	path = script/dijit
+	url = C:/Users/Andre/work/externals/dijit
+
+[submodule "script/util"]
+	path = script/util
+	url = C:/Users/Andre/work/externals/util
