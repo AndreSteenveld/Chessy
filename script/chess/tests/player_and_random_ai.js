@@ -3,7 +3,7 @@
  *	Licensed under the MIT public license for the full license see the LICENSE file
  *
  */
-define([ "chess", "lib", "doh" ], function( chess, lib, doh ){
+define([ "chess", "lib", "doh", "chess/ai/Random" ], function( chess, lib, doh, Random ){
 
 function setup_board( ){
 	
@@ -45,8 +45,8 @@ doh.register(
 			
 			var game = new chess.Game({ board: board });
 			
-			var white = new chess.ai.Random({ color: "white", game: game }),
-				black = new chess.ai.Random({ color: "black", game: game });
+			var white = new Random({ color: "white", game: game }),
+				black = new Random({ color: "black", game: game });
 				
 			var result = new doh.Deferred( );
 				
@@ -56,6 +56,8 @@ doh.register(
 				result.resolve( true );
 				
 			});
+			
+			game.start( );
 		
 			return result;
 		}
