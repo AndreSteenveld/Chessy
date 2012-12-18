@@ -124,21 +124,30 @@ define( [ ".", "lib" ], function( chess, lib ){
 			if( !this.white || !this.black ){ return; }
 			
 			var color = this.turn( ),
-				turn  = color === "white"
-					? "black"
-					: "white";
+				turn  = color === "white" ? "black"     : "white",
+				event = color === "white" ? "BlackTurn" : "WhiteTurn",
+				data  = lib.mixin( { }, _moved_ );
 
+			// 
+			// We do want to make sure that the check event is triggered befire the
+			// actual turn event. This is becuase a player has to know he is check
+			// before considering any moves. Using the deferred returned from the 
+			// onIdle will gurantee that.
+			//
 			if( !this.board.isCheck( turn ) && this.board.isStaleMate( turn ) ){
 			
-				this.emit.onIdle( this, [ "StaleMate", lib.mixin( { }, _moved_ ) ] )
+				return this.emit.onIdle( this, [ "StaleMate", data ] )
 					.then( this.emit.async( this, [ "Draw", { result: "StaleMate" } ] ) )
 					.then( this.emit.async( this, [ "End",  { result: "StaleMate" } ] ) );
 			
-				return;
-					
+			} else if( !this.board.isCheckMate( turn ) && this.board.isCheck( turn ) ){
+			
+				return this.emit.onIdle( this, [ "Check", data ] )
+					.then( this.emit.async( this, [ event, data ] ) );
+			
 			} else if( this.board.isCheckMate( turn ) ){
 				
-				this.emit.onIdle( this, [ "CheckMate", lib.mixin( { }, _moved_ ) ] )
+				return this.emit.onIdle( this, [ "CheckMate", data ] )
 					.then( 
 						this.emit.async( this, 
 							[ "End", 
@@ -153,44 +162,13 @@ define( [ ".", "lib" ], function( chess, lib ){
 						) 
 						
 					);
-				
-				return;
 							
 			} else {
 						
-				// 
-				// We do want to make sure that the check event is triggered befire the
-				// actual turn event. This is becuase a player has to know he is check
-				// before considering any moves. Using the deferred returned from the 
-				// onIdle will gurantee that.
-				//
-				if( this.board.isCheck( turn ) ){
-					
-				this.emit.onIdle( this, [ "Check", lib.mixin( { }, _moved_ ) ] )
-						.then( 
-							this.emit.async( this, [ 
-									color === "white"
-										? "BlackTurn"
-										: "WhiteTurn", 
-									lib.mixin( { }, _moved_ )
-								]
-							)
-						);
-					
-					
-				} else {				
-					
-					// No check so just trigger the turn imediatly.								
-					this.emit.onIdle( this, [ 
-						color === "white"
-							? "BlackTurn"
-							: "WhiteTurn", 
-						lib.mixin( { }, _moved_ )
-					]);
-				
-				}
+				return this.emit.onIdle( this, [ event, data ]);
 				
 			}
+				
 		},
 		
 		onIllegalMove: function( _illegal_ ){ /* When a player makes an illegal move */ },

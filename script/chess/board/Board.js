@@ -141,8 +141,8 @@ define([
 			var inPlayIndex = this.piecesInPlay.indexOf( piece ),
 				colorIndex  = this[ piece.color + "PiecesInPlay" ].indexOf( piece );
 			
-			this.piecesInPlay.splice( inPlayIndex );
-			this[ piece.color + "PiecesInPlay" ].splice( colorIndex );
+			this.piecesInPlay.splice( inPlayIndex, 1 );
+			this[ piece.color + "PiecesInPlay" ].splice( colorIndex, 1 );
 			
 			this.piecesOutOfPlay.push( piece );
 			
