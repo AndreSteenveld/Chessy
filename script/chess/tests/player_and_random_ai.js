@@ -33,7 +33,6 @@ function setup_board( ){
 	
 }
 
-
 doh.register(
 
 	"Player/Random-AI tests",
@@ -62,4 +61,5 @@ doh.register(
 		}
 	
 	}
+);
 });

@@ -10,10 +10,10 @@
  */
 
 
-@import "../script/dojo171/dojo/resources/dojo.css";
+@import "../script/dojo/resources/dojo.css";
 
 /* If you are going to change the style, don't forget to change the class on <body> aswell! */
-@import "./script/dojo171/dijit/themes/claro/claro.css"; 
+@import "../script/dijit/themes/claro/claro.css"; 
 
 @import "./base.css";
 @import "./default-layout.css";

@@ -236,6 +236,51 @@ doh.register(
 			doh.t( -1 === moves.indexOf( board.fields.g1 ) );
 		},
 		
+		king_not_moving_to_an_attacked_field: function( board, pieces ){
+						
+			pieces.king = new chess.pieces.King({ 
+				color: "white", 
+				board: board,
+				field: board.fields.a1
+			});
+			
+			pieces.rook = new chess.pieces.Rook({ 
+				color: "black",
+				board: board,
+				field: board.fields.b8				
+			});
+			
+			doh.is( false, pieces.king.move( board.fields.b1 ), "King moved to an attacked field" );
+			
+		},
+		
+		king_cant_move: function( board, pieces ){
+			
+			pieces.king = new chess.pieces.King({ 
+				color: "white", 
+				board: board,
+				field: board.fields.a1
+			});
+			
+			pieces.rook = new chess.pieces.Rook({ 
+				color: "black",
+				board: board,
+				field: board.fields.b8				
+			});
+			
+			pieces.rook = new chess.pieces.Rook({
+				color: "black",
+				board: board,
+				field: board.fields.h2
+			});
+			
+			doh.is( false, pieces.king.move( board.fields.b1 ), "King moved to B1" );
+			doh.is( false, pieces.king.move( board.fields.a2 ), "King moved to A2" );
+			doh.is( false, pieces.king.move( board.fields.b2 ), "King moved to B2 ");
+			
+			doh.is( 0, pieces.king.moves( ).length, "The king has moves to make" );			
+		},
+		
 		moving_a_rook_on_an_empty_board: function( board, pieces ){
 			
 			var rook = new chess.pieces.Rook({ board: board, color: "white", field: board.fields.h8 });

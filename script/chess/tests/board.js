@@ -63,13 +63,23 @@ doh.register(
 		},
 		
 		stale_mate: function( board, pieces ){ 
-			new chess.pieces.King({ color: "white", board: board, field: board.fields.a1 });
-			new chess.pieces.Pawn({ color: "white", board: board, field: board.fields.a2 });
+			
+			new chess.pieces.Pawn({ color: "white", board: board, field: board.fields.a8 });
 				
-			new chess.pieces.Pawn({ color: "black", board: board, field: board.fields.a3 });
-			new chess.pieces.Rook({ color: "black", board: board, field: board.fields.b8 });
+			doh.is( true, board.isStaleMate( "white" ) );		
 				
-			doh.t( board.isStaleMate( "white" ) );			
+		},
+		
+		stale_mate_with_boxed_king: function( board, pieces ){
+			
+			new chess.pieces.King({ color: "white", board: board, field: board.fields.a8 });
+			new chess.pieces.Pawn({ color: "black", board: board, field: board.fields.a7 });
+				
+			new chess.pieces.Rook({ color: "black", board: board, field: board.fields.a1 });
+			new chess.pieces.Rook({ color: "black", board: board, field: board.fields.b1 });
+			
+			doh.is( true, board.isStaleMate( "white" ) );			
+			
 		}
 		
 		

@@ -128,9 +128,9 @@ define( [ ".", "lib" ], function( chess, lib ){
 					? "black"
 					: "white";
 
-			if( this.board.isStaleMate( turn ) ){
+			if( !this.board.isCheck( turn ) && this.board.isStaleMate( turn ) ){
 			
-				this.emit.onIdle( this, [ "StaleMate" ] )
+				this.emit.onIdle( this, [ "StaleMate", lib.mixin( { }, _moved_ ) ] )
 					.then( this.emit.async( this, [ "Draw", { result: "StaleMate" } ] ) )
 					.then( this.emit.async( this, [ "End",  { result: "StaleMate" } ] ) );
 			
@@ -138,7 +138,7 @@ define( [ ".", "lib" ], function( chess, lib ){
 					
 			} else if( this.board.isCheckMate( turn ) ){
 				
-				this.emit.onIdle( this, [ "CheckMate" ] )
+				this.emit.onIdle( this, [ "CheckMate", lib.mixin( { }, _moved_ ) ] )
 					.then( 
 						this.emit.async( this, 
 							[ "End", 
@@ -166,13 +166,13 @@ define( [ ".", "lib" ], function( chess, lib ){
 				//
 				if( this.board.isCheck( turn ) ){
 					
-					this.emit.onIdle( this, [ "Check", _moved_ ] )
+				this.emit.onIdle( this, [ "Check", lib.mixin( { }, _moved_ ) ] )
 						.then( 
 							this.emit.async( this, [ 
 									color === "white"
 										? "BlackTurn"
 										: "WhiteTurn", 
-									_moved_ 
+									lib.mixin( { }, _moved_ )
 								]
 							)
 						);
@@ -185,7 +185,7 @@ define( [ ".", "lib" ], function( chess, lib ){
 						color === "white"
 							? "BlackTurn"
 							: "WhiteTurn", 
-						_moved_ 
+						lib.mixin( { }, _moved_ )
 					]);
 				
 				}

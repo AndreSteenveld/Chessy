@@ -27,6 +27,7 @@ define([ "dojo", "doh" ], function( dojo, doh ){
 		require( [ "chess/tests/piece_movement" ], function( ){ console.info( "Completed movement tests (" + ( ( new Date( ) ).getTime( ) - start ) + "ms)" ); } );
 		require( [ "chess/tests/board" ], function( ){ console.info( "Completed board tests (" + ( ( new Date( ) ).getTime( ) - start ) + "ms)" ); } );
 		require( [ "chess/tests/game" ], function( ){ console.info( "Completed game tests (" + ( ( new Date( ) ).getTime( ) - start ) + "ms)" ); } );
+		require( [ "chess/tests/player_and_random_ai" ], function( ){ console.info( "Completed random AI tests (" + ( ( new Date( ) ).getTime( ) - start ) + "ms)" ); } );
 	
 	
 	} catch( exception ){

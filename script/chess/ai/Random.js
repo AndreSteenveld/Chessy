@@ -28,19 +28,25 @@ define( [ "..", ".", "lib", "../Player" ], function( chess, ai, lib, Player ){
 			//
 			// Game event handlers
 			//
-			turn: function( ){ 
+			turn: function( ){
+				
+				if( this.board.isCheck( this.color ) ){
+					
+					return this.surrender( );
+						
+				}
 				
 				var pieces = this.board[ this.color ].pieces,
 					piece  = null;
 					
 				while( !piece || !piece.moves( ).length ){	
 					
-					piece = pieces[ ~~( Math.random( ) * pieces.length - 1 ) ];
+					piece = pieces[ Math.floor( Math.random( ) * pieces.length ) ];
 					
 				}
 				
 				var fields = piece.moves( ),
-					field  = fields[ ~~( Math.random( ) * fields.length - 1 ) ];
+					field  = fields[ Math.floor( Math.random( ) * fields.length ) ];
 					
 				piece.move( field );
 				
@@ -53,7 +59,7 @@ define( [ "..", ".", "lib", "../Player" ], function( chess, ai, lib, Player ){
 			//
 			// Handlers for events after something happend to the player
 			//
-			check: function( ){ this.surrender( ); },
+			check: function( ){ /* this.surrender( ); */ },
 			
 			mate: function( ){ /* Called when the other player mates you */ },
 			

@@ -17,7 +17,7 @@
 
 	<title>Random vs. Random</title>
 	<link rel="stylesheet" type="text/css" href="./style/style.css"></link>
-	<link rel="stylesheet" type="text/css" href="./script/dojo171/dijit/themes/tundra/tundra.css"></link>
+	<link rel="stylesheet" type="text/css" href="./script/dijit/themes/tundra/tundra.css"></link>
 
 </head>
 
@@ -36,8 +36,8 @@
 			parseOnLoad: false,
 			
 			packages: [
-				{ name: "lib",    location: "../../lib" },
-				{ name: "chess",  location: "../../chess" }
+				{ name: "lib",    location: "../lib" },
+				{ name: "chess",  location: "../chess" }
 			],
 						
 			trace: {
@@ -53,7 +53,7 @@
 	</script>	
 	
 	<script type="text/javascript" src="./script/lib/es5.js"></script>
-	<script type="text/javascript" src="./script/dojo171/dojo/dojo.js"></script>	
+	<script type="text/javascript" src="./script/dojo/dojo.js"></script>	
 	<script type="text/javascript">
 		
 		var board = null,
@@ -109,17 +109,17 @@
 			// Because we want to do some debugging we will attach ourselfs to the game object
 			// and log all the events.
 				
-			var placed    = game.on( "Placed",    function( ){ console.log( "Game#onPlaced ( " + chess_timer( ) + "ms )::", arguments ); } ),
-				moved     = game.on( "Moved",     function( ){ console.log( "Game#onMoved ( " + chess_timer( ) + "ms )::", arguments ); } ),
-				check     = game.on( "Check",     function( ){ console.log( "Game#onCheck ( " + chess_timer( ) + "ms )::", arguments ); } ),
-				staleMate = game.on( "StaleMate", function( ){ console.log( "Game#onStaleMate ( " + chess_timer( ) + "ms )::", arguments ); } ),
-				checkMate = game.on( "CheckMate", function( ){ console.log( "Game#onCheckMate ( " + chess_timer( ) + "ms )::", arguments ); } ),
-				surrender = game.on( "Surrender", function( ){ console.log( "Game#onSurrender ( " + chess_timer( ) + "ms )::", arguments ); } ),
-				start     = game.on( "Start",     function( ){ console.log( "Game#onStart ( " + chess_timer( ) + "ms )::", arguments ); } ),
-				draw      = game.on( "Draw",      function( ){ console.log( "Game#onDraw ( " + chess_timer( ) + "ms )::", arguments ); } ),
-				end       = game.on( "End",       function( ){ console.log( "Game#onEnd ( " + chess_timer( ) + "ms )::", arguments ); } ),
-				playerJoin  = game.on( "PlayerJoin",  function( ){ console.log( "Game#onPlayerJoin ( " + chess_timer( ) + "ms )::", arguments ); } ),
-				playerLeave = game.on( "PlayerLeave", function( ){ console.log( "Game#onPlayerLeaver ( " + chess_timer( ) + "ms )::", arguments ); } );
+			var placed    = game.on( "Placed",    function( ){ console.log( "Game#onPlaced ( " + chess_timer( ) + "ms )::", arguments[ 0 ] ); } ),
+				moved     = game.on( "Moved",     function( ){ console.log( "Game#onMoved ( " + chess_timer( ) + "ms )::", arguments[ 0 ] ); } ),
+				check     = game.on( "Check",     function( ){ console.log( "Game#onCheck ( " + chess_timer( ) + "ms )::", arguments[ 0 ] ); } ),
+				staleMate = game.on( "StaleMate", function( ){ console.log( "Game#onStaleMate ( " + chess_timer( ) + "ms )::", arguments[ 0 ] ); } ),
+				checkMate = game.on( "CheckMate", function( ){ console.log( "Game#onCheckMate ( " + chess_timer( ) + "ms )::", arguments[ 0 ] ); } ),
+				surrender = game.on( "Surrender", function( ){ console.log( "Game#onSurrender ( " + chess_timer( ) + "ms )::", arguments[ 0 ] ); } ),
+				start     = game.on( "Start",     function( ){ console.log( "Game#onStart ( " + chess_timer( ) + "ms )::", arguments[ 0 ] ); } ),
+				draw      = game.on( "Draw",      function( ){ console.log( "Game#onDraw ( " + chess_timer( ) + "ms )::", arguments[ 0 ] ); } ),
+				end       = game.on( "End",       function( ){ console.log( "Game#onEnd ( " + chess_timer( ) + "ms )::", arguments[ 0 ] ); } ),
+				playerJoin  = game.on( "PlayerJoin",  function( ){ console.log( "Game#onPlayerJoin ( " + chess_timer( ) + "ms )::", arguments[ 0 ] ); } ),
+				playerLeave = game.on( "PlayerLeave", function( ){ console.log( "Game#onPlayerLeaver ( " + chess_timer( ) + "ms )::", arguments[ 0 ] ); } );
 				
 			game.on( "Moved", function( ){
 							
@@ -142,11 +142,15 @@
 				bPlayer = new Random({ color: "black", game: game });
 				wPlayer = new Random({ color: "white", game: game });
 				
-				new Button({
+				var button = new Button({
 					
+					label: "Start game",
 					onClick: game.start.bind( game )
 				
 				});	
+				
+				button.placeAt( "button-container" );
+				button.startup( );
 								
 			});		
 			

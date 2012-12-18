@@ -116,13 +116,13 @@ define([
 		},
 		
 		isStaleMate: function( color ){ 
-			return this[ color + "PiecesInPlay" ].every( function( piece ){
+			
+			return !this[ color + "PiecesInPlay" ].some( function( piece ){
 				
-				return piece.type === "King" 
-					? !piece.moves( ).length && !piece.attackedBy( ).length
-					: !piece.moves( ).length;
+				return piece.moves( ).length;
 				
 			});
+	
 		},
 		
 		clear: function( ){
