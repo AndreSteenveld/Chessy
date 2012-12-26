@@ -143,12 +143,6 @@ doh.register(
 				
 		},
 		
-		pawn_promotion: function( board, pieces ){
-			
-			throw "Test not implemented";
-			
-		},
-		
 		king_castleing_left: function( board, pieces ){
 					
 			pieces.king = new chess.pieces.King({ 

@@ -586,7 +586,60 @@ doh.register(
 			
 			return r;
 			
-		}
+		},
+		
+		white_pawn_promotion: function( ){
+			
+			var board   = new chess.board.Board( ),
+				wPlayer = new chess.Player({ color: "white" }),
+				bPlayer = new chess.Player({ color: "black" });
+				
+			var pawn = new chess.pieces.Pawn({
+					color: "white",
+					board: board,
+					field: board.fields.a7
+				});
+				
+			var game = new chess.Game({ board: board });
+			
+			var moved    = new lib.Deferred( ),
+				promoted = new lib.Deferred( ),
+				result   = new lib.DeferredList([ moved, promoted ], false, true, false );
+			
+			lib.aspect.after( wPlayer, "turn", function( ){
+				
+				board.fields.a7.piece.move( board.fields.a8 );
+				
+			});
+			
+			game.on( "Promotion", function( ){ 
+				
+				
+				
+				
+			});
+			
+			game.on( "Moved", function( ){
+				
+			
+			});
+			
+			
+				
+			game.start( );
+			
+			// For some reason the non-doh Deferreds don't play nice with testing, wrap the DeferredList
+			// so that the test doesn't freeze.			
+			var r = new doh.Deferred( );
+			
+			result.then( 
+				r.callback.bind( r ), 
+				r.errback.bind( r ) 
+			);
+			
+			return r;
+			
+		},
 		
 	}
 );

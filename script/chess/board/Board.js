@@ -137,16 +137,26 @@ define([
 			return field.occupy( piece ); 
 		},		
 		
-		removeFromPlay: function( piece ){
+		removeFromPlay: function( piece, completly ){
 			var inPlayIndex = this.piecesInPlay.indexOf( piece ),
 				colorIndex  = this[ piece.color + "PiecesInPlay" ].indexOf( piece );
 			
 			this.piecesInPlay.splice( inPlayIndex, 1 );
 			this[ piece.color + "PiecesInPlay" ].splice( colorIndex, 1 );
 			
-			this.piecesOutOfPlay.push( piece );
+			!completly && this.piecesOutOfPlay.push( piece );
 			
 			piece.removeFromPlay( );
+		},
+		
+		replace: function( oldPiece, newPiece ){
+			
+			var field = oldPiece.field;
+				
+			this.removeFromPlay( oldPiece, true );
+			
+			newPiece.place( this, field );
+			
 		}
 	});
 	
