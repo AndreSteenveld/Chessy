@@ -66,6 +66,8 @@ define( [ ".", "lib" ], function( chess, lib ){
 					
 					moved: game.on( "Moved", this.moved.bind( this ) ),
 					
+					promotion: game.on( this.color === "white" ? "WhitePromotion" : "BlackPromotion", this.promotion.bind( this ) ),
+					
 					//
 					// To the player
 					//
@@ -141,6 +143,8 @@ define( [ ".", "lib" ], function( chess, lib ){
 		placed: function( ){ /* when a piece has been placed on the board */ },
 		
 		moved: function( ){ /* when any player has moved a piece */ },
+		
+		promotion: function( ){ /* when one of our pieces is being promoted */ },
 		
 		//
 		// Handlers for events after something happend to the player

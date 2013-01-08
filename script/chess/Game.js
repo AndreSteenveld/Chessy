@@ -32,6 +32,9 @@ define( [ ".", "lib" ], function( chess, lib ){
 			"black" in _game_ && _game_.black.join( this, "black" );			
 			
 			"color" in _game_ && ( this.color = _game_.color );
+			
+			this.whiteEvents = lib.delegate( this );
+			this.blackEvents = lib.delegate( this );
 		},
 		
 		turn: function( ){ 
@@ -93,14 +96,27 @@ define( [ ".", "lib" ], function( chess, lib ){
 				
 				if( move.call( piece, toField ) ){
 					
-					piece.field && this.emit.onIdle( this, [ "Moved", {
-						counter:  this.counter++,
-						color:    this.color,
-						occupant: occupant,       // The current puece on the field
-						piece:    piece,          // The piece we are moving
-						from:     field,          // Where did the moving piece come from
-						to:       toField         // Where are we going?
-					}]);
+					var _moved_  = {
+							counter:  this.counter++,
+							color:    this.color,
+							occupant: occupant,       // The current puece on the field
+							piece:    piece,          // The piece we are moving
+							from:     field,          // Where did the moving piece come from
+							to:       toField         // Where are we going?
+						};
+					
+					if( piece.type === "Pawn" && piece.y === 7 ){
+					
+						var deferred = this.emit.onIdle( this, [ "Promotion", _moved_ ] )
+								.then( Function.bind( this, function( ){
+									
+									
+									
+								});
+					
+					}
+						
+					this.emit.onIdle( this, [ "Moved", _moved_ ]);
 					
 					return true;
 					
@@ -127,6 +143,8 @@ define( [ ".", "lib" ], function( chess, lib ){
 				turn  = color === "white" ? "black"     : "white",
 				event = color === "white" ? "BlackTurn" : "WhiteTurn",
 				data  = lib.mixin( { }, _moved_ );
+				
+			var colorGame = color === "white" ? this.whiteEvents : this.blackEvents;
 
 			// 
 			// We do want to make sure that the check event is triggered befire the
@@ -143,7 +161,8 @@ define( [ ".", "lib" ], function( chess, lib ){
 			} else if( !this.board.isCheckMate( turn ) && this.board.isCheck( turn ) ){
 			
 				return this.emit.onIdle( this, [ "Check", data ] )
-					.then( this.emit.async( this, [ event, data ] ) );
+					.then( colorGame.emit.async( colorGame, [ "Turn", data ] ) );
+					//.then( colorGame.emit.async( colorGame, [ event, data ] ) );
 			
 			} else if( this.board.isCheckMate( turn ) ){
 				
@@ -165,7 +184,9 @@ define( [ ".", "lib" ], function( chess, lib ){
 							
 			} else {
 						
-				return this.emit.onIdle( this, [ event, data ]);
+				//return this.emit.onIdle( this, [ event, data ]);
+				
+				return colorEvent.emit.onIdle( colorEvent, [ "Turn", data ] );
 				
 			}
 				
@@ -173,9 +194,28 @@ define( [ ".", "lib" ], function( chess, lib ){
 		
 		onIllegalMove: function( _illegal_ ){ /* When a player makes an illegal move */ },
 			
-		onWhiteTurn: function( _turn_ ){ /* The white player recieved the turn */ },
+		onTurn: function( _turn_ ){ 
+			/* 
+			 * This event is called for the specific players it is
+			 * delgeated in the color event object. This speicific
+			 * event can be hookd as an general specific if you want
+			 * to revieve all the events.
+			 */
+		},
+			
+		//onWhiteTurn: function( _turn_ ){ /* The white player recieved the turn */ },
 		
-		onBlackTurn: function( _turn_ ){ /* The black player recieced the turn */ },
+		//onBlackTurn: function( _turn_ ){ /* The black player recieced the turn */ },
+		
+		onPromotion: function( _turn_ ){ 
+			
+			var promotion = _turn_.color === "white" ? "WhitePromotion" : "BlackPromotion";
+			
+			this.emit( promotion, _turn_ );
+			
+		},		
+		onWhitePromotion: function( _turn_ ){ },
+		onBlackPromotion: function( _turn_ ){ },
 						
 		onCheck: function( _turn_ ){ /* Fired when any player is checked */ },
 		
@@ -207,6 +247,20 @@ define( [ ".", "lib" ], function( chess, lib ){
 		onPlayerJoin: function( _newPlayer_ ){ /* When a player joins the game */},
 		
 		onPlayerLeave: function( ){ /* When a player leaves and the the game wasn't started */ },
+		
+		//
+		// Helper functions to bind the events that are for a specific color
+		//				
+		whiteEvents: null,
+		blackEvents: null,
+		
+		onColor: function( color /* ... on_arguments */ ){
+		
+			var eventObject = this[ color + "Events" ];
+			
+			return eventObject.on( Array.prototype.splice.call( arguments, 1 ) );
+			
+		},
 		
 		//
 		// Actions

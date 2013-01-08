@@ -612,9 +612,7 @@ doh.register(
 				
 			});
 			
-			game.on( "Promotion", function( ){ 
-				
-				
+			game.on( "Promotion", function( _moved_ ){ 
 				
 				
 			});
