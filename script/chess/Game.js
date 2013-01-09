@@ -28,13 +28,13 @@ define( [ ".", "lib" ], function( chess, lib ){
 				})
 			);
 			
+			this.whiteEmitter = lib.delegate( this );
+			this.blackEmitter = lib.delegate( this );
+			
 			"white" in _game_ && _game_.white.join( this, "white" );
 			"black" in _game_ && _game_.black.join( this, "black" );			
 			
 			"color" in _game_ && ( this.color = _game_.color );
-			
-			this.whiteEvents = lib.delegate( this );
-			this.blackEvents = lib.delegate( this );
 		},
 		
 		turn: function( ){ 
@@ -105,19 +105,11 @@ define( [ ".", "lib" ], function( chess, lib ){
 							to:       toField         // Where are we going?
 						};
 					
-					if( piece.type === "Pawn" && piece.y === 7 ){
-					
-						var deferred = this.emit.onIdle( this, [ "Promotion", _moved_ ] )
-								.then( Function.bind( this, function( ){
-									
-									
-									
-								});
-					
-					}
-						
-					this.emit.onIdle( this, [ "Moved", _moved_ ]);
-					
+					piece.type === "Pawn" && piece.y === 7
+						? this.emit.onIdle( this, [ "Promotion", _moved_ ] )
+							.then( this.emit.async( this, [ "Moved", _moved_ ] ) )
+						: this.emit.onIdle( this, [ "Moved", _moved_ ] );
+										
 					return true;
 					
 				} else {
@@ -202,20 +194,11 @@ define( [ ".", "lib" ], function( chess, lib ){
 			 * to revieve all the events.
 			 */
 		},
-			
-		//onWhiteTurn: function( _turn_ ){ /* The white player recieved the turn */ },
-		
-		//onBlackTurn: function( _turn_ ){ /* The black player recieced the turn */ },
 		
 		onPromotion: function( _turn_ ){ 
 			
-			var promotion = _turn_.color === "white" ? "WhitePromotion" : "BlackPromotion";
 			
-			this.emit( promotion, _turn_ );
-			
-		},		
-		onWhitePromotion: function( _turn_ ){ },
-		onBlackPromotion: function( _turn_ ){ },
+		},
 						
 		onCheck: function( _turn_ ){ /* Fired when any player is checked */ },
 		
@@ -250,10 +233,10 @@ define( [ ".", "lib" ], function( chess, lib ){
 		
 		//
 		// Helper functions to bind the events that are for a specific color
-		//				
-		whiteEvents: null,
-		blackEvents: null,
-		
+		//
+		whiteEmitter: null,
+		blackEmitter: null,
+			
 		onColor: function( color /* ... on_arguments */ ){
 		
 			var eventObject = this[ color + "Events" ];
