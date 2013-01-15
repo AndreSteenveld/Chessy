@@ -60,13 +60,15 @@ define( [ ".", "lib" ], function( chess, lib ){
 					//
 					// Movement stuff
 					//
-					turn: game.on( this.color === "white" ? "WhiteTurn" : "BlackTurn", this.turn.bind( this ) ),
+					turn: game.onColor( this.color, "Turn", this.turn.bind( this ) ),
+					//turn: game.on( this.color === "white" ? "WhiteTurn" : "BlackTurn", this.turn.bind( this ) ),
 					
 					placed: game.on( "Placed", this.placed.bind( this ) ),
 					
 					moved: game.on( "Moved", this.moved.bind( this ) ),
 					
-					promotion: game.on( this.color === "white" ? "WhitePromotion" : "BlackPromotion", this.promotion.bind( this ) ),
+					promotion: game.onColor( this.color, "Promotion", this.promotion.bind( this ) ),
+					//promotion: game.on( this.color === "white" ? "WhitePromotion" : "BlackPromotion", this.promotion.bind( this ) ),
 					
 					//
 					// To the player
@@ -138,7 +140,7 @@ define( [ ".", "lib" ], function( chess, lib ){
 		//
 		// Game event handlers
 		//
-		turn: function( ){ /* when this player recieves the turn */ },
+		turn: function( ){ console.log( "Player#turn" ); /* when this player recieves the turn */ },
 		
 		placed: function( ){ /* when a piece has been placed on the board */ },
 		

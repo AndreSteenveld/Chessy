@@ -525,6 +525,13 @@ doh.register(
 		},
 		
 		stale_event: function (  ){
+			
+			//
+			// Note: When setting up the new colored event emitters this test passed when all the
+			//       other tests based on movement failed. Check if this test actually does what
+			//       it is suppose to do.
+			//
+			
 			var board   = new chess.board.Board( ),
 				wPlayer = new chess.Player({ color: "white" }),
 				bPlayer = new chess.Player({ color: "black" });
@@ -637,8 +644,8 @@ doh.register(
 			
 			return r;
 			
-		},
-		
+		}
+	
 	}
 );
 

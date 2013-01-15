@@ -136,7 +136,7 @@ define( [ ".", "lib" ], function( chess, lib ){
 				event = color === "white" ? "BlackTurn" : "WhiteTurn",
 				data  = lib.mixin( { }, _moved_ );
 				
-			var colorGame = color === "white" ? this.whiteEvents : this.blackEvents;
+			var emitter = this[ color + "Emitter" ];
 
 			// 
 			// We do want to make sure that the check event is triggered befire the
@@ -153,8 +153,7 @@ define( [ ".", "lib" ], function( chess, lib ){
 			} else if( !this.board.isCheckMate( turn ) && this.board.isCheck( turn ) ){
 			
 				return this.emit.onIdle( this, [ "Check", data ] )
-					.then( colorGame.emit.async( colorGame, [ "Turn", data ] ) );
-					//.then( colorGame.emit.async( colorGame, [ event, data ] ) );
+					.then( emitter.emit.async( emitter, [ "Turn", data ] ) );
 			
 			} else if( this.board.isCheckMate( turn ) ){
 				
@@ -176,9 +175,7 @@ define( [ ".", "lib" ], function( chess, lib ){
 							
 			} else {
 						
-				//return this.emit.onIdle( this, [ event, data ]);
-				
-				return colorEvent.emit.onIdle( colorEvent, [ "Turn", data ] );
+				return this.emit.onIdle( this, [ "Turn", data ])
 				
 			}
 				
@@ -193,10 +190,18 @@ define( [ ".", "lib" ], function( chess, lib ){
 			 * event can be hookd as an general specific if you want
 			 * to revieve all the events.
 			 */
+			 
+			 var emitter = this[ _turn_.color + "Emitter" ];
+			 
+			 emitter.emit.onIdle( emitter, [ "Turn", _turn_ ] );
+			 
 		},
 		
 		onPromotion: function( _turn_ ){ 
 			
+			var emitter = this[ _turn_.color + "Emitter" ];
+			
+			emitter.emit.onIdle( emitter, [ "Promotion", _turn_ ] );
 			
 		},
 						
@@ -237,12 +242,16 @@ define( [ ".", "lib" ], function( chess, lib ){
 		whiteEmitter: null,
 		blackEmitter: null,
 			
-		onColor: function( color /* ... on_arguments */ ){
+		onColor: function( color, eventName, handler ){
 		
-			var eventObject = this[ color + "Events" ];
+			var emitter = this[ color + "Emitter" ],
+				event   = "on" + eventName;
 			
-			return eventObject.on( Array.prototype.splice.call( arguments, 1 ) );
+			emitter[ event ] === this[ event ] 
+				&& ( emitter[ event ] = function( ){ } );
 			
+			return emitter.on.call( emitter, eventName, handler );
+						
 		},
 		
 		//
