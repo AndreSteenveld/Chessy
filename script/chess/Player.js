@@ -127,7 +127,9 @@ define( [ ".", "lib" ], function( chess, lib ){
 		//
 		onStarted: function( ){ /* when the game has started */ },
 		
-		onEnded: function( ){ /* called when the game comes to an end */ },
+		onSurrender: function( ){ conole.log( "Player#onSurrender" ); },
+		
+		onEnd: function( ){ /* called when the game comes to an end */ },
 		
 		onLose: function( ){ /* Called when the player loses */ },
 		

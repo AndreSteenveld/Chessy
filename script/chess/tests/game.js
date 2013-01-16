@@ -495,16 +495,16 @@ doh.register(
 					false, true, false 
 				);
 				
-			game.on( "Surrender", function( ){ gameSurrender.resolve( true ); });
-			game.on( "End", function( ){ gameEnd.resolve( true ); });
+			game.on( "Surrender", function( ){ console.log( "Game#onSurrender" ); gameSurrender.resolve( true ); });
+			game.on( "End", function( ){ console.log( "Game#onEnd" ); gameEnd.resolve( true ); });
 			
-			wPlayer.on( "End", function( ){ wEnd.resolve( true ); });
-			wPlayer.on( "Lose", function( ){ wLose.resolve( true ); });
+			wPlayer.on( "End", function( ){ console.log( "Player(white)#onEnd" ); wEnd.resolve( true ); });
+			wPlayer.on( "Lose", function( ){ console.log( "Player(white)#onEnd" ); wLose.resolve( true ); });
 			
-			bPlayer.on( "End", function( ){ bEnd.resolve( true ); });
-			bPlayer.on( "Win", function( ){ bWin.resolve( true ); });
+			bPlayer.on( "End", function( ){ console.log( "Player(black)#onEnd" ); bEnd.resolve( true ); });
+			bPlayer.on( "Win", function( ){ console.log( "Player(black)#onWin" ); bWin.resolve( true ); });
 			
-			wPlayer.on( "Turn", function( ){ wPlayer.surrender( ); });		
+			wPlayer.on( "Turn", function( ){ console.log( "Player(white)#onTurn" ); wPlayer.surrender( ); });		
 			
 			wPlayer.join( game, "white" );
 			bPlayer.join( game, "black" );

@@ -171,9 +171,8 @@ define( [ ".", "lib" ], function( chess, lib ){
 			
 				return this.player( arguments, true )
 					.then( this.emit.async( this, [ "StaleMate", data ] ) )
-					.then( this.emit.async( this, [ "Draw", { result: "StaleMate" } ] ) )
-					.then( this.emit.async( this, [ "End",  { result: "StaleMate" } ] ) );
-			
+					.then( this.emit.async( this, [ "Draw", { result: "StaleMate" } ] ) );
+								
 			} else if( !this.board.isCheckMate( turn ) && this.board.isCheck( turn ) ){
 			
 				return this.player( arguments, true )
@@ -183,20 +182,15 @@ define( [ ".", "lib" ], function( chess, lib ){
 			} else if( this.board.isCheckMate( turn ) ){
 				
 				return this.player( arguments, true )
-					.then( this.emit.async( this, [ "CheckMate", data ] ) )
 					.then( 
-						this.emit.async( this, 
-							[ "End", 
-								{ 
-									result: "CheckMate", 
+						this.emit.async( this, [ "CheckMate", 
+							{ 
+								result: "CheckMate", 
 									
-									winner: color,
-									loser:  turn 
-									
-								}
-							] 
-						) 
-						
+								winner: color,
+								loser:  turn 
+							}
+						]) 
 					);
 							
 			} else {
@@ -225,15 +219,18 @@ define( [ ".", "lib" ], function( chess, lib ){
 		},
 		
 		onStaleMate: function( _result_ ){ /* Fired when there is a stale mate, fired before the onEnd event */ 
-			return this.player( arguments );	
+			return this.player( arguments, true )
+				.then( this.emit.async( this, [ "Draw", _result_ ] ) );	
 		},
 		
 		onCheckMate: function( _result_ ){ /* Fired when eiter player is mated, fired before the onEnd event */ 
-			return this.player( arguments );	
+			return this.player( arguments )
+				.then( this.emit.async( this, [ "End", _result_ ] ) );	
 		},
 		
 		onSurrender: function( _result_ ){ /* Fired when a player surrenders the match, fired before the onEnd event */ 
-			return this.player( arguments );
+			return this.player( arguments, true )
+				.then( this.emit.async( this, [ "End", _result_ ] ) );
 		},
 						
 		onStart: function( _start_ ){ 
@@ -254,11 +251,30 @@ define( [ ".", "lib" ], function( chess, lib ){
 		},
 		
 		onDraw: function( _result_ ){ /* Fired when a game ended in a draw, fired before the onEnd event */ 
-			this.player( args, true );
+			this.player( arguments, true )
+				.then( this.emit.async( this, [ "End", _result_ ] ) );
 		},
 		
 		onEnd: function( _result_ ){ /* Fired when the game has eneded */ 
-			this.player ( args, true );	
+						
+			if( _result_.result === "Draw" || _result_.result === "StaleMate" ){
+			
+				return this.player( arguments, true );
+				
+			} else {
+						
+				var winner = this[ _result_.winner ],
+					loser  = this[ _result_.loser ];
+						
+				return ( 
+					lib.Deferred.all(
+						winner.emit.onIdle( winner, [ "Win", _result_ ] ),
+						loser.emit.onIdle( loser, [ "Lose", _result_ ] )
+					)
+				).then( this.player.onIdle( this, [ arguments, true ] ) );
+			
+			}
+			
 		},
 		
 		onPlayerJoin: function( _newPlayer_ ){ /* When a player joins the game */},
