@@ -5,7 +5,7 @@
  */
 define( [ ".", "lib" ], function( chess, lib ){
 
-	chess.Player = lib.declare( [ ], {
+	chess.Player = lib.declare( [ lib.Evented ], {
 		
 		handles: null,
 		
@@ -29,57 +29,60 @@ define( [ ".", "lib" ], function( chess, lib ){
 				this.game  = game;
 				this.board = game.board;
 				
-				this.handles = {
-					//
-					// General game events
-					//
-					start: game.on( "Start", this.started.bind( this ) ),
-					draw:  game.on( "Draw",  this.draw.bind( this ) ),
 					
-					end: game.on( "End", 
-						Function.bind( this, function( _end_ ){
-						
-							// The game doesn't do all the triggering of events, its more a general thing
-							// so if we want to fire win/lose events and then the more general end event 
-							// we will have to do a little event routing of our own.
-							if( _end_.result === "CheckMate" || _end_.result === "Surrender" ){
-								
-								_end_.winner === this.color
-									? this.win.onIdle( this ).then( this.ended.bind( this, [ _end_ ] ) )
-									: this.lose.onIdle( this ).then( this.ended.bind( this, [ _end_ ] ) );
-									
-							} else { // This is a stale mate, a draw or 3 board repetition
-								
-								this.ended.onIdle( this, [ _end_ ] );
-								
-							}
-								
-						})
-					),
-					
-					//
-					// Movement stuff
-					//
-					turn: game.onColor( this.color, "Turn", this.turn.bind( this ) ),
-					//turn: game.on( this.color === "white" ? "WhiteTurn" : "BlackTurn", this.turn.bind( this ) ),
-					
-					placed: game.on( "Placed", this.placed.bind( this ) ),
-					
-					moved: game.on( "Moved", this.moved.bind( this ) ),
-					
-					promotion: game.onColor( this.color, "Promotion", this.promotion.bind( this ) ),
-					//promotion: game.on( this.color === "white" ? "WhitePromotion" : "BlackPromotion", this.promotion.bind( this ) ),
-					
-					//
-					// To the player
-					//
-					check: game.on( "Check", this.check.bind( this ) ),
-					
-					mated: game.on( "CheckMate", this.mate.bind( this ) ),
-					
-					staleMate: game.on( "StaleMate", this.staleMate.bind( this ) )			
-					
-				};		
+				
+				
+				//this.handles = {
+				//	//
+				//	// General game events
+				//	//
+				//	start: game.on( "Start", this.started.bind( this ) ),
+				//	draw:  game.on( "Draw",  this.draw.bind( this ) ),
+				//	
+				//	end: game.on( "End", 
+				//		Function.bind( this, function( _end_ ){
+				//		
+				//			// The game doesn't do all the triggering of events, its more a general thing
+				//			// so if we want to fire win/lose events and then the more general end event 
+				//			// we will have to do a little event routing of our own.
+				//			if( _end_.result === "CheckMate" || _end_.result === "Surrender" ){
+				//				
+				//				_end_.winner === this.color
+				//					? this.win.onIdle( this ).then( this.ended.bind( this, [ _end_ ] ) )
+				//					: this.lose.onIdle( this ).then( this.ended.bind( this, [ _end_ ] ) );
+				//					
+				//			} else { // This is a stale mate, a draw or 3 board repetition
+				//				
+				//				this.ended.onIdle( this, [ _end_ ] );
+				//				
+				//			}
+				//				
+				//		})
+				//	),
+				//	
+				//	//
+				//	// Movement stuff
+				//	//
+				//	turn: game.onColor( this.color, "Turn", this.turn.bind( this ) ),
+				//	//turn: game.on( this.color === "white" ? "WhiteTurn" : "BlackTurn", this.turn.bind( this ) ),
+				//	
+				//	placed: game.on( "Placed", this.placed.bind( this ) ),
+				//	
+				//	moved: game.on( "Moved", this.moved.bind( this ) ),
+				//	
+				//	promotion: game.onColor( this.color, "Promotion", this.promotion.bind( this ) ),
+				//	//promotion: game.on( this.color === "white" ? "WhitePromotion" : "BlackPromotion", this.promotion.bind( this ) ),
+				//	
+				//	//
+				//	// To the player
+				//	//
+				//	check: game.on( "Check", this.check.bind( this ) ),
+				//	
+				//	mated: game.on( "CheckMate", this.mate.bind( this ) ),
+				//	
+				//	staleMate: game.on( "StaleMate", this.staleMate.bind( this ) )			
+				//	
+				//};		
 				
 			}		
 			
@@ -122,15 +125,15 @@ define( [ ".", "lib" ], function( chess, lib ){
 		//
 		// Handlers for general game events
 		//
-		started: function( ){ /* when the game has started */ },
+		onStarted: function( ){ /* when the game has started */ },
 		
-		ended: function( ){ /* called when the game comes to an end */ },
+		onEnded: function( ){ /* called when the game comes to an end */ },
 		
-		lose: function( ){ /* Called when the player loses */ },
+		onLose: function( ){ /* Called when the player loses */ },
 		
-		draw: function( ){ /* Called when the players have agreed on a draw */ },
+		onDraw: function( ){ /* Called when the players have agreed on a draw */ },
 		
-		win: function( ){ /* Called when the player wins the game */ },
+		onWin: function( ){ /* Called when the player wins the game */ },
 		
 		//
 		// Actions involving the other player
@@ -140,22 +143,22 @@ define( [ ".", "lib" ], function( chess, lib ){
 		//
 		// Game event handlers
 		//
-		turn: function( ){ console.log( "Player#turn" ); /* when this player recieves the turn */ },
+		onTurn: function( ){ /* when this player recieves the turn */ },
 		
-		placed: function( ){ /* when a piece has been placed on the board */ },
+		onPlaced: function( ){ /* when a piece has been placed on the board */ },
 		
-		moved: function( ){ /* when any player has moved a piece */ },
+		onMoved: function( ){ /* when any player has moved a piece */ },
 		
-		promotion: function( ){ /* when one of our pieces is being promoted */ },
+		onPromotion: function( ){ /* when one of our pieces is being promoted */ },
 		
 		//
 		// Handlers for events after something happend to the player
 		//
-		check: function( ){ /* Called when the other player checked you */ },
+		onCheck: function( ){ /* Called when the other player checked you */ },
 		
-		mate: function( ){ /* Called when the other player mates you */ },
+		onMate: function( ){ /* Called when the other player mates you */ },
 		
-		staleMate: function( ){ /* Called when you are stale mated */ }
+		onStaleMate: function( ){ /* Called when you are stale mated */ }
 		
 	});
 

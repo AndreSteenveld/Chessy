@@ -8,7 +8,10 @@ define([
 	
 	"dojo/_base/lang",
 	"dojo/_base/declare", 
-	"dojo/_base/Deferred",
+	
+	"dojo/Deferred",
+	"dojo/promise/all",
+	"dojo/promise/first",
 	
 	"dojo/topic", 
 	"dojo/aspect", 
@@ -20,7 +23,7 @@ define([
 	
 	"./Function" /*jsl:import ./lib/Function.js*/
 	
-], function( lib, lang, declare, Deferred, topic, aspect, Evented, on, DeferredList ){
+], function( lib, lang, declare, Deferred, all, first, topic, aspect, Evented, on, DeferredList ){
 	//
 	// Some functionality we need in the chess engine. To ensure we stay library independent it is
 	// all required in here. So if for some reason we need to strip dojo away we only need to add
@@ -42,6 +45,9 @@ define([
 		Evented : Evented,
 		on : on
 	});
+	
+	lib.Deferred.all = all;
+	lib.Deferred.first = first;
 	
 	return ( this.lib = lib );
 });

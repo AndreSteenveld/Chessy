@@ -114,7 +114,14 @@ define( [ ".", "lib" ], function( chess, lib ){
 					
 				} else {
 				
-					this.emit.onIdle( this, [ "IllegalMove", new Error( "Failed to move piece", { piece: piece, toField: toField } ) ] );
+					this.emit.onIdle( this, [ "IllegalMove", {
+						counter: this.counter,
+						piece: piece,
+						color: this.color,
+						from: field,
+						to: toField						
+					}]);
+					
 					return false;	 
 					
 				}			
@@ -122,11 +129,27 @@ define( [ ".", "lib" ], function( chess, lib ){
 			});
 			
 		},
+		
+		player: function( args, both, name ){
+			
+			var event  = name || args.callee.nom.slice( 2 ),
+				player = !both && this[ args[ 0 ].color ];
+			
+			return !both
+				? player.emit.onIdle( player, [ event, args[ 0 ] ] )
+				: lib.Deferred.all(
+					this.white.emit.onIdle( this.white, [ event, args[ 0 ] ] ),
+					this.black.emit.onIdle( this.black, [ event, args[ 0 ] ] )
+				);
+			
+		},
 
 		//
 		// Game events
 		//
-		onPlaced: function( _placed_ ){ /* When a piece is placed on the board (setup or pawn promotion) */ },
+		onPlaced: function( _placed_ ){ /* When a piece is placed on the board (setup or pawn promotion) */ 
+			return this.player( arguments, true );	
+		},
 				
 		onMoved: function( _moved_ ){ 
 			if( !this.white || !this.black ){ return; }
@@ -146,18 +169,21 @@ define( [ ".", "lib" ], function( chess, lib ){
 			//
 			if( !this.board.isCheck( turn ) && this.board.isStaleMate( turn ) ){
 			
-				return this.emit.onIdle( this, [ "StaleMate", data ] )
+				return this.player( arguments, true )
+					.then( this.emit.async( this, [ "StaleMate", data ] ) )
 					.then( this.emit.async( this, [ "Draw", { result: "StaleMate" } ] ) )
 					.then( this.emit.async( this, [ "End",  { result: "StaleMate" } ] ) );
 			
 			} else if( !this.board.isCheckMate( turn ) && this.board.isCheck( turn ) ){
 			
-				return this.emit.onIdle( this, [ "Check", data ] )
-					.then( emitter.emit.async( emitter, [ "Turn", data ] ) );
+				return this.player( arguments, true )
+					.then( this.emit.async( this, [ "Check", data ] ) )
+					.then( this.emit.async( this, [ "Turn", data ] ) );
 			
 			} else if( this.board.isCheckMate( turn ) ){
 				
-				return this.emit.onIdle( this, [ "CheckMate", data ] )
+				return this.player( arguments, true )
+					.then( this.emit.async( this, [ "CheckMate", data ] ) )
 					.then( 
 						this.emit.async( this, 
 							[ "End", 
@@ -175,84 +201,69 @@ define( [ ".", "lib" ], function( chess, lib ){
 							
 			} else {
 						
-				return this.emit.onIdle( this, [ "Turn", data ])
+				return this.player( arguments, true )
+					.then( this.emit.async( this, [ "Turn", data ]) );
 				
 			}
 				
 		},
 		
-		onIllegalMove: function( _illegal_ ){ /* When a player makes an illegal move */ },
+		onIllegalMove: function( _illegal_ ){ /* When a player makes an illegal move */ 
+			return this.player( arguments );	
+		},
 			
-		onTurn: function( _turn_ ){ 
-			/* 
-			 * This event is called for the specific players it is
-			 * delgeated in the color event object. This speicific
-			 * event can be hookd as an general specific if you want
-			 * to revieve all the events.
-			 */
-			 
-			 var emitter = this[ _turn_.color + "Emitter" ];
-			 
-			 emitter.emit.onIdle( emitter, [ "Turn", _turn_ ] );
-			 
+		onTurn: function( _turn_ ){ // The event that is triggered when te turn is passed to the other player
+			return this.player( arguments );
 		},
 		
-		onPromotion: function( _turn_ ){ 
-			
-			var emitter = this[ _turn_.color + "Emitter" ];
-			
-			emitter.emit.onIdle( emitter, [ "Promotion", _turn_ ] );
-			
+		onPromotion: function( _turn_ ){ // When a promotion has happended on the board
+			return this.player( arguments );			
 		},
 						
-		onCheck: function( _turn_ ){ /* Fired when any player is checked */ },
+		onCheck: function( _turn_ ){ /* Fired when any player is checked */ 
+			return this.player( arguments );	
+		},
 		
-		onStaleMate: function( _result_ ){ /* Fired when there is a stale mate, fired before the onEnd event */ },
+		onStaleMate: function( _result_ ){ /* Fired when there is a stale mate, fired before the onEnd event */ 
+			return this.player( arguments );	
+		},
 		
-		onCheckMate: function( _result_ ){ /* Fired when eiter player is mated, fired before the onEnd event */ },
+		onCheckMate: function( _result_ ){ /* Fired when eiter player is mated, fired before the onEnd event */ 
+			return this.player( arguments );	
+		},
 		
 		onSurrender: function( _result_ ){ /* Fired when a player surrenders the match, fired before the onEnd event */ 
-			
-			this.emit.onIdle( this, [ "End", _result_ ] );
-				
+			return this.player( arguments );
 		},
 						
 		onStart: function( _start_ ){ 
-				
-			this.emit.onIdle( this, [ "Moved", 
-				{ 
-					counter: this.counter++,
-					color:   _start_.color	
-				}				
-			]);	
+			
+			this.player( arguments, true )
+				.then( 
+					this.emit.async( this, 
+						[
+							"Moved", 
+							{ 
+								counter: this.counter++,
+								color:   _start_.color	
+							}				
+						]
+					)
+				);	
 			
 		},
 		
-		onDraw: function( _result_ ){ /* Fired when a game ended in a draw, fired before the onEnd event */ },
+		onDraw: function( _result_ ){ /* Fired when a game ended in a draw, fired before the onEnd event */ 
+			this.player( args, true );
+		},
 		
-		onEnd: function( _result_ ){ /* Fired when the game has eneded */ },
+		onEnd: function( _result_ ){ /* Fired when the game has eneded */ 
+			this.player ( args, true );	
+		},
 		
 		onPlayerJoin: function( _newPlayer_ ){ /* When a player joins the game */},
 		
 		onPlayerLeave: function( ){ /* When a player leaves and the the game wasn't started */ },
-		
-		//
-		// Helper functions to bind the events that are for a specific color
-		//
-		whiteEmitter: null,
-		blackEmitter: null,
-			
-		onColor: function( color, eventName, handler ){
-		
-			var emitter = this[ color + "Emitter" ],
-				event   = "on" + eventName;
-			
-			emitter[ event ] === this[ event ] 
-				&& ( emitter[ event ] = function( ){ } );
-			
-			return emitter.on.call( emitter, eventName, handler );
-						
-		},
 		
 		//
 		// Actions
