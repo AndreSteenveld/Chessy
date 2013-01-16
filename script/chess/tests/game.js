@@ -133,8 +133,8 @@ doh.register(
 				to    = board.fields.d3;
 			
 			// We have to setup the handlers before we join the game. The normal and sane way
-			// to do this would be to create a class and implement the methods.
-			lib.aspect.after( wPlayer, "turn", piece.move.bind( piece, to ) );
+			// to do this would be to create a class and implement the methods.			
+			wPlayer.on( "Turn", piece.move.bind( piece, to ) );
 			
 			game.on( "Moved", function( _move_ ){ 
 					
@@ -174,7 +174,7 @@ doh.register(
 			
 			// We have to setup the handlers before we join the game. The normal and sane way
 			// to do this would be to create a class and implement the methods.
-			lib.aspect.after( wPlayer, "turn", piece.move.bind( piece, to ) );
+			wPlayer.on( "Turn", piece.move.bind( piece, to ) );
 			
 			game.on( "Moved", function( _move_ ){
 				
@@ -184,7 +184,6 @@ doh.register(
 			
 			game.on( "IllegalMove", function( exception ){
 				
-				//result.resolve( exception );
 				result.resolve( true );
 				
 			});
@@ -212,7 +211,7 @@ doh.register(
 				
 			var result = new lib.DeferredList( moves, false, true, false );
 			
-			lib.aspect.after( wPlayer, "turn", function( _turn_ ){
+			wPlayer.on( "Turn", function( _turn_ ){
 				
 				if( _turn_.counter === 0 ){
 					
@@ -230,7 +229,7 @@ doh.register(
 				
 			}, true );
 			
-			lib.aspect.after( bPlayer, "turn", function( _turn_ ){
+			bPlayer.on( "Turn", function( _turn_ ){
 				
 				if( _turn_.counter === 1 ){
 					
@@ -317,13 +316,13 @@ doh.register(
 				turnCheck   = new doh.Deferred( ),
 				result      = new lib.DeferredList([ gameCheck, playerCheck, turnCheck ], false, true, false ); // list, fire on one, fire on one err, consume err
 			
-			lib.aspect.after( wPlayer, "check", function( ){ 
+			wPlayer.on(  "Check", function( ){ 
 								
 				playerCheck.resolve( true );
 				
 			});
 			
-			lib.aspect.after( wPlayer, "turn", function( ){
+			wPlayer.on( "Turn", function( ){
 				
 				// if player check not resolved reject it!
 				playerCheck.then( 
@@ -333,7 +332,7 @@ doh.register(
 				
 			});
 			
-			lib.aspect.after( bPlayer, "turn", function( ){
+			bPlayer.on( "Turn", function( ){
 				
 				bQueen.move( board.fields.h1 );
 				
@@ -404,19 +403,19 @@ doh.register(
 			// Hacking in the events for the white player, makte sure we are going to check if he
 			// recieves the mate event and then the end event.
 			//
-			lib.aspect.after( wPlayer, "mate", function( ){ 
+			wPlayer.on( "Mate", function( ){ 
 			
 				wMate.resolve( true );
 								
 			});
 			
-			lib.aspect.after( wPlayer, "lose", function( ){
+			wPlayer.on( "Lose", function( ){
 				
 				wLose.resolve( true );
 				
 			});
 			
-			lib.aspect.after( wPlayer, "ended", function( ){ 
+			wPlayer.on( "End", function( ){ 
 							
 				wEnd.resolve( true );
 								
@@ -436,19 +435,19 @@ doh.register(
 			});
 			
 			// Wire up the black player to make the move and have a win event.
-			lib.aspect.after( bPlayer, "turn", function( ){
+			bPlayer.on( "Turn", function( ){
 				
 				bQueen.move( board.fields.h1 );
 				
 			});
 			
-			lib.aspect.after( bPlayer, "win", function( ){
+			bPlayer.on( "Win", function( ){
 				
 				bWin.resolve( true );
 				
 			});
 			
-			lib.aspect.after( bPlayer, "ended", function( ){
+			bPlayer.on( "End", function( ){
 				
 				bEnd.resolve( true );
 				
@@ -499,13 +498,13 @@ doh.register(
 			game.on( "Surrender", function( ){ gameSurrender.resolve( true ); });
 			game.on( "End", function( ){ gameEnd.resolve( true ); });
 			
-			lib.aspect.after( wPlayer, "ended", function( ){ wEnd.resolve( true ); });
-			lib.aspect.after( wPlayer, "lose", function( ){ wLose.resolve( true ); });
+			wPlayer.on( "End", function( ){ wEnd.resolve( true ); });
+			wPlayer.on( "Lose", function( ){ wLose.resolve( true ); });
 			
-			lib.aspect.after( bPlayer, "ended", function( ){ bEnd.resolve( true ); });
-			lib.aspect.after( bPlayer, "win", function( ){ bWin.resolve( true ); });
+			bPlayer.on( "End", function( ){ bEnd.resolve( true ); });
+			bPlayer.on( "Win", function( ){ bWin.resolve( true ); });
 			
-			lib.aspect.after( wPlayer, "turn", function( ){ wPlayer.surrender( ); });		
+			wPlayer.on( "Turn", function( ){ wPlayer.surrender( ); });		
 			
 			wPlayer.join( game, "white" );
 			bPlayer.join( game, "black" );
@@ -568,14 +567,14 @@ doh.register(
 			game.on( "StaleMate", function( ){ gStaleMate.resolve( true ); });
 			game.on( "Draw", function( ){ gDraw.resolve( true ); });
 			
-			lib.aspect.after( wPlayer, "ended", function( ){ wEnd.resolve( true ); });
-			lib.aspect.after( bPlayer, "ended", function( ){ bEnd.resolve( true ); });
+			wPlayer.on( "End", function( ){ wEnd.resolve( true ); });
+			bPlayer.on( "End", function( ){ bEnd.resolve( true ); });
 			
-			lib.aspect.after( wPlayer, "staleMate", function( ){ wStaleMate.resolve( true ); });
-			lib.aspect.after( bPlayer, "staleMate", function( ){ bStaleMate.resolve( true ); });
+			wPlayer.on( "StaleMate", function( ){ wStaleMate.resolve( true ); });
+			bPlayer.on( "StaleMate", function( ){ bStaleMate.resolve( true ); });
 			
-			lib.aspect.after( wPlayer, "draw", function( ){ wDraw.resolve( true ); });
-			lib.aspect.after( bPlayer, "draw", function( ){ bDraw.resolve( true ); });
+			wPlayer.on( "Draw", function( ){ wDraw.resolve( true ); });
+			bPlayer.on( "Draw", function( ){ bDraw.resolve( true ); });
 						
 			wPlayer.join( game, "white" );
 			bPlayer.join( game, "black" );
