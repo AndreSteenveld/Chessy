@@ -269,7 +269,10 @@ define( [ ".", "lib" ], function( chess, lib ){
 						winner.emit.onIdle( winner, [ "Win", _result_ ] ),
 						loser.emit.onIdle( loser, [ "Lose", _result_ ] )
 					)
-				).then( this.player.async( this, [ arguments, true ] ) );
+				).then( this.player.async( this, [ arguments, true, "End" ] ) );
+				
+				// For reasons that are still unclear to me it seemt that it is not possible to
+				// bind an arguments object with additional properties attached to it.
 			
 			}
 			
