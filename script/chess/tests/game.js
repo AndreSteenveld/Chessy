@@ -582,7 +582,7 @@ doh.register(
 			
 			wPlayer.on( "Turn", function( ){
 				
-				board.fields.a7.piece.move( board.fields.a8 );
+				pawn.move( board.fields.a8 );
 				
 				moved.resolve( true );
 				
@@ -590,13 +590,14 @@ doh.register(
 			
 			wPlayer.on( "Promotion", function( _moved_ ){
 				
-				board.toString( );
-				
 				board.replace( _moved_.piece, new chess.pieces.Queen({ color: "white" }) );
-				
-				board.toString( );
+
+				promoted.resolve( true );
 				
 			});			
+				
+			wPlayer.join( game, "white" );
+			bPlayer.join( game, "black" );
 				
 			game.start( );
 			

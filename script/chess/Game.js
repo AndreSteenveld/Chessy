@@ -104,9 +104,9 @@ define( [ ".", "lib" ], function( chess, lib ){
 							from:     field,          // Where did the moving piece come from
 							to:       toField         // Where are we going?
 						};
-					
+
 					piece.type === "Pawn" && piece.y === 7
-						? this.emit.onIdle( this, [ "Promotion", _moved_ ] )
+						? this.emit.onIdle( this, [ "Promotion", lib.delegate( _moved_, { color: piece.color } ) ] )
 							.then( this.emit.async( this, [ "Moved", _moved_ ] ) )
 						: this.emit.onIdle( this, [ "Moved", _moved_ ] );
 										
