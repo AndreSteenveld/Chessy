@@ -133,7 +133,7 @@ define( [ ".", "lib" ], function( chess, lib ){
 		player: function( args, both, name ){
 			
 			var event  = name || args.callee.nom.slice( 2 ),
-				player = !both && this[ args[ 0 ].color ];
+				player = !both && this[ args[ 0 ].color || args[ 0 ].loser ];
 			
 			return !both
 				? player.emit.onIdle( player, [ event, args[ 0 ] ] )
@@ -152,8 +152,7 @@ define( [ ".", "lib" ], function( chess, lib ){
 		},
 				
 		onMoved: function( _moved_ ){ 
-			if( !this.white || !this.black ){ return; }
-			
+						
 			var color = this.turn( ),
 				turn  = color === "white" ? "black"     : "white",
 				event = color === "white" ? "BlackTurn" : "WhiteTurn",
@@ -170,8 +169,7 @@ define( [ ".", "lib" ], function( chess, lib ){
 			if( !this.board.isCheck( turn ) && this.board.isStaleMate( turn ) ){
 			
 				return this.player( arguments, true )
-					.then( this.emit.async( this, [ "StaleMate", data ] ) )
-					.then( this.emit.async( this, [ "Draw", { result: "StaleMate" } ] ) );
+					.then( this.emit.async( this, [ "StaleMate", { result: "StaleMate" } ] ) );
 								
 			} else if( !this.board.isCheckMate( turn ) && this.board.isCheck( turn ) ){
 			
@@ -180,7 +178,7 @@ define( [ ".", "lib" ], function( chess, lib ){
 					.then( this.emit.async( this, [ "Turn", data ] ) );
 			
 			} else if( this.board.isCheckMate( turn ) ){
-				
+					
 				return this.player( arguments, true )
 					.then( 
 						this.emit.async( this, [ "CheckMate", 
@@ -194,7 +192,7 @@ define( [ ".", "lib" ], function( chess, lib ){
 					);
 							
 			} else {
-						
+								
 				return this.player( arguments, true )
 					.then( this.emit.async( this, [ "Turn", data ]) );
 				
@@ -271,7 +269,7 @@ define( [ ".", "lib" ], function( chess, lib ){
 						winner.emit.onIdle( winner, [ "Win", _result_ ] ),
 						loser.emit.onIdle( loser, [ "Lose", _result_ ] )
 					)
-				).then( this.player.onIdle( this, [ arguments, true ] ) );
+				).then( this.player.async( this, [ arguments, true ] ) );
 			
 			}
 			

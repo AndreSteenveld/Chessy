@@ -403,55 +403,23 @@ doh.register(
 			// Hacking in the events for the white player, makte sure we are going to check if he
 			// recieves the mate event and then the end event.
 			//
-			wPlayer.on( "Mate", function( ){ 
+			wPlayer.on( "CheckMate", function( ){ wMate.resolve( true ); });
 			
-				wMate.resolve( true );
-								
-			});
+			wPlayer.on( "Lose", function( ){ wLose.resolve( true ); });
 			
-			wPlayer.on( "Lose", function( ){
-				
-				wLose.resolve( true );
-				
-			});
-			
-			wPlayer.on( "End", function( ){ 
-							
-				wEnd.resolve( true );
-								
-			});
+			wPlayer.on( "End", function( ){ wEnd.resolve( true ); });
 						
 			// Making sure they are made public on the Game object
-			game.on( "CheckMate", function( _mate_ ){ 
-				
-				gMate.resolve( true );	
+			game.on( "CheckMate", function( ){ gMate.resolve( true ); });
 			
-			});
-			
-			game.on( "End", function( _end_ ){ 
-					
-				gEnd.resolve( true );	
-				
-			});
+			game.on( "End", function( ){ gEnd.resolve( true ); });
 			
 			// Wire up the black player to make the move and have a win event.
-			bPlayer.on( "Turn", function( ){
-				
-				bQueen.move( board.fields.h1 );
-				
-			});
+			bPlayer.on( "Turn", function( ){ bQueen.move( board.fields.h1 ); });
 			
-			bPlayer.on( "Win", function( ){
-				
-				bWin.resolve( true );
-				
-			});
+			bPlayer.on( "Win", function( ){ bWin.resolve( true ); });
 			
-			bPlayer.on( "End", function( ){
-				
-				bEnd.resolve( true );
-				
-			});
+			bPlayer.on( "End", function( ){ bEnd.resolve( true ); });
 			
 			wPlayer.join( game, "white" );
 			bPlayer.join( game, "black" );
@@ -495,16 +463,16 @@ doh.register(
 					false, true, false 
 				);
 				
-			game.on( "Surrender", function( ){ console.log( "Game#onSurrender" ); gameSurrender.resolve( true ); });
-			game.on( "End", function( ){ console.log( "Game#onEnd" ); gameEnd.resolve( true ); });
+			game.on( "Surrender", function( ){ gameSurrender.resolve( true ); });
+			game.on( "End", function( ){ gameEnd.resolve( true ); });
 			
-			wPlayer.on( "End", function( ){ console.log( "Player(white)#onEnd" ); wEnd.resolve( true ); });
-			wPlayer.on( "Lose", function( ){ console.log( "Player(white)#onEnd" ); wLose.resolve( true ); });
+			wPlayer.on( "End", function( ){ wEnd.resolve( true ); });
+			wPlayer.on( "Lose", function( ){ wLose.resolve( true ); });
 			
-			bPlayer.on( "End", function( ){ console.log( "Player(black)#onEnd" ); bEnd.resolve( true ); });
-			bPlayer.on( "Win", function( ){ console.log( "Player(black)#onWin" ); bWin.resolve( true ); });
+			bPlayer.on( "End", function( ){ bEnd.resolve( true ); });
+			bPlayer.on( "Win", function( ){ bWin.resolve( true ); });
 			
-			wPlayer.on( "Turn", function( ){ console.log( "Player(white)#onTurn" ); wPlayer.surrender( ); });		
+			wPlayer.on( "Turn", function( ){ wPlayer.surrender( ); });		
 			
 			wPlayer.join( game, "white" );
 			bPlayer.join( game, "black" );
@@ -612,23 +580,23 @@ doh.register(
 				promoted = new lib.Deferred( ),
 				result   = new lib.DeferredList([ moved, promoted ], false, true, false );
 			
-			lib.aspect.after( wPlayer, "turn", function( ){
+			wPlayer.on( "Turn", function( ){
 				
 				board.fields.a7.piece.move( board.fields.a8 );
 				
-			});
-			
-			game.on( "Promotion", function( _moved_ ){ 
-				
+				moved.resolve( true );
 				
 			});
 			
-			game.on( "Moved", function( ){
+			wPlayer.on( "Promotion", function( _moved_ ){
 				
-			
-			});
-			
-			
+				board.toString( );
+				
+				board.replace( _moved_.piece, new chess.pieces.Queen({ color: "white" }) );
+				
+				board.toString( );
+				
+			});			
 				
 			game.start( );
 			

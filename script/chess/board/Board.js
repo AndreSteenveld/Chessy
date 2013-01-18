@@ -161,7 +161,7 @@ define([
 		
 		toString: function( ){
 			
-			var BOARD_TEMPLATE = "\n"
+			var BOARD_TEMPLATE = ""
 				+ "\n   +-+-+-+-+-+-+-+-+ "
 				+ "\n 8 |${a8}|${b8}|${c8}|${d8}|${e8}|${f8}|${g8}|${h8}| "
 				+ "\n   +-+-+-+-+-+-+-+-+ "
@@ -184,26 +184,17 @@ define([
 				+ "\n";
 
 			return lib.string.substitute( BOARD_TEMPLATE, this.fields, 
-				function( value, key ){
-					
-					if( value.piece ){
-					
-						switch( value.piece.type ){
-													
-							case "Bishop": return value.piece.color === "white" ? "B" : "b";
-							case "King":   return value.piece.color === "white" ? "X" : "x";
-							case "Knight": return value.piece.color === "white" ? "K" : "k";
-							case "Pawn":   return value.piece.color === "white" ? "P" : "p";
-							case "Queen":  return value.piece.color === "white" ? "Q" : "q";
-							case "Rook":   return value.piece.color === "white" ? "R" : "r";
-							
-						}
-						
-					} else {
-						
-						return " ";	
-						
-					}			
+				function( field, key ){
+					                     
+					return !field.piece ? " "
+						: field.piece.type === "Bishop" ? field.piece.color === "white" ? "B" : "b"
+						: field.piece.type === "King"   ? field.piece.color === "white" ? "X" : "x"
+						: field.piece.type === "Knight" ? field.piece.color === "white" ? "K" : "k"
+						: field.piece.type === "Pawn"   ? field.piece.color === "white" ? "P" : "p"
+						: field.piece.type === "Queen"  ? field.piece.color === "white" ? "Q" : "q"
+						: field.piece.type === "Rook"   ? field.piece.color === "white" ? "R" : "r"
+						: (null); // There is a piece but we are not sure what type
+								
 				}
 			);
 		}

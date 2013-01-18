@@ -29,61 +29,6 @@ define( [ ".", "lib" ], function( chess, lib ){
 				this.game  = game;
 				this.board = game.board;
 				
-					
-				
-				
-				//this.handles = {
-				//	//
-				//	// General game events
-				//	//
-				//	start: game.on( "Start", this.started.bind( this ) ),
-				//	draw:  game.on( "Draw",  this.draw.bind( this ) ),
-				//	
-				//	end: game.on( "End", 
-				//		Function.bind( this, function( _end_ ){
-				//		
-				//			// The game doesn't do all the triggering of events, its more a general thing
-				//			// so if we want to fire win/lose events and then the more general end event 
-				//			// we will have to do a little event routing of our own.
-				//			if( _end_.result === "CheckMate" || _end_.result === "Surrender" ){
-				//				
-				//				_end_.winner === this.color
-				//					? this.win.onIdle( this ).then( this.ended.bind( this, [ _end_ ] ) )
-				//					: this.lose.onIdle( this ).then( this.ended.bind( this, [ _end_ ] ) );
-				//					
-				//			} else { // This is a stale mate, a draw or 3 board repetition
-				//				
-				//				this.ended.onIdle( this, [ _end_ ] );
-				//				
-				//			}
-				//				
-				//		})
-				//	),
-				//	
-				//	//
-				//	// Movement stuff
-				//	//
-				//	turn: game.onColor( this.color, "Turn", this.turn.bind( this ) ),
-				//	//turn: game.on( this.color === "white" ? "WhiteTurn" : "BlackTurn", this.turn.bind( this ) ),
-				//	
-				//	placed: game.on( "Placed", this.placed.bind( this ) ),
-				//	
-				//	moved: game.on( "Moved", this.moved.bind( this ) ),
-				//	
-				//	promotion: game.onColor( this.color, "Promotion", this.promotion.bind( this ) ),
-				//	//promotion: game.on( this.color === "white" ? "WhitePromotion" : "BlackPromotion", this.promotion.bind( this ) ),
-				//	
-				//	//
-				//	// To the player
-				//	//
-				//	check: game.on( "Check", this.check.bind( this ) ),
-				//	
-				//	mated: game.on( "CheckMate", this.mate.bind( this ) ),
-				//	
-				//	staleMate: game.on( "StaleMate", this.staleMate.bind( this ) )			
-				//	
-				//};		
-				
 			}		
 			
 		},
@@ -127,7 +72,7 @@ define( [ ".", "lib" ], function( chess, lib ){
 		//
 		onStarted: function( ){ /* when the game has started */ },
 		
-		onSurrender: function( ){ conole.log( "Player#onSurrender" ); },
+		onSurrender: function( ){ },
 		
 		onEnd: function( ){ /* called when the game comes to an end */ },
 		
@@ -158,7 +103,7 @@ define( [ ".", "lib" ], function( chess, lib ){
 		//
 		onCheck: function( ){ /* Called when the other player checked you */ },
 		
-		onMate: function( ){ /* Called when the other player mates you */ },
+		onCheckMate: function( ){ /* Called when the other player mates you */ },
 		
 		onStaleMate: function( ){ /* Called when you are stale mated */ }
 		
