@@ -80,6 +80,18 @@ doh.register(
 			
 			doh.is( true, board.isStaleMate( "white" ) );			
 			
+		},
+		
+		check_with_static_king: function( board ){
+			
+			new chess.pieces.King({ color: "white", board: board, field: board.fields.a1 });
+			new chess.pieces.Rook({ color: "white", board: board, field: board.fields.d2 });
+			
+			new chess.pieces.Queen({ color: "black", board: board, field: board.fields.b2 });
+			new chess.pieces.Bishop({ color: "black", board: board, field: board.fields.h8 });
+			
+			doh.f( board.isCheckMate( "white" ), "White is not mate because it can use the rook" );
+			
 		}
 		
 		

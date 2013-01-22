@@ -592,6 +592,8 @@ doh.register(
 				
 				board.replace( _moved_.piece, new chess.pieces.Queen({ color: "white" }) );
 
+				doh.t( board.fields.a8.piece.isInstanceOf( chess.pieces.Queen ), "The promoted pawn is not a instance of queen" );
+
 				promoted.resolve( true );
 				
 			});			
