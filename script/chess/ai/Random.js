@@ -10,15 +10,15 @@ define( [ "..", ".", "lib", "../Player" ], function( chess, ai, lib, Player ){
 			//
 			// Handlers for general game events
 			//
-			started: function( ){ /* when the game has started */ },
+			onStarted: function( ){ /* when the game has started */ },
 			
-			ended: function( ){ /* called when the game comes to an end */ },
+			onEnd: function( ){ /* called when the game comes to an end */ },
 			
-			lose: function( ){ /* Called when the player loses */ },
+			onLose: function( ){ /* Called when the player loses */ },
 			
-			draw: function( ){ /* Called when the players have agreed on a draw */ },
+			onDraw: function( ){ /* Called when the players have agreed on a draw */ },
 			
-			win: function( ){ /* Called when the player wins the game */ },
+			onWin: function( ){ /* Called when the player wins the game */ },
 			
 			//
 			// Actions involving the other player
@@ -28,7 +28,9 @@ define( [ "..", ".", "lib", "../Player" ], function( chess, ai, lib, Player ){
 			//
 			// Game event handlers
 			//
-			turn: function( ){
+			onTurn: function( ){
+				
+				this.inherited( arguments );
 				
 				if( this.board.isCheck( this.color ) ){
 					
@@ -52,18 +54,18 @@ define( [ "..", ".", "lib", "../Player" ], function( chess, ai, lib, Player ){
 				
 			},
 			
-			placed: function( ){ /* when a piece has been placed on the board */ },
+			onPlaced: function( ){ /* when a piece has been placed on the board */ },
 			
-			moved: function( ){ /* when any player has moved a piece */ },
+			onMoved: function( ){ /* when any player has moved a piece */ },
 			
 			//
 			// Handlers for events after something happend to the player
 			//
-			check: function( ){ /* this.surrender( ); */ },
+			onCheck: function( ){ /* this.surrender( ); */ },
 			
-			mate: function( ){ /* Called when the other player mates you */ },
+			onCheckMate: function( ){ /* Called when the other player mates you */ },
 			
-			staleMate: function( ){ /* Called when you are stale mated */ }
+			onStaleMate: function( ){ /* Called when you are stale mated */ }
 		
 		});	
 	
