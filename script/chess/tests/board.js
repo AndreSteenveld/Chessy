@@ -78,7 +78,10 @@ doh.register(
 			new chess.pieces.Rook({ color: "black", board: board, field: board.fields.a1 });
 			new chess.pieces.Rook({ color: "black", board: board, field: board.fields.b1 });
 			
-			doh.is( true, board.isStaleMate( "white" ) );			
+			doh.is( true, board.isStaleMate( "white" ) );		
+			
+			doh.f( board.isCheck( "white" ) );
+			doh.f( board.isCheckMate( "white" ) );	
 			
 		},
 		
@@ -90,10 +93,24 @@ doh.register(
 			new chess.pieces.Queen({ color: "black", board: board, field: board.fields.b2 });
 			new chess.pieces.Bishop({ color: "black", board: board, field: board.fields.h8 });
 			
+			doh.t( board.isCheck( "white" ), "White is check" );
 			doh.f( board.isCheckMate( "white" ), "White is not mate because it can use the rook" );
 			
-		}
+		},
 		
+		check_mate_with_static_king: function( board ){
+			
+			new chess.pieces.King({ color: "white", board: board, field: board.fields.a1 });
+			new chess.pieces.Rook({ color: "white", board: board, field: board.fields.d2 });
+			
+			new chess.pieces.Queen({ color: "black", board: board, field: board.fields.b2 });
+			new chess.pieces.Bishop({ color: "black", board: board, field: board.fields.h8 });
+			new chess.pieces.Rook({ color: "black", board: board, field: board.fields.a8 });
+			
+			doh.t( board.isCheck( "white" ), "White is not only check it should be mate as well" );	
+			doh.t( board.isCheckMate( "white" ), "White is mate, being attacked from multiple pieces over multiple lines" );
+			
+		}		
 		
 	})
 );

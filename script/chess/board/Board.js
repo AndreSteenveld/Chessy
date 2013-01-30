@@ -96,22 +96,35 @@ define([
 		},
 		
 		isCheck: function( color ){ 
+			
 			return this[ color + "PiecesInPlay" ].some( function( piece ){
 				
 				return piece.type === "King"
-					&& piece.moves( ).length
 					&& piece.attackedBy( ).length;
 				
-			});								
+			});
+										
 		},
 		
 		isCheckMate: function( color ){ 
+			
 			return this[ color + "PiecesInPlay" ].some( function( piece ){
 				
-				return piece.type === "King"
-					&& !piece.moves( ).length
-					&& piece.attackedBy( ).length;
-				
+				if( piece.type === "King" ){
+					
+					var hasMoves  = !!piece.moves( ).length,
+						attackers = piece.attackedBy( );
+						
+					return !hasMoves
+						&& attackers.length
+						&& ( attackers.length > 1 || attackers[ 0 ].attackedBy( ).length === 0 );
+					
+				} else {
+					
+					return false;	
+					
+				}
+
 			});			
 		},
 		
