@@ -328,45 +328,56 @@ doh.register(
 			var rook = new chess.pieces.Rook({ board: board, color: "white", field: board.fields.h8 }),
 				pawn = new chess.pieces.Pawn({ board: board, color: "black", field: board.fields.a1 });
 			
-			doh.t(
-				rook.movement( ).every( function( field ){ 
-					return field === board.fields.h7
-						|| field === board.fields.h6
-						|| field === board.fields.h5
-						|| field === board.fields.h4
-						|| field === board.fields.h3
-						|| field === board.fields.h2
-						|| field === board.fields.h1
-						|| field === board.fields.a8
-						|| field === board.fields.b8
-						|| field === board.fields.c8
-						|| field === board.fields.d8
-						|| field === board.fields.e8
-						|| field === board.fields.f8
-						|| field === board.fields.g8;
-				}),
-				"The rook is not looking at all the fields current fields"
-			);
+			var isLooking = function( piece, field ){ 
+				var result = -1 !== field.looking.indexOf( piece ); 
+			
+				!result && console.error( piece.toString( ) + " is not lookint at :: ", field );
 				
+				return result;				
+			};
+			
+			doh.t( 
+				[
+					board.fields.h7,
+					board.fields.h6,
+					board.fields.h5,
+					board.fields.h4,
+					board.fields.h3,
+					board.fields.h2,
+					board.fields.h1,
+					board.fields.a8,
+					board.fields.b8,
+					board.fields.c8,
+					board.fields.d8,
+					board.fields.e8,
+					board.fields.f8,
+					board.fields.g8
+				].every( isLooking.bind( null, rook ) ),
+				"The rook is not looking at all the fields cuurent fields"
+			);
+			
 			doh.t( rook.move( board.fields.h1 ), "Moving the rook failed" );
 			
+			console.log( rook.movement( ).map( function( f ){ return f.toString( ); } ) );
+			console.log( board.toString( ) );
+			
 			doh.t(
-				rook.movement( ).every( function( field ){ 
-					return field === board.fields.h7
-						|| field === board.fields.h6
-						|| field === board.fields.h5
-						|| field === board.fields.h4
-						|| field === board.fields.h3
-						|| field === board.fields.h2
-						|| field === board.fields.h8
-						|| field === board.fields.a1
-						|| field === board.fields.b1
-						|| field === board.fields.c1
-						|| field === board.fields.d1
-						|| field === board.fields.e1
-						|| field === board.fields.f1
-						|| field === board.fields.g1;
-				}),
+				[
+					board.fields.h7,
+					board.fields.h6,
+					board.fields.h5,
+					board.fields.h4,
+					board.fields.h3,
+					board.fields.h2,
+					board.fields.h8,
+					board.fields.a1,
+					board.fields.b1,
+					board.fields.c1,
+					board.fields.d1,
+					board.fields.e1,
+					board.fields.f1,
+					board.fields.g1
+				].every( isLooking.bind( null, rook ) ),
 				"The rook is not looking at all the new fields"
 			);
 			
@@ -380,7 +391,26 @@ doh.register(
 				"The rook isn't attacking a1" 
 			);
 		
+			console.log( board.toString( ) );
+		
 			doh.t( pawn.attackedBy( )[ 0 ] && pawn.attackedBy( )[ 0 ] === rook, "Pawn wasn't being attacked" );
+		},
+		
+		move_must_cancel_check: function( board, pieces ){
+			
+			var king = new chess.pieces.King({ board: board, color: "white", field: board.fields.a1 }),
+				pawn = new chess.pieces.Pawn({ board: board, color: "white", field: board.fields.e2 }),
+				
+				queen = new chess.pieces.Queen({ board: board, color: "black", field: board.fields.a8 });
+				
+			doh.t( board.isCheck( "white" ), "White should be check" );
+			
+			doh.f( pawn.move( board.fields.e3 ), "Moving the pawn won't fix the check situation" );
+						
+			doh.t( pawn === board.fields.e2.piece, "The pawn has moved even though the move was illegal" );
+			
+			doh.t( board.isCheck( "white" ), "White should still be check after the failed move" );
+			
 		}
 	})
 );

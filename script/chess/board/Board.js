@@ -143,6 +143,7 @@ define([
 		},
 		
 		place: function( field, piece ){ 
+			
 			this.pieces.push( piece );
 			this.piecesInPlay.push( piece );
 			this[ piece.color + "PiecesInPlay" ].push( piece );
@@ -151,13 +152,18 @@ define([
 		},		
 		
 		removeFromPlay: function( piece, completly ){
-			var inPlayIndex = this.piecesInPlay.indexOf( piece ),
-				colorIndex  = this[ piece.color + "PiecesInPlay" ].indexOf( piece );
+			var inPlayIndex    = this.piecesInPlay.indexOf( piece ),
+				colorIndex     = this[ piece.color + "PiecesInPlay" ].indexOf( piece ),
+				outOfPlayIndex      = completly && this.piecesOutOfPlay.indexOf( piece ),
+				outOfPlayColorIndex = completly && this[ piece.color + "PiecesInPlay" ].indexOf( piece );
 			
-			this.piecesInPlay.splice( inPlayIndex, 1 );
-			this[ piece.color + "PiecesInPlay" ].splice( colorIndex, 1 );
+			inPlayIndex >= 0 && this.piecesInPlay.splice( inPlayIndex, 1 );
+			colorIndex >= 0 && this[ piece.color + "PiecesInPlay" ].splice( colorIndex, 1 );
 			
 			!completly && this.piecesOutOfPlay.push( piece );
+			
+			completly && outOfPlayIndex >= 0      && this.piecesOutOfPlay.splice( outOfPlayIndex, 1 );
+			completly && outOfPlayColorIndex >= 0 && this[ piece.color + "PiecesInPlay" ].splice( outOfPlayColorIndex, 1 );
 			
 			piece.removeFromPlay( );
 		},

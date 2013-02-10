@@ -271,6 +271,9 @@ define([ "..", ".", "lib" ], function( chess, pieces, lib ){
 		move: function( toField ){
 			// Is it a legal field to move to?
 			if( this.movement( ).indexOf( toField ) !== -1 ){
+				
+				var previousField = this.field;
+				
 				// Hitting other pawns en passant is only a valid move for the move
 				// direcly after the oppertunity arrises. On all the next turns 
 				// we need to make sure we can't.
@@ -287,11 +290,30 @@ define([ "..", ".", "lib" ], function( chess, pieces, lib ){
 				
 				var coordinates = this.field.coordinates( this.color );
 				this.x = coordinates.x;
-				this.y = coordinates.y;
+				this.y = coordinates.y;				
 				
-				toField.occupy( this );
+				var undo = toField.occupy( this, previousField );
+										
+				if( this.board.isCheck( this.color ) ){
+				
+					console.warn( 
+						"Invalid move causing or unresolving check ::\n\t", 
+						{
+							piece: this,
+							field: toField
+						}, 
+						"\n" + this.board.toString( ) 
+					);
+					
+					undo( );
+					
+					return false;
+				
+				} else {
 												
-				return true;
+					return true;
+					
+				}
 				
 			} else {
 				

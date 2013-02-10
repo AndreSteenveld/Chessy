@@ -63,16 +63,33 @@ define([ ".", "lib" ], function( board, lib ){
 			}
 		},
 		
-		occupy: function( piece ){
+		occupy: function( piece, previousField ){
+			var previousPiece = this.piece;
+			
 			this.piece && this.board.removeFromPlay( this.piece );
 			this.piece = piece;
 			
 			this.piece.movement( ).forEach( function( field ){ 
 				
-				//console.log( "Piece " + piece.toString( ) + " is looking at " + field.toString( ) );	
 				field.looking.push( piece ); 
 				
 			});
+			
+			if( previousField ){
+				return Function.bind( this, function unOccupy( ){
+					
+					if( !!previousPiece ){ 
+						
+						this.board.removeFromPlay( previousPiece, true );
+						previousPiece.place( this.board, this );
+					
+					}	
+					
+					this.board.removeFromPlay( piece, true );
+					piece.place( this.board, previousField );
+						
+				});
+			}
 		},
 		
 		coordinates: function( color ){
