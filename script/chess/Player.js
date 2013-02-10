@@ -7,8 +7,6 @@ define( [ ".", "lib" ], function( chess, lib ){
 
 	chess.Player = lib.declare( [ lib.Evented ], {
 		
-		handles: null,
-		
 		game: null,
 		
 		color: null,

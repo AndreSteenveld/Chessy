@@ -5,6 +5,30 @@
  */
 define([ "." ], function( lib ){
 
+
+//	var lib = { };
+//	
+//	lib.setTimeout = function( func, delay /*, ...call arguments */ ){
+//		
+//		var args = Array.prototype.slice.call( arguments, 2 );
+//		
+//		return setTimeout( 
+//			function( ){ func.apply( null, args ); }, 
+//			delay 
+//		);
+//		
+//	};
+//	
+//	lib.setImmediate = typeof setImmediate === "function"
+//		? setImmediate
+//		: function( func ){
+//			
+//			var args = Array.prototype.slice.call( arguments, 1 );
+//			
+//			lib.setTimeout.apply( null, Array.prototype.slice.call( arguments, 1, 0, 0 ) );
+//			
+//		};
+//
 	//Function.bind = function( scope, args, func ){ };
 	//
 	//Function.onIdle = function( scope, /* timeout */ a1, /* arguments */ a2, /* function */ a3 ){ };
