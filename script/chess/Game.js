@@ -154,11 +154,8 @@ define( [ ".", "lib" ], function( chess, lib ){
 		onMoved: function( _moved_ ){ 
 						
 			var color = this.turn( ),
-				turn  = color === "white" ? "black"     : "white",
-				event = color === "white" ? "BlackTurn" : "WhiteTurn",
+				turn  = color === "white" ? "black" : "white",
 				data  = lib.mixin( { }, _moved_ );
-				
-			var emitter = this[ color + "Emitter" ];
 
 			// 
 			// We do want to make sure that the check event is triggered befire the
