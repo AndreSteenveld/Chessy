@@ -18,5 +18,9 @@
   "homepage": "https://github.com/AndreSteenveld/Chessy",
   "devDependencies": {
     "nodeunit": "^0.9.0"
+  },
+  "dependencies": {
+    "compose": "https://api.github.com/repos/andresteenveld/compose/tarball",
+    "promise": "^5.0.0"
   }
 }
