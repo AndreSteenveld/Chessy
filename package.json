@@ -1,0 +1,22 @@
+{
+  "name": "Chessy",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AndreSteenveld/Chessy.git"
+  },
+  "author": "Andre Steenveld",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/AndreSteenveld/Chessy/issues"
+  },
+  "homepage": "https://github.com/AndreSteenveld/Chessy",
+  "devDependencies": {
+    "nodeunit": "^0.9.0"
+  }
+}
