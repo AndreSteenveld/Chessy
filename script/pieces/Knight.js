@@ -3,24 +3,29 @@
  *	Licensed under the MIT public license for the full license see the LICENSE file
  *
  */
-define([ "..", ".", "lib", "./Piece" ], function( chess, pieces, lib, Piece ){
+var Compose = require( "compose" ),
+    Piece   = require( "./Piece" );
+    
+module.exports = Compose(
 
-	pieces.Knight = lib.declare( [ Piece ], {
+    Piece,
+    
+    {
 		type: "Knight",
 		
-		movement: function( ){
-			return this.inherited( arguments, [[
-				[ this.x + 2, this.y + 1 ],
-				[ this.x + 2, this.y - 1 ],
-				[ this.x - 2, this.y + 1 ],
-				[ this.x - 2, this.y - 1 ],
-				[ this.x + 1, this.y + 2 ],
-				[ this.x + 1, this.y - 2 ],
-				[ this.x - 1, this.y + 2 ],
-				[ this.x - 1, this.y - 2 ]
-			]]);			
-		}
-	});
-	
-	return pieces.Knight;
-});
+		movement: Compose.around( function( base ){
+			return function( ){
+			    base.call( this, [
+    				[ this.x + 2, this.y + 1 ],
+    				[ this.x + 2, this.y - 1 ],
+    				[ this.x - 2, this.y + 1 ],
+    				[ this.x - 2, this.y - 1 ],
+    				[ this.x + 1, this.y + 2 ],
+    				[ this.x + 1, this.y - 2 ],
+    				[ this.x - 1, this.y + 2 ],
+    				[ this.x - 1, this.y - 2 ]
+    			]);			
+    	    };
+		})
+	}  
+);
