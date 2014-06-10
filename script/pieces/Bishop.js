@@ -3,20 +3,28 @@
  *	Licensed under the MIT public license for the full license see the LICENSE file
  *
  */
-define([ "..", ".", "lib", "./Piece" ], function( chess, pieces, lib, Piece ){
+var Compose = require( "compose" ),
+    Piece   = require( "./Piece" );
+    
+module.exports = Compose( 
 
-	pieces.Bishop = lib.declare( [ Piece ], {
+    Piece, 
+    
+    {
 		type: "Bishop",
 		
-		movement: function( ){
-			return this.inherited( arguments, [[
-				[  Infinity,  Infinity ],
-				[ -Infinity, -Infinity ],
-				[  Infinity, -Infinity ],
-				[ -Infinity,  Infinity ] 
-			]]);			
-		}
-	});
-	
-	return pieces.Bishop;
-});
+		movement: Compose.around( function( base ){
+		    return function( ){
+		        base.call(
+		            this, 
+		            [
+    				    [  Infinity,  Infinity ],
+    				    [ -Infinity, -Infinity ],
+    				    [  Infinity, -Infinity ],
+    				    [ -Infinity,  Infinity ] 
+    			    ]
+                );
+    	    };			
+		})
+	}
+);
