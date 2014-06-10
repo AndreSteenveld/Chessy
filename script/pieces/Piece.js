@@ -3,9 +3,22 @@
  *	Licensed under the MIT public license for the full license see the LICENSE file
  *
  */
-define([ "..", ".", "lib" ], function( chess, pieces, lib ){
+var Compose = require( "compose" );
 
-	pieces.Piece = lib.declare( [ ], {
+module.exports = Compose(
+
+    function( _piece_ ){
+		this.color = _piece_.color;
+		
+		"name" in _piece_ && ( this.name = _piece_.name );
+		
+		if( _piece_.board && _piece_.field ){
+			this.place( _piece_.board, _piece_.field );				
+			!this.name && ( this.name = this.field.name );
+		}
+	},
+
+    {
 		// Some information about the world around us
 		inPlay: null,
 		field:  null,
@@ -21,18 +34,7 @@ define([ "..", ".", "lib" ], function( chess, pieces, lib ){
 		// direction no matter what color they are.
 		x: null,
 		y: null, 
-		
-		constructor: function( _piece_ ){
-			this.color = _piece_.color;
-			
-			"name" in _piece_ && ( this.name = _piece_.name );
-			
-			if( _piece_.board && _piece_.field ){
-				this.place( _piece_.board, _piece_.field );				
-				!this.name && ( this.name = this.field.name );
-			}
-		},
-		
+				
 		//
 		// Move, attack and cover methods. Use these to check what our own possabilities are.
 		//
@@ -41,150 +43,157 @@ define([ "..", ".", "lib" ], function( chess, pieces, lib ){
 			var x = this.x,
 				y = this.y;
 		
-			return restrictions.map( Function.bind( this, function( restriction ){	
-					
-					var line         = [ ],
-						xRestriction = restriction[ 0 ],
-						yRestriction = restriction[ 1 ];
+			return restrictions.map( 
+    			    function( restriction ){	
+    					
+    					var line         = [ ],
+    						xRestriction = restriction[ 0 ],
+    						yRestriction = restriction[ 1 ];
+    										
+    					if( xRestriction === Infinity ){
+    					
+    						if( yRestriction === Infinity ){
+    							
+    								   ( x + 1 <= 7 && y + 1 <= 7 ) && line.push( [ x + 1, y + 1 ] )
+    								&& ( x + 2 <= 7 && y + 2 <= 7 ) && line.push( [ x + 2, y + 2 ] )
+    								&& ( x + 3 <= 7 && y + 3 <= 7 ) && line.push( [ x + 3, y + 3 ] )
+    								&& ( x + 4 <= 7 && y + 4 <= 7 ) && line.push( [ x + 4, y + 4 ] )
+    								&& ( x + 5 <= 7 && y + 5 <= 7 ) && line.push( [ x + 5, y + 5 ] )
+    								&& ( x + 6 <= 7 && y + 6 <= 7 ) && line.push( [ x + 6, y + 6 ] )
+    								&& ( x + 7 <= 7 && y + 7 <= 7 ) && line.push( [ x + 7, y + 7 ] );
+    						
+    						} else if( yRestriction === -Infinity ){
+    							
+    								   ( x + 1 <= 7 && y - 1 >= 0 ) && line.push( [ x + 1, y - 1 ] )
+    								&& ( x + 2 <= 7 && y - 2 >= 0 ) && line.push( [ x + 2, y - 2 ] )
+    								&& ( x + 3 <= 7 && y - 3 >= 0 ) && line.push( [ x + 3, y - 3 ] )
+    								&& ( x + 4 <= 7 && y - 4 >= 0 ) && line.push( [ x + 4, y - 4 ] )
+    								&& ( x + 5 <= 7 && y - 5 >= 0 ) && line.push( [ x + 5, y - 5 ] )
+    								&& ( x + 6 <= 7 && y - 6 >= 0 ) && line.push( [ x + 6, y - 6 ] )
+    								&& ( x + 7 <= 7 && y - 7 >= 0 ) && line.push( [ x + 7, y - 7 ] );
+    		
+    						} else {
+    
+    								   ( x + 1 <= 7 ) && line.push( [ x + 1, yRestriction ] )
+    								&& ( x + 2 <= 7 ) && line.push( [ x + 2, yRestriction ] )
+    								&& ( x + 3 <= 7 ) && line.push( [ x + 3, yRestriction ] )
+    								&& ( x + 4 <= 7 ) && line.push( [ x + 4, yRestriction ] )
+    								&& ( x + 5 <= 7 ) && line.push( [ x + 5, yRestriction ] )
+    								&& ( x + 6 <= 7 ) && line.push( [ x + 6, yRestriction ] )
+    								&& ( x + 7 <= 7 ) && line.push( [ x + 7, yRestriction ] );
+    							
+    						}
+    						
+    					} else if( xRestriction === -Infinity ){
+    						
+    						if( yRestriction === Infinity ){
+    							
+    								   ( x - 1 >= 0 && y + 1 <= 7 ) && line.push( [ x - 1, y + 1 ] )
+    								&& ( x - 2 >= 0 && y + 2 <= 7 ) && line.push( [ x - 2, y + 2 ] )
+    								&& ( x - 3 >= 0 && y + 3 <= 7 ) && line.push( [ x - 3, y + 3 ] )
+    								&& ( x - 4 >= 0 && y + 4 <= 7 ) && line.push( [ x - 4, y + 4 ] )
+    								&& ( x - 5 >= 0 && y + 5 <= 7 ) && line.push( [ x - 5, y + 5 ] )
+    								&& ( x - 6 >= 0 && y + 6 <= 7 ) && line.push( [ x - 6, y + 6 ] )
+    								&& ( x - 7 >= 0 && y + 7 <= 7 ) && line.push( [ x - 7, y + 7 ] );
+    						
+    						} else if( yRestriction === -Infinity ){
+    							
+    								   ( x - 1 >= 0 && y - 1 >= 0 ) && line.push( [ x - 1, y - 1 ] )
+    								&& ( x - 2 >= 0 && y - 2 >= 0 ) && line.push( [ x - 2, y - 2 ] )
+    								&& ( x - 3 >= 0 && y - 3 >= 0 ) && line.push( [ x - 3, y - 3 ] )
+    								&& ( x - 4 >= 0 && y - 4 >= 0 ) && line.push( [ x - 4, y - 4 ] )
+    								&& ( x - 5 >= 0 && y - 5 >= 0 ) && line.push( [ x - 5, y - 5 ] )
+    								&& ( x - 6 >= 0 && y - 6 >= 0 ) && line.push( [ x - 6, y - 6 ] )
+    								&& ( x - 7 >= 0 && y - 7 >= 0 ) && line.push( [ x - 7, y - 7 ] );
+    		
+    						} else {
+    
+    								   ( x - 1 >= 0 ) && line.push( [ x - 1, yRestriction ] )
+    								&& ( x - 2 >= 0 ) && line.push( [ x - 2, yRestriction ] )
+    								&& ( x - 3 >= 0 ) && line.push( [ x - 3, yRestriction ] )
+    								&& ( x - 4 >= 0 ) && line.push( [ x - 4, yRestriction ] )
+    								&& ( x - 5 >= 0 ) && line.push( [ x - 5, yRestriction ] )
+    								&& ( x - 6 >= 0 ) && line.push( [ x - 6, yRestriction ] )
+    								&& ( x - 7 >= 0 ) && line.push( [ x - 7, yRestriction ] );
+    							
+    						}
+    						
+    					} else if( xRestriction >= 0 && xRestriction <= 7 ){
+    						
+    						if( yRestriction === Infinity ){
+    								   	
+    								   ( y + 1 <= 7 ) && line.push( [ xRestriction, y + 1 ] )
+    								&& ( y + 2 <= 7 ) && line.push( [ xRestriction, y + 2 ] )
+    								&& ( y + 3 <= 7 ) && line.push( [ xRestriction, y + 3 ] )
+    								&& ( y + 4 <= 7 ) && line.push( [ xRestriction, y + 4 ] )
+    								&& ( y + 5 <= 7 ) && line.push( [ xRestriction, y + 5 ] )
+    								&& ( y + 6 <= 7 ) && line.push( [ xRestriction, y + 6 ] )
+    								&& ( y + 7 <= 7 ) && line.push( [ xRestriction, y + 7 ] );
+    						
+    						} else if( yRestriction === -Infinity ){
+    							
+    								   ( y - 1 >= 0 ) && line.push( [ xRestriction, y - 1 ] )
+    								&& ( y - 2 >= 0 ) && line.push( [ xRestriction, y - 2 ] )
+    								&& ( y - 3 >= 0 ) && line.push( [ xRestriction, y - 3 ] )
+    								&& ( y - 4 >= 0 ) && line.push( [ xRestriction, y - 4 ] )
+    								&& ( y - 5 >= 0 ) && line.push( [ xRestriction, y - 5 ] )
+    								&& ( y - 6 >= 0 ) && line.push( [ xRestriction, y - 6 ] )
+    								&& ( y - 7 >= 0 ) && line.push( [ xRestriction, y - 7 ] );
+    		
+    						} else {
+    
+    							   yRestriction >= 0
+    							&& yRestriction <= 7
+    							&& line.push( [ xRestriction, yRestriction ] );
+    
+    						}						
+    					}
+    				
+    					return line;
+    				}
+				    , this
+				)
+				.map(
+				    function( coordinateLine ){
 										
-					if( xRestriction === Infinity ){
+    					/**
+    					//
+    					// After messing around with the profiler for a bit of fun it seems
+    					// this is a bit faster. Probably because it doesn't have to make the 
+    					// function call to the callback in the map every time and there are 
+    					// basically no checks. The commented code does exactly the same.
+    					//					
+    					var board       = this.board[ this.color ],
+    						currentLine = null,
+    						lineLength  = coordinateLine.length,
+    						result      = new Array( lineLength );
+    					
+    					while( currentLine = coordinateLine[ --lineLength ] ){
+    						
+    						result[ lineLength ] = board[ currentLine[ 0 ] ][ currentLine[ 1 ] ];
+    						
+    					}
+    					
+    					return result;
+    					**/					
+    					
+    					var board = this.board[ this.color ]
+    					
+    					return coordinateLine.map( function( coordinate ){	
+    						return board[ coordinate[ 0 ] ][ coordinate[ 1 ] ];
+    					});
 					
-						if( yRestriction === Infinity ){
-							
-								   ( x + 1 <= 7 && y + 1 <= 7 ) && line.push( [ x + 1, y + 1 ] )
-								&& ( x + 2 <= 7 && y + 2 <= 7 ) && line.push( [ x + 2, y + 2 ] )
-								&& ( x + 3 <= 7 && y + 3 <= 7 ) && line.push( [ x + 3, y + 3 ] )
-								&& ( x + 4 <= 7 && y + 4 <= 7 ) && line.push( [ x + 4, y + 4 ] )
-								&& ( x + 5 <= 7 && y + 5 <= 7 ) && line.push( [ x + 5, y + 5 ] )
-								&& ( x + 6 <= 7 && y + 6 <= 7 ) && line.push( [ x + 6, y + 6 ] )
-								&& ( x + 7 <= 7 && y + 7 <= 7 ) && line.push( [ x + 7, y + 7 ] );
-						
-						} else if( yRestriction === -Infinity ){
-							
-								   ( x + 1 <= 7 && y - 1 >= 0 ) && line.push( [ x + 1, y - 1 ] )
-								&& ( x + 2 <= 7 && y - 2 >= 0 ) && line.push( [ x + 2, y - 2 ] )
-								&& ( x + 3 <= 7 && y - 3 >= 0 ) && line.push( [ x + 3, y - 3 ] )
-								&& ( x + 4 <= 7 && y - 4 >= 0 ) && line.push( [ x + 4, y - 4 ] )
-								&& ( x + 5 <= 7 && y - 5 >= 0 ) && line.push( [ x + 5, y - 5 ] )
-								&& ( x + 6 <= 7 && y - 6 >= 0 ) && line.push( [ x + 6, y - 6 ] )
-								&& ( x + 7 <= 7 && y - 7 >= 0 ) && line.push( [ x + 7, y - 7 ] );
-		
-						} else {
-
-								   ( x + 1 <= 7 ) && line.push( [ x + 1, yRestriction ] )
-								&& ( x + 2 <= 7 ) && line.push( [ x + 2, yRestriction ] )
-								&& ( x + 3 <= 7 ) && line.push( [ x + 3, yRestriction ] )
-								&& ( x + 4 <= 7 ) && line.push( [ x + 4, yRestriction ] )
-								&& ( x + 5 <= 7 ) && line.push( [ x + 5, yRestriction ] )
-								&& ( x + 6 <= 7 ) && line.push( [ x + 6, yRestriction ] )
-								&& ( x + 7 <= 7 ) && line.push( [ x + 7, yRestriction ] );
-							
-						}
-						
-					} else if( xRestriction === -Infinity ){
-						
-						if( yRestriction === Infinity ){
-							
-								   ( x - 1 >= 0 && y + 1 <= 7 ) && line.push( [ x - 1, y + 1 ] )
-								&& ( x - 2 >= 0 && y + 2 <= 7 ) && line.push( [ x - 2, y + 2 ] )
-								&& ( x - 3 >= 0 && y + 3 <= 7 ) && line.push( [ x - 3, y + 3 ] )
-								&& ( x - 4 >= 0 && y + 4 <= 7 ) && line.push( [ x - 4, y + 4 ] )
-								&& ( x - 5 >= 0 && y + 5 <= 7 ) && line.push( [ x - 5, y + 5 ] )
-								&& ( x - 6 >= 0 && y + 6 <= 7 ) && line.push( [ x - 6, y + 6 ] )
-								&& ( x - 7 >= 0 && y + 7 <= 7 ) && line.push( [ x - 7, y + 7 ] );
-						
-						} else if( yRestriction === -Infinity ){
-							
-								   ( x - 1 >= 0 && y - 1 >= 0 ) && line.push( [ x - 1, y - 1 ] )
-								&& ( x - 2 >= 0 && y - 2 >= 0 ) && line.push( [ x - 2, y - 2 ] )
-								&& ( x - 3 >= 0 && y - 3 >= 0 ) && line.push( [ x - 3, y - 3 ] )
-								&& ( x - 4 >= 0 && y - 4 >= 0 ) && line.push( [ x - 4, y - 4 ] )
-								&& ( x - 5 >= 0 && y - 5 >= 0 ) && line.push( [ x - 5, y - 5 ] )
-								&& ( x - 6 >= 0 && y - 6 >= 0 ) && line.push( [ x - 6, y - 6 ] )
-								&& ( x - 7 >= 0 && y - 7 >= 0 ) && line.push( [ x - 7, y - 7 ] );
-		
-						} else {
-
-								   ( x - 1 >= 0 ) && line.push( [ x - 1, yRestriction ] )
-								&& ( x - 2 >= 0 ) && line.push( [ x - 2, yRestriction ] )
-								&& ( x - 3 >= 0 ) && line.push( [ x - 3, yRestriction ] )
-								&& ( x - 4 >= 0 ) && line.push( [ x - 4, yRestriction ] )
-								&& ( x - 5 >= 0 ) && line.push( [ x - 5, yRestriction ] )
-								&& ( x - 6 >= 0 ) && line.push( [ x - 6, yRestriction ] )
-								&& ( x - 7 >= 0 ) && line.push( [ x - 7, yRestriction ] );
-							
-						}
-						
-					} else if( xRestriction >= 0 && xRestriction <= 7 ){
-						
-						if( yRestriction === Infinity ){
-								   	
-								   ( y + 1 <= 7 ) && line.push( [ xRestriction, y + 1 ] )
-								&& ( y + 2 <= 7 ) && line.push( [ xRestriction, y + 2 ] )
-								&& ( y + 3 <= 7 ) && line.push( [ xRestriction, y + 3 ] )
-								&& ( y + 4 <= 7 ) && line.push( [ xRestriction, y + 4 ] )
-								&& ( y + 5 <= 7 ) && line.push( [ xRestriction, y + 5 ] )
-								&& ( y + 6 <= 7 ) && line.push( [ xRestriction, y + 6 ] )
-								&& ( y + 7 <= 7 ) && line.push( [ xRestriction, y + 7 ] );
-						
-						} else if( yRestriction === -Infinity ){
-							
-								   ( y - 1 >= 0 ) && line.push( [ xRestriction, y - 1 ] )
-								&& ( y - 2 >= 0 ) && line.push( [ xRestriction, y - 2 ] )
-								&& ( y - 3 >= 0 ) && line.push( [ xRestriction, y - 3 ] )
-								&& ( y - 4 >= 0 ) && line.push( [ xRestriction, y - 4 ] )
-								&& ( y - 5 >= 0 ) && line.push( [ xRestriction, y - 5 ] )
-								&& ( y - 6 >= 0 ) && line.push( [ xRestriction, y - 6 ] )
-								&& ( y - 7 >= 0 ) && line.push( [ xRestriction, y - 7 ] );
-		
-						} else {
-
-							   yRestriction >= 0
-							&& yRestriction <= 7
-							&& line.push( [ xRestriction, yRestriction ] );
-
-						}						
-					}
-				
-					return line;
-				}))
-				.map( Function.bind( this, function( coordinateLine ){
-										
-					/**
-					//
-					// After messing around with the profiler for a bit of fun it seems
-					// this is a bit faster. Probably because it doesn't have to make the 
-					// function call to the callback in the map every time and there are 
-					// basically no checks. The commented code does exactly the same.
-					//					
-					var board       = this.board[ this.color ],
-						currentLine = null,
-						lineLength  = coordinateLine.length,
-						result      = new Array( lineLength );
-					
-					while( currentLine = coordinateLine[ --lineLength ] ){
-						
-						result[ lineLength ] = board[ currentLine[ 0 ] ][ currentLine[ 1 ] ];
-						
-					}
-					
-					return result;
-					**/					
-					
-					var board = this.board[ this.color ]
-					
-					return coordinateLine.map( function( coordinate ){	
-						return board[ coordinate[ 0 ] ][ coordinate[ 1 ] ];
-					});
-					
-				}));
+				    }
+				    , this
+                );
 			
 		},
 		
 		fields: function( restrictions ){						
-			return this.lines( restrictions )
+			return this
+			    .lines( restrictions )
 				.map( 
-					Function.bind( this, function( line ){
+					function( line ){
 					
 						var fields = [ ];
 						
@@ -199,18 +208,23 @@ define([ "..", ".", "lib" ], function( chess, pieces, lib ){
 						
 						return fields;
 						
-					})
+					}
+					, this
 				);
 		},
 				
 		movement: function( restrictions ){
-			return this.fields( restrictions || [ ] )
-				.reduce( function( flat, line ){
-					
-					flat.push.apply( flat, line );
-					return flat;
-					
-				}, [ ]);			
+			return this
+			    .fields( restrictions || [ ] )
+				.reduce( 
+    				function( flat, line ){
+    					
+    					flat.push.apply( flat, line );
+    					return flat;
+    					
+    				}
+    				, [ ]
+                );			
 		},		
 		
 		looks: function( ){ 
@@ -366,7 +380,6 @@ define([ "..", ".", "lib" ], function( chess, pieces, lib ){
 				+ ( ( this.field && this.field.name ) || "out of play" )
 				+ "]";
 		}
-	});
-	
-	return pieces.Piece;	
-});
+	}
+
+);
