@@ -2,7 +2,7 @@
   "name": "Chessy",
   "version": "0.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "chessy.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -21,6 +21,6 @@
   },
   "dependencies": {
     "compose": "https://api.github.com/repos/andresteenveld/compose/tarball",
-    "promise": "^5.0.0"
+    "rsvp": "^3.0.9"
   }
 }

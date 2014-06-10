@@ -3,8 +3,7 @@
  *	Licensed under the MIT public license for the full license see the LICENSE file
  *
  */
- 
-var chess = require( "chessy" );
+ var chess = require( "../chessy" );
 
 module.exports = {
 	

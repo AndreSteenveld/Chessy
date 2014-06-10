@@ -3,9 +3,24 @@
  *	Licensed under the MIT public license for the full license see the LICENSE file
  *
  */
-define([ ".", "lib" ], function( board, lib ){
+var Compose = require( "compose" );
 
-	board.Field = lib.declare( [ ], {
+module.exports = Compose(
+
+    function( _field_ ){ 
+		this.x = _field_.x;
+		this.y = _field_.y;
+		
+		this.board = _field_.board;
+		
+		this.xName = _field_.xName;
+		this.yName = _field_.yName;
+		this.name = this.xName + this.yName;
+		
+		this.looking = [ ];	
+	},
+
+    {
 		piece: null,		
 		board: null,
 		
@@ -17,19 +32,6 @@ define([ ".", "lib" ], function( board, lib ){
 		yName: null,
 		
 		looking: null,
-		
-		constructor: function( _field_ ){ 
-			this.x = _field_.x;
-			this.y = _field_.y;
-			
-			this.board = _field_.board;
-			
-			this.xName = _field_.xName;
-			this.yName = _field_.yName;
-			this.name = this.xName + this.yName;
-			
-			this.looking = [ ];	
-		},
 		
 		leave: function( piece ){
 			// Firstly we are going to check if we really are who we say we are.
@@ -101,7 +103,6 @@ define([ ".", "lib" ], function( board, lib ){
 		toString: function( ){
 			return "[Field " + this.name + "]";			
 		}
-	});
+	}
 	
-	return board.Field;	
-});
+);
