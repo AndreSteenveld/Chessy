@@ -3,20 +3,7 @@
  *	Licensed under the MIT public license for the full license see the LICENSE file
  *
  */
-define([ "chess", "lib", "doh" ], function( chess, lib, doh ){
-
-function wrap_tests( tests ){
-
-	Object.keys( tests ).forEach( function( key ){
-	
-		lib.aspect.before( tests, key, function( ){
-			return [ new chess.board.Board({ }), { } ];		
-		});
-		
-	});
-	
-	return tests;
-}
+var chess = require( "chessy" );
 
 var Piece = lib.declare( [ chess.pieces.Piece ], {
 	
@@ -32,388 +19,389 @@ var Piece = lib.declare( [ chess.pieces.Piece ], {
 	
 });
 
-doh.register(
+module.exports = {
+
+    setUp: function( done ){
+        this.board = new chess.board.Board({ });
+        return done( );        
+    }, 
+        
+    //
+    // Piece movements
+    //
+    "move piece": function( test ){			
+		var piece = new Piece({
+			color: "white",
+			board: this.board,
+			field: this.board.fields.d4
+		});
+		
+		test.equal( this.board.fields.d4.piece, piece, "Piece is not at the D4" );
+		
+		test.ok( piece.move( this.board.fields.d5 ), "The move was unsuccessfull" );
+		
+		test.notEqual( this.board.fields.d4.piece, piece, "Piece is still at D4" );
+		test.equal(    this.board.fields.d5.piece, piece, "Piece is not at D5" );
+	},
 	
-	"Piece movement",
+	"taking piece": function( test ){
+		var white = new Piece({
+			color: "white",
+			board: this.board,
+			field: this.board.fields.d4
+		});
+		
+		var black = new Piece({
+			color: "black",
+			board: this.board,
+			field: this.board.fields.d5
+		});
+		
+		test.equal( this.board.piecesInPlay.length, 2, "There are [ " + this.board.piecesInPlay.length + " ] in play." );
+		
+		test.ok( white.move( this.board.fields.d5 ), "The move was not successfull" );
+		
+		test.notEqual( this.board.fields.d5.piece, black, "The piece is still the black piece" );
+		test.equal(    this.board.fields.d5.piece, white, "It's not the white piece on D5" );
+		
+		test.equal( black.inPlay, false, "Black piece is still in play" );
+		test.equal( black.field,  null,  "Black piece is still on a field" );
+		
+		test.equal( this.board.piecesInPlay.length,    1, "There are still [ " + this.board.piecesInPlay.length + " ] in play" );
+		test.equal( this.board.piecesOutOfPlay.length, 1, "There are [ " + this.board.piecesOutOfPlay.length + " ] out of play" );
+	},
 	
-	wrap_tests({
+	"illegal move": function( test ){
+		var piece = new Piece({
+			color: "white",
+			board: this.board,
+			field: this.board.fields.d4
+		});
+		
+		test.ok( !piece.move( this.board.fields.d6 ), "It was possible to make an illegal move" );			
+		
+	},
 	
-		move_piece: function( board, pieces ){			
-			pieces.piece = new Piece({
-				color: "white",
-				board: board,
-				field: board.fields.d4
-			});
-			
-			doh.is( true, pieces.piece === board.fields.d4.piece, "Piece is not at the D4" );
-			
-			doh.is( true, pieces.piece.move( board.fields.d5 ), "The move was unsuccessfull" );
-			
-			doh.is( false, pieces.piece === board.fields.d4.piece, "Piece is still at D4" );
-			doh.is( true,  pieces.piece === board.fields.d5.piece, "Piece is not at D5" );
-		},
+	"pawn moveing into en passant": function( test ){
 		
-		taking_piece: function( board, pieces ){
-			pieces.white = new Piece({
-				color: "white",
-				board: board,
-				field: board.fields.d4
-			});
-			
-			pieces.black = new Piece({
-				color: "black",
-				board: board,
-				field: board.fields.d5
-			});
-			
-			doh.is( 2, board.piecesInPlay.length, "There are [ " + board.piecesInPlay.length + " ] in play." );
-			
-			doh.is( true, pieces.white.move( board.fields.d5 ), "The move was not successfull" );
-			
-			doh.is( false, pieces.black === board.fields.d5.piece, "The piece is still the black piece" );
-			doh.is( true,  pieces.white === board.fields.d5.piece, "It's not the white piece on D5" );
-			
-			doh.is( false, pieces.black.inPlay, "Black piece is still in play" );
-			doh.is( null,  pieces.black.field,  "Black piece is still on a field" );
-			
-			doh.is( 1, board.piecesInPlay.length, "There are still [ " + board.piecesInPlay.length + " ] in play" );
-			doh.is( 1, board.piecesOutOfPlay.length, "There are [ " + board.piecesOutOfPlay.length + " ] out of play" );
-		},
+		var bPawn = new chess.pieces.Pawn({
+			color: "black",
+			board: this.board,
+			field: this.board.fields.a7
+		});
 		
-		illegal_move: function( board, pieces ){
-			pieces.piece = new Piece({
-				color: "white",
-				board: board,
-				field: board.fields.d4
-			});
-			
-			doh.is( false, pieces.piece.move( board.fields.d6 ), "It was possible to make an illegal move" );			
-			
-		},
+		var wPawn = new chess.pieces.Pawn({
+			color: "white",
+			board: this.board,
+			field: this.board.fields.b5
+		});
 		
-		pawn_moveing_into_en_passant: function( board, pieces ){
-			
-			pieces.bPawn = new chess.pieces.Pawn({
-				color: "black",
-				board: board,
-				field: board.fields.a7
-			});
-			
-			pieces.wPawn = new chess.pieces.Pawn({
-				color: "white",
-				board: board,
-				field: board.fields.b5
-			});
-			
-			doh.is( true, pieces.bPawn.move( board.fields.a5 ), "The move was unsuccessfull" );
-			
-			doh.t( -1 !== pieces.bPawn.attackedBy( ).indexOf( pieces.wPawn ), "Black pawn is not being attacked by white pawn." );
-			doh.t( -1 !== pieces.wPawn.moves( ).indexOf( board.fields.a6 ), "White pawn can't move to A6." );
-			
-		},
+		test.ok( bPawn.move( this.board.fields.a5 ), "The move was unsuccessfull" );
 		
-		pawn_looking_at_en_passant_but_not_moving: function( board, pieces ){
+		test.equal( bPawn.attackedBy( ).indexOf( wPawn ),           -1, "Black pawn is not being attacked by white pawn." );
+		test.equal( wPawn.moves( ).indexOf( this.board.fields.a6 ), -1, "White pawn can't move to A6." );
+		
+	},
+	
+	"pawn looking at en passant but not moving": function( test ){
+		
+		var bPawn = new chess.pieces.Pawn({
+			color: "black",
+			board: this.board,
+			field: this.board.fields.a7
+		});
+		
+		var notEnPassant = new chess.pieces.Pawn({
+			color: "black",
+			board: this.board,
+			field: this.board.fields.h7
+		});
+		
+		var wPawn = new chess.pieces.Pawn({
+			color: "white",
+			board: this.board,
+			field: this.board.fields.b5
+		});
+		
+		// Ok we are going to look if we can move in to an en passant situation, I think
+		// there is a little bug that assigns the moves before actually moving the pawn.
+		bPawn.moves( );
+		
+		test.ok( notEnPassant.move( this.board.fields.h6 ), "The move of the non en passant pawn didn't move" );
+		
+		test.equal( bPawn.attackedBy( ).indexOf( wPawn ),    -1, "Black pawn is being attacked by white pawn." );
+		test.equal( wPawn.moves( ).indexOf( this.board.fields.a6 ), -1, "White pawn can move to A6." );
 			
-			pieces.bPawn = new chess.pieces.Pawn({
-				color: "black",
-				board: board,
-				field: board.fields.a7
-			});
-			
-			pieces.notEnPassant = new chess.pieces.Pawn({
-				color: "black",
-				board: board,
-				field: board.fields.h7
-			});
-			
-			pieces.wPawn = new chess.pieces.Pawn({
-				color: "white",
-				board: board,
-				field: board.fields.b5
-			});
-			
-			// Ok we are going to look if we can move in to an en passant situation, I think
-			// there is a little bug that assigns the moves before actually moving the pawn.
-			pieces.bPawn.moves( );
-			
-			doh.is( true, pieces.notEnPassant.move( board.fields.h6 ), "The move of the non en passant pawn didn't move" );
-			
-			doh.t( -1 === pieces.bPawn.attackedBy( ).indexOf( pieces.wPawn ), "Black pawn is being attacked by white pawn." );
-			doh.t( -1 === pieces.wPawn.moves( ).indexOf( board.fields.a6 ), "White pawn can move to A6." );
+	},
+	
+	"king castleing left": function( test ){
 				
-		},
+		var king = new chess.pieces.King({ 
+			color: "white", 
+			board: this.board,
+			field: this.board.fields.e1
+		});
 		
-		king_castleing_left: function( board, pieces ){
+		var rook = new chess.pieces.Rook({ 
+			color: "white",
+			board: this.board,
+			field: this.board.fields.a1
+		});
+
+		test.ok( king.move( this.board.fields.c1 ), "Castleing move failed" );
+		
+		// Make sure the pieces have moved
+		test.equal( this.board.fields.a1.piece, null, "The castle hasn't moved" );
+		test.equal( this.board.fields.e1.piece, null, "The king hasn't moved" );
+		
+		// Make sure they are occupying the correct fields
+		test.equal( this.board.fields.c1.piece, king, "The king is not occupying c1" );
+		test.equal( this.board.fields.d1.piece, rook, "The rook is not occupying d1" );
+		
+		// Make sure the pieces know what field they are occupying
+		test.equal( this.board.fields.c1, king.field, "King doesn't know what field he is occupying" );
+		test.equal( this.board.fields.d1, rook.field, "Rook doesn't know what field he is occupying" );
+		
+	},
+	
+	"king castleing right": function( test ){
+		
+		var king = new chess.pieces.King({ 
+			color: "white", 
+			board: this.board,
+			field: this.board.fields.e1
+		});
+		
+		var rook = new chess.pieces.Rook({ 
+			color: "white",
+			board: this.board,
+			field: this.board.fields.h1				
+		});
+
+		test.ok( king.move( this.board.fields.g1 ), "Castleing move failed" );
+		
+		// Make sure the pieces have moved
+		test.equal( this.board.fields.h1.piece, null, "The castle hasn't moved" );
+		test.equal( this.board.fields.e1.piece, null, "The king hasn't moved" );
 					
-			pieces.king = new chess.pieces.King({ 
-				color: "white", 
-				board: board,
-				field: board.fields.e1
-			});
-			
-			pieces.rook = new chess.pieces.Rook({ 
-				color: "white",
-				board: board,
-				field: board.fields.a1
-			});
+		// Make sure they are occupying the correct fields
+		test.equal( this.board.fields.g1.piece, king, "The king is not occupying g1" );
+		test.equal( this.board.fields.f1.piece, rook, "The rook is not occupying f1" );
+		
+		// Make sure the pieces know what field they are occupying
+		test.equal( this.board.fields.g1, king.field, "King doesn't know what field he is occupying" );
+		test.equal( this.board.fields.f1, rook.field, "Rook doesn't know what field he is occupying" );
+		
+	},
 	
-			doh.is( true, pieces.king.move( board.fields.c1 ), "Castleing move failed" );
-			
-			// Make sure the pieces have moved
-			doh.is( true, null === board.fields.a1.piece, "The castle hasn't moved" );
-			doh.is( true, null === board.fields.e1.piece, "The king hasn't moved" );
-			
-			// Make sure they are occupying the correct fields
-			doh.is( true, board.fields.c1.piece === pieces.king, "The king is not occupying c1" );
-			doh.is( true, board.fields.d1.piece === pieces.rook, "The rook is not occupying d1" );
-			
-			// Make sure the pieces know what field they are occupying
-			doh.is( true, board.fields.c1 === pieces.king.field, "King doesn't know what field he is occupying" );
-			doh.is( true, board.fields.d1 === pieces.rook.field, "Rook doesn't know what field he is occupying" );
-			
-		},
+	"king not castlering because it already did": function( test ){
 		
-		king_castleing_right: function( board, pieces ){
-			
-			pieces.king = new chess.pieces.King({ 
-				color: "white", 
-				board: board,
-				field: board.fields.e1
-			});
-			
-			pieces.rook = new chess.pieces.Rook({ 
-				color: "white",
-				board: board,
-				field: board.fields.h1				
-			});
+		var king = new chess.pieces.King({
+			color: "white",
+			board: this.board,
+			castled: true,
+			field: this.board.fields.e1
+		});
+		
+		new chess.pieces.Rook({
+			color: "white",
+			board: this.board,
+			field: this.board.fields.a1
+		});
+		
+		new chess.pieces.Rook({
+			color: "white",
+			board: this.board,
+			field: this.board.fields.h8
+		});
+		
+		var moves = king.moves( );
+		
+		test.equal( moves.indexOf( this.board.fields.c1 ), -1 );
+		test.equal( moves.indexOf( this.board.fields.g1 ), -1 );
+	},
 	
-			doh.is( true, pieces.king.move( board.fields.g1 ), "Castleing move failed" );
-			
-			// Make sure the pieces have moved
-			doh.is( true, null === board.fields.h1.piece, "The castle hasn't moved" );
-			doh.is( true, null === board.fields.e1.piece, "The king hasn't moved" );
-						
-			// Make sure they are occupying the correct fields
-			doh.is( true, board.fields.g1.piece === pieces.king, "The king is not occupying g1" );
-			doh.is( true, board.fields.f1.piece === pieces.rook, "The rook is not occupying f1" );
-			
-			// Make sure the pieces know what field they are occupying
-			doh.is( true, board.fields.g1 === pieces.king.field, "King doesn't know what field he is occupying" );
-			doh.is( true, board.fields.f1 === pieces.rook.field, "Rook doesn't know what field he is occupying" );
-			
-		},
+	"king not moving to an attacked field": function( test ){
+					
+		var king = new chess.pieces.King({ 
+			color: "white", 
+			board: this.board,
+			field: this.board.fields.a1
+		});
 		
-		king_not_castlering_because_it_already_did: function( board, pieces ){
-			
-			pieces.king = new chess.pieces.King({
-				color: "white",
-				board: board,
-				castled: true,
-				field: board.fields.e1
-			});
-			
-			pieces.rook_left = new chess.pieces.Rook({
-				color: "white",
-				board: board,
-				field: board.fields.a1
-			});
-			
-			pieces.rook_right = new chess.pieces.Rook({
-				color: "white",
-				board: board,
-				field: board.fields.h8
-			});
-			
-			var moves = pieces.king.moves( );
-			
-			doh.t( -1 === moves.indexOf( board.fields.c1 ) );
-			doh.t( -1 === moves.indexOf( board.fields.g1 ) );
-		},
+		new chess.pieces.Rook({ 
+			color: "black",
+			board: this.board,
+			field: this.board.fields.b8				
+		});
 		
-		king_not_moving_to_an_attacked_field: function( board, pieces ){
-						
-			pieces.king = new chess.pieces.King({ 
-				color: "white", 
-				board: board,
-				field: board.fields.a1
-			});
-			
-			pieces.rook = new chess.pieces.Rook({ 
-				color: "black",
-				board: board,
-				field: board.fields.b8				
-			});
-			
-			doh.is( false, pieces.king.move( board.fields.b1 ), "King moved to an attacked field" );
-			
-		},
+		test.ok( !king.move( this.board.fields.b1 ), "King moved to an attacked field" );
 		
-		king_cant_move: function( board, pieces ){
-			
-			pieces.king = new chess.pieces.King({ 
-				color: "white", 
-				board: board,
-				field: board.fields.a1
-			});
-			
-			pieces.rook = new chess.pieces.Rook({ 
-				color: "black",
-				board: board,
-				field: board.fields.b8				
-			});
-			
-			pieces.rook = new chess.pieces.Rook({
-				color: "black",
-				board: board,
-				field: board.fields.h2
-			});
-			
-			doh.is( false, pieces.king.move( board.fields.b1 ), "King moved to B1" );
-			doh.is( false, pieces.king.move( board.fields.a2 ), "King moved to A2" );
-			doh.is( false, pieces.king.move( board.fields.b2 ), "King moved to B2 ");
-			
-			doh.is( 0, pieces.king.moves( ).length, "The king has moves to make" );			
-		},
+	},
+	
+	"king can't move": function( test ){
 		
-		moving_a_rook_on_an_empty_board: function( board, pieces ){
-			
-			var rook = new chess.pieces.Rook({ board: board, color: "white", field: board.fields.h8 });
-			
-			doh.t(
-				rook.movement( ).every( function( field ){ 
-					return field === board.fields.h7
-						|| field === board.fields.h6
-						|| field === board.fields.h5
-						|| field === board.fields.h4
-						|| field === board.fields.h3
-						|| field === board.fields.h2
-						|| field === board.fields.h1
-						|| field === board.fields.a8
-						|| field === board.fields.b8
-						|| field === board.fields.c8
-						|| field === board.fields.d8
-						|| field === board.fields.e8
-						|| field === board.fields.f8
-						|| field === board.fields.g8;
-				}),
-				"The rook is not looking at all the fields current fields"
-			);
-				
-			doh.t( rook.move( board.fields.h1 ), "Moving the rook failed" );
-			
-			doh.t(
-				rook.movement( ).every( function( field ){ 
-					return field === board.fields.h7
-						|| field === board.fields.h6
-						|| field === board.fields.h5
-						|| field === board.fields.h4
-						|| field === board.fields.h3
-						|| field === board.fields.h2
-						|| field === board.fields.h8
-						|| field === board.fields.a1
-						|| field === board.fields.b1
-						|| field === board.fields.c1
-						|| field === board.fields.d1
-						|| field === board.fields.e1
-						|| field === board.fields.f1
-						|| field === board.fields.g1;
-				}),
-				"The rook is not looking at all the new fields"
-			);			
-			
-		},
+		var king = new chess.pieces.King({ 
+			color: "white", 
+			board: this.board,
+			field: this.board.fields.a1
+		});
 		
-		moving_a_rook_to_attack_a_pawn: function( board, pieces ){
-			
-			var rook = new chess.pieces.Rook({ board: board, color: "white", field: board.fields.h8 }),
-				pawn = new chess.pieces.Pawn({ board: board, color: "black", field: board.fields.a1 });
-			
-			var isLooking = function( piece, field ){ 
-				var result = -1 !== field.looking.indexOf( piece ); 
-			
-				!result && console.error( piece.toString( ) + " is not lookint at :: ", field );
-				
-				return result;				
-			};
-			
-			doh.t( 
-				[
-					board.fields.h7,
-					board.fields.h6,
-					board.fields.h5,
-					board.fields.h4,
-					board.fields.h3,
-					board.fields.h2,
-					board.fields.h1,
-					board.fields.a8,
-					board.fields.b8,
-					board.fields.c8,
-					board.fields.d8,
-					board.fields.e8,
-					board.fields.f8,
-					board.fields.g8
-				].every( isLooking.bind( null, rook ) ),
-				"The rook is not looking at all the fields cuurent fields"
-			);
-			
-			doh.t( rook.move( board.fields.h1 ), "Moving the rook failed" );
-			
-			console.log( rook.movement( ).map( function( f ){ return f.toString( ); } ) );
-			console.log( board.toString( ) );
-			
-			doh.t(
-				[
-					board.fields.h7,
-					board.fields.h6,
-					board.fields.h5,
-					board.fields.h4,
-					board.fields.h3,
-					board.fields.h2,
-					board.fields.h8,
-					board.fields.a1,
-					board.fields.b1,
-					board.fields.c1,
-					board.fields.d1,
-					board.fields.e1,
-					board.fields.f1,
-					board.fields.g1
-				].every( isLooking.bind( null, rook ) ),
-				"The rook is not looking at all the new fields"
-			);
-			
-			doh.t(
-				rook.movement( ).some( function( field ){ return field === board.fields.a1; } ),
-				"The rook isn't looking at A1"			
-			);
+		new chess.pieces.Rook({ 
+			color: "black",
+			board: this.board,
+			field: this.board.fields.b8				
+		});
 		
-			doh.t(
-				rook.attacks( ).some( function( field ){ return field === board.fields.a1; } ),
-				"The rook isn't attacking a1" 
-			);
+		new chess.pieces.Rook({
+			color: "black",
+			board: this.board,
+			field: this.board.fields.h2
+		});
 		
-			console.log( board.toString( ) );
+		test.ok( !king.move( this.board.fields.b1 ), "King moved to B1" );
+		test.ok( !king.move( this.board.fields.a2 ), "King moved to A2" );
+		test.ok( !king.move( this.board.fields.b2 ), "King moved to B2 ");
 		
-			doh.t( pawn.attackedBy( )[ 0 ] && pawn.attackedBy( )[ 0 ] === rook, "Pawn wasn't being attacked" );
-		},
+		test.equal( king.moves( ).length, 0, "The king has moves to make" );			
+	},
+	
+	"moving a rook on an empty this.board": function( test ){
 		
-		move_must_cancel_check: function( board, pieces ){
+		var rook = new chess.pieces.Rook({ this.board: this.board, color: "white", field: this.board.fields.h8 });
+		
+		test.ok(
+			rook.movement( ).every( function( field ){ 
+				return field === this.board.fields.h7
+					|| field === this.board.fields.h6
+					|| field === this.board.fields.h5
+					|| field === this.board.fields.h4
+					|| field === this.board.fields.h3
+					|| field === this.board.fields.h2
+					|| field === this.board.fields.h1
+					|| field === this.board.fields.a8
+					|| field === this.board.fields.b8
+					|| field === this.board.fields.c8
+					|| field === this.board.fields.d8
+					|| field === this.board.fields.e8
+					|| field === this.board.fields.f8
+					|| field === this.board.fields.g8;
+			}),
+			"The rook is not looking at all the fields current fields"
+		);
 			
-			var king = new chess.pieces.King({ board: board, color: "white", field: board.fields.a1 }),
-				pawn = new chess.pieces.Pawn({ board: board, color: "white", field: board.fields.e2 }),
-				
-				queen = new chess.pieces.Queen({ board: board, color: "black", field: board.fields.a8 });
-				
-			doh.t( board.isCheck( "white" ), "White should be check" );
+		test.ok( rook.move( this.board.fields.h1 ), "Moving the rook failed" );
+		
+		test.ok(
+			rook.movement( ).every( function( field ){ 
+				return field === this.board.fields.h7
+					|| field === this.board.fields.h6
+					|| field === this.board.fields.h5
+					|| field === this.board.fields.h4
+					|| field === this.board.fields.h3
+					|| field === this.board.fields.h2
+					|| field === this.board.fields.h8
+					|| field === this.board.fields.a1
+					|| field === this.board.fields.b1
+					|| field === this.board.fields.c1
+					|| field === this.board.fields.d1
+					|| field === this.board.fields.e1
+					|| field === this.board.fields.f1
+					|| field === this.board.fields.g1;
+			}),
+			"The rook is not looking at all the new fields"
+		);			
+		
+	},
+	
+	"moving a rook to attack a pawn": function( test ){
+		
+		var rook = new chess.pieces.Rook({ board: this.board, color: "white", field: this.board.fields.h8 }),
+			pawn = new chess.pieces.Pawn({ board: this.board, color: "black", field: this.board.fields.a1 });
+		
+		var isLooking = function( field ){ 
+			var result = -1 !== field.looking.indexOf( this ); 
+		
+			!result && console.error( this.toString( ) + " is not lookint at :: ", field );
 			
-			doh.f( pawn.move( board.fields.e3 ), "Moving the pawn won't fix the check situation" );
-						
-			doh.t( pawn === board.fields.e2.piece, "The pawn has moved even though the move was illegal" );
+			return result;				
+		};
+		
+		test.ok( 
+			[
+				board.fields.h7,
+				board.fields.h6,
+				board.fields.h5,
+				board.fields.h4,
+				board.fields.h3,
+				board.fields.h2,
+				board.fields.h1,
+				board.fields.a8,
+				board.fields.b8,
+				board.fields.c8,
+				board.fields.d8,
+				board.fields.e8,
+				board.fields.f8,
+				board.fields.g8
+			].every( isLooking.bind( rook ) ),
+			"The rook is not looking at all the fields cuurent fields"
+		);
+		
+		test.ok( rook.move( this.board.fields.h1 ), "Moving the rook failed" );
+		
+		//console.log( rook.movement( ).map( function( f ){ return f.toString( ); } ) );
+		//console.log( this.board.toString( ) );
+		
+		test.ok(
+			[
+				board.fields.h7,
+				board.fields.h6,
+				board.fields.h5,
+				board.fields.h4,
+				board.fields.h3,
+				board.fields.h2,
+				board.fields.h8,
+				board.fields.a1,
+				board.fields.b1,
+				board.fields.c1,
+				board.fields.d1,
+				board.fields.e1,
+				board.fields.f1,
+				board.fields.g1
+			].every( isLooking.bind( null, rook ) ),
+			"The rook is not looking at all the new fields"
+		);
+		
+		test.ok(
+			rook.movement( ).some( function( field ){ return field === this.board.fields.a1; } ),
+			"The rook isn't looking at A1"			
+		);
+	
+		test.ok(
+			rook.attacks( ).some( function( field ){ return field === this.board.fields.a1; } ),
+			"The rook isn't attacking A1" 
+		);
+	
+		//console.log( this.board.toString( ) );
+	
+		test.equal( pawn.attackedBy( )[ 0 ], rook, "Pawn wasn't being attacked" );
+	},
+	
+	"move must cancel check": function( test ){
+		
+		var king = new chess.pieces.King({ board: this.board, color: "white", field: this.board.fields.a1 }),
+			pawn = new chess.pieces.Pawn({ board: this.board, color: "white", field: this.board.fields.e2 }),
 			
-			doh.t( board.isCheck( "white" ), "White should still be check after the failed move" );
+			queen = new chess.pieces.Queen({ board: this.board, color: "black", field: this.board.fields.a8 });
 			
-		}
-	})
-);
-
-
-});
+		test.ok( this.board.isCheck( "white" ), "White should be check" );
+		
+		test.ok( !pawn.move( this.board.fields.e3 ), "Moving the pawn won't fix the check situation" );
+					
+		test.equal( this.board.fields.e2.piece, pawn, "The pawn has moved even though the move was illegal" );
+		
+		test.ok( this.board.isCheck( "white" ), "White should still be check after the failed move" );
+		
+	}
+    
+};

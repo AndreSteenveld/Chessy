@@ -3,117 +3,113 @@
  *	Licensed under the MIT public license for the full license see the LICENSE file
  *
  */
-define([ "chess", "lib", "doh" ], function( chess, lib, doh ){
+ 
+var chess = require( "chessy" );
 
-function wrap_tests( tests ){
+module.exports = {
+	
+	"field orientation": function( test ){
+	    
+	    var board = new chess.board.Board({ });
+		
+		// Normal fields
+		test.equal( board.fields[ 0 ][ 0 ], board.fields.a1, "South west is not A1" );
+		test.equal( board.fields[ 0 ][ 7 ], board.fields.a8, "North west is not A8" );
+		test.equal( board.fields[ 7 ][ 0 ], board.fields.h1, "South east is not H1" );
+		test.equal( board.fields[ 7 ][ 7 ], board.fields.h8, "North east is not H8" );
+		
+		// Color specific boards
+		test.equal( board.white[ 0 ][ 0 ], board.fields.a1, "White - South west is not A1" );
+		test.equal( board.white[ 0 ][ 7 ], board.fields.a8, "White - North west is not A8" );
+		test.equal( board.white[ 7 ][ 0 ], board.fields.h1, "White - South east is not H1" );
+		test.equal( board.white[ 7 ][ 7 ], board.fields.h8, "White - North east is not H8" );
+		
+		test.equal( board.black[ 0 ][ 0 ], board.fields.h8, "Black - South west is not H8" );
+		test.equal( board.black[ 0 ][ 7 ], board.fields.h1, "Black - North west is not H1" );
+		test.equal( board.black[ 7 ][ 0 ], board.fields.a8, "Black - South east is not A8" );
+		test.equal( board.black[ 7 ][ 7 ], board.fields.a1, "Black - North east is not A1" );
+		
+	},
 
-	Object.keys( tests ).forEach( function( key ){
+	"is check": function( test ){ 
+	    
+	    var board = new chess.board.Board({ });
+	    
+		new chess.pieces.King({ color: "white", board: board, field: board.fields.a1 });
+		new chess.pieces.Rook({ color: "black", board: board, field: board.fields.h1 });
+			
+		test.ok( board.isCheck( "white" ) );			
+	},
 	
-		lib.aspect.before( tests, key, function( ){
-			return [ new chess.board.Board({ }), { } ];		
-		});
+	"is check mate": function( test ){ 
 		
-	});
-	
-	return tests;
-}
+		var board = new chess.board.Board({ });
+		
+		new chess.pieces.King({ color: "white", board: board, field: board.fields.a1 });
 
-doh.register(
+		new chess.pieces.Rook({ color: "black", board: board, field: board.fields.c2 });
+		new chess.pieces.Rook({ color: "black", board: board, field: board.fields.c1 });
+		
+		test.ok( board.isCheckMate( "white" ) );
+		
+	},
 	
-	"Board checks",
+	"is stale mate": function( test ){ 
+		
+		var board = new chess.board.Board({ });
+		
+		new chess.pieces.Pawn({ color: "white", board: board, field: board.fields.a8 });
+			
+		test.ok( board.isStaleMate( "white" ) );		
+			
+	},
 	
-	wrap_tests({
+	"is stale mate with boxed king": function( test ){
+		
+		var board = new chess.board.Board({ });
+		
+		new chess.pieces.King({ color: "white", board: board, field: board.fields.a8 });
+		new chess.pieces.Pawn({ color: "black", board: board, field: board.fields.a7 });
+			
+		new chess.pieces.Rook({ color: "black", board: board, field: board.fields.a1 });
+		new chess.pieces.Rook({ color: "black", board: board, field: board.fields.b1 });
+		
+		test.ok( board.isStaleMate( "white" ) );		
+		
+		test.ok( !board.isCheck( "white" ) );
+		test.ok( !board.isCheckMate( "white" ) );	
+		
+	},
 	
-		field_orientation: function( board ){
-			
-			// Normal fields
-			doh.t( board.fields[ 0 ][ 0 ] === board.fields.a1, "South west is not A1" );
-			doh.t( board.fields[ 0 ][ 7 ] === board.fields.a8, "North west is not A8" );
-			doh.t( board.fields[ 7 ][ 0 ] === board.fields.h1, "South east is not H1" );
-			doh.t( board.fields[ 7 ][ 7 ] === board.fields.h8, "North east is not H8" );
-			
-			// Color specific boards
-			doh.t( board.white[ 0 ][ 0 ] === board.fields.a1, "White - South west is not A1" );
-			doh.t( board.white[ 0 ][ 7 ] === board.fields.a8, "White - North west is not A8" );
-			doh.t( board.white[ 7 ][ 0 ] === board.fields.h1, "White - South east is not H1" );
-			doh.t( board.white[ 7 ][ 7 ] === board.fields.h8, "White - North east is not H8" );
-			
-			doh.t( board.black[ 0 ][ 0 ] === board.fields.h8, "Black - South west is not H8" );
-			doh.t( board.black[ 0 ][ 7 ] === board.fields.h1, "Black - North west is not H1" );
-			doh.t( board.black[ 7 ][ 0 ] === board.fields.a8, "Black - South east is not A8" );
-			doh.t( board.black[ 7 ][ 7 ] === board.fields.a1, "Black - North east is not A1" );
-			
-		},
+	"check with static king": function( test ){
+		
+		var board = new chess.board.Board({ });
+		
+		new chess.pieces.King({ color: "white", board: board, field: board.fields.a1 });
+		new chess.pieces.Rook({ color: "white", board: board, field: board.fields.d2 });
+		
+		new chess.pieces.Queen({ color: "black", board: board, field: board.fields.b2 });
+		new chess.pieces.Bishop({ color: "black", board: board, field: board.fields.h8 });
+		
+		test.ok( board.isCheck( "white" ), "White is check" );
+		test.ok( !board.isCheckMate( "white" ), "White is not mate because it can use the rook" );
+		
+	},
 	
-		check: function( board, pieces ){ 
-			new chess.pieces.King({ color: "white", board: board, field: board.fields.a1 });
-			new chess.pieces.Rook({ color: "black", board: board, field: board.fields.h1 });
-				
-			doh.t( board.isCheck( "white" ) );			
-		},
+	"check mate with static king": function( test ){
 		
-		check_mate: function( board, pieces ){ 
-			new chess.pieces.King({ color: "white", board: board, field: board.fields.a1 });
-
-			new chess.pieces.Rook({ color: "black", board: board, field: board.fields.c2 });
-			new chess.pieces.Rook({ color: "black", board: board, field: board.fields.c1 });
-			
-			doh.t( board.isCheckMate( "white" ) );
-			
-		},
+		var board = new chess.board.Board({ });
 		
-		stale_mate: function( board, pieces ){ 
-			
-			new chess.pieces.Pawn({ color: "white", board: board, field: board.fields.a8 });
-				
-			doh.is( true, board.isStaleMate( "white" ) );		
-				
-		},
+		new chess.pieces.King({ color: "white", board: board, field: board.fields.a1 });
+		new chess.pieces.Rook({ color: "white", board: board, field: board.fields.d2 });
 		
-		stale_mate_with_boxed_king: function( board, pieces ){
-			
-			new chess.pieces.King({ color: "white", board: board, field: board.fields.a8 });
-			new chess.pieces.Pawn({ color: "black", board: board, field: board.fields.a7 });
-				
-			new chess.pieces.Rook({ color: "black", board: board, field: board.fields.a1 });
-			new chess.pieces.Rook({ color: "black", board: board, field: board.fields.b1 });
-			
-			doh.is( true, board.isStaleMate( "white" ) );		
-			
-			doh.f( board.isCheck( "white" ) );
-			doh.f( board.isCheckMate( "white" ) );	
-			
-		},
+		new chess.pieces.Queen({ color: "black", board: board, field: board.fields.b2 });
+		new chess.pieces.Bishop({ color: "black", board: board, field: board.fields.h8 });
+		new chess.pieces.Rook({ color: "black", board: board, field: board.fields.a8 });
 		
-		check_with_static_king: function( board ){
-			
-			new chess.pieces.King({ color: "white", board: board, field: board.fields.a1 });
-			new chess.pieces.Rook({ color: "white", board: board, field: board.fields.d2 });
-			
-			new chess.pieces.Queen({ color: "black", board: board, field: board.fields.b2 });
-			new chess.pieces.Bishop({ color: "black", board: board, field: board.fields.h8 });
-			
-			doh.t( board.isCheck( "white" ), "White is check" );
-			doh.f( board.isCheckMate( "white" ), "White is not mate because it can use the rook" );
-			
-		},
+		test.ok( board.isCheck( "white" ), "White is not only check it should be mate as well" );	
+		test.ok( board.isCheckMate( "white" ), "White is mate, being attacked from multiple pieces over multiple lines" );
 		
-		check_mate_with_static_king: function( board ){
-			
-			new chess.pieces.King({ color: "white", board: board, field: board.fields.a1 });
-			new chess.pieces.Rook({ color: "white", board: board, field: board.fields.d2 });
-			
-			new chess.pieces.Queen({ color: "black", board: board, field: board.fields.b2 });
-			new chess.pieces.Bishop({ color: "black", board: board, field: board.fields.h8 });
-			new chess.pieces.Rook({ color: "black", board: board, field: board.fields.a8 });
-			
-			doh.t( board.isCheck( "white" ), "White is not only check it should be mate as well" );	
-			doh.t( board.isCheckMate( "white" ), "White is mate, being attacked from multiple pieces over multiple lines" );
-			
-		}		
-		
-	})
-);
-
-
-});
+	}		
+	
+};
