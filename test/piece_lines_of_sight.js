@@ -30,8 +30,8 @@ module.exports = {
 		
 		test.ok(
 			[ 
-				board.fields.d4, 
-				board.fields.d3 
+				this.board.fields.d4, 
+				this.board.fields.d3 
 			]
 			.every( isLooking.bind( pawn ) )
 		);
@@ -82,10 +82,10 @@ module.exports = {
 		
 		test.ok(
 			[ 
-				board.fields.c2, this.board.fields.e2, 
-				board.fields.b3, this.board.fields.f3, 
-				board.fields.b5, this.board.fields.f5, 
-				board.fields.c6, this.board.fields.e6
+				this.board.fields.c2, this.board.fields.e2, 
+				this.board.fields.b3, this.board.fields.f3, 
+				this.board.fields.b5, this.board.fields.f5, 
+				this.board.fields.c6, this.board.fields.e6
 			]
 			.every( isLooking.bind( knight ) )
 		);
@@ -239,8 +239,8 @@ module.exports = {
 		
 		var moves = king.moves( );
 		
-		test.notEqual( moves.indexOf( this.board.fields.c1 ), -1, "Not possible to castle left because the rook is not on the board yet" );
-		test.notEqual( moves.indexOf( this.board.fields.g1 ), -1, "Not possible to castle right because the rook is not on the board yet" );
+		test.equal( moves.indexOf( this.board.fields.c1 ), -1, "Not possible to castle left because the rook is not on the board yet" );
+		test.equal( moves.indexOf( this.board.fields.g1 ), -1, "Not possible to castle right because the rook is not on the board yet" );
 		
 		var lRook = new chess.pieces.Rook({ 
 			color: "white",
