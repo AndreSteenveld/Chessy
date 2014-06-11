@@ -5,8 +5,8 @@
  */
 module.exports = {
     
-    Game: require( "./Game" ),
-    Player: require( "./Player" ),
+    //Game: require( "./Game" ),
+    //Player: require( "./Player" ),
     
     board: {
         Board: require( "./board/Board" ),

@@ -3,6 +3,13 @@
  *	Licensed under the MIT public license for the full license see the LICENSE file
  *
  */
+var nu = require( "nodeunit" )
+
+process.chdir( __dirname );
+
+nu.reporters.tap.run([ "board.js" ]);
+ 
+/* 
 define([ "dojo", "doh" ], function( dojo, doh ){
 	
 	dojo.extend( doh.Deferred, {
@@ -39,3 +46,4 @@ define([ "dojo", "doh" ], function( dojo, doh ){
 	}
 
 });
+*/

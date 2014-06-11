@@ -15,7 +15,7 @@ module.exports = Compose(
 		
 		movement: Compose.around( function( base ){
 			return function( ){
-			    base.call( this, [
+			    return base.call( this, [
     				[ this.x,  Infinity ],
     				[ this.x, -Infinity ],
     				[ Infinity,  this.y ],

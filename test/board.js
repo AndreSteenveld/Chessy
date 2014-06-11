@@ -28,6 +28,7 @@ module.exports = {
 		test.equal( board.black[ 7 ][ 0 ], board.fields.a8, "Black - South east is not A8" );
 		test.equal( board.black[ 7 ][ 7 ], board.fields.a1, "Black - North east is not A1" );
 		
+	    test.done( );
 	},
 
 	"is check": function( test ){ 
@@ -37,7 +38,9 @@ module.exports = {
 		new chess.pieces.King({ color: "white", board: board, field: board.fields.a1 });
 		new chess.pieces.Rook({ color: "black", board: board, field: board.fields.h1 });
 			
-		test.ok( board.isCheck( "white" ) );			
+		test.ok( board.isCheck( "white" ) );	
+		
+		test.done( );		
 	},
 	
 	"is check mate": function( test ){ 
@@ -51,6 +54,7 @@ module.exports = {
 		
 		test.ok( board.isCheckMate( "white" ) );
 		
+		test.done( );
 	},
 	
 	"is stale mate": function( test ){ 
@@ -61,6 +65,7 @@ module.exports = {
 			
 		test.ok( board.isStaleMate( "white" ) );		
 			
+		test.done( );
 	},
 	
 	"is stale mate with boxed king": function( test ){
@@ -78,6 +83,7 @@ module.exports = {
 		test.ok( !board.isCheck( "white" ) );
 		test.ok( !board.isCheckMate( "white" ) );	
 		
+		test.done( );
 	},
 	
 	"check with static king": function( test ){
@@ -93,6 +99,7 @@ module.exports = {
 		test.ok( board.isCheck( "white" ), "White is check" );
 		test.ok( !board.isCheckMate( "white" ), "White is not mate because it can use the rook" );
 		
+		test.done( );
 	},
 	
 	"check mate with static king": function( test ){
@@ -109,6 +116,7 @@ module.exports = {
 		test.ok( board.isCheck( "white" ), "White is not only check it should be mate as well" );	
 		test.ok( board.isCheckMate( "white" ), "White is mate, being attacked from multiple pieces over multiple lines" );
 		
+		test.done( );
 	}		
 	
 };

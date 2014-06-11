@@ -37,7 +37,7 @@ module.exports = Compose(
 		
 		fieldsByCoordinate
 		    .reduce( function( fields, row ){ return fields.concat( row ) }, [ ] )
-		    .forEach( fucntion( field ){
+		    .forEach( function( field ){
 		       
 		       fieldsByName[ field.xName + field.yName ] = field;
 		       		        
@@ -53,7 +53,7 @@ module.exports = Compose(
 		fieldsByCoordinate
 		    .reduce( 
 		        function( reversed, column ){ 
-		            reversed.shift( [ ].concat( column ).reverse( ); 
+		            reversed.unshift( [ ].concat( column ).reverse( ) ); 
 		            return reversed;
 		        }
 		        , [ ] 

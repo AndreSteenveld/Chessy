@@ -15,7 +15,7 @@ module.exports = Compose(
 		
 		movement: Compose.around( function( base ){
 			return function( ){
-			    base.call( this, [
+			    return base.call( this, [
     				[ this.x + 2, this.y + 1 ],
     				[ this.x + 2, this.y - 1 ],
     				[ this.x - 2, this.y + 1 ],

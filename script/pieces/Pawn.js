@@ -22,7 +22,7 @@ module.exports = Compose(
 		enPassant: null,
 		 
 		movement: Compose.around( function( base ){
-		    function( ){
+		    return function( ){
 			
     			var movement = [ ],
     				fields   = this.board[ this.color ];			
@@ -134,7 +134,7 @@ module.exports = Compose(
     			
     			return true;			
     		};
-    	});
+    	}),
 		
 		attackedBy: Compose.around( function( base ){
 		    return function( ){
