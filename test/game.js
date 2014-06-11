@@ -4,8 +4,8 @@
  *
  */
  
-var chess   = require( "chessy" ),
-    Promise = require( "Promise" );
+var chess = require( "../chessy" ),
+    RSVP  = require( "rsvp" );
 
 module.exports = {       
     
@@ -40,7 +40,7 @@ module.exports = {
 		var board = this.board,
 			game  = new chess.Game({ board: board });			
 		
-		test.ok( game.isInstanceOf( chess.Game ) );
+		test.ok( game instanceof chess.Game );
 	},
 			
 	"adding players to a game": function( test ){

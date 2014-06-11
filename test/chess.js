@@ -53,5 +53,9 @@ nu.reporters.default.run({
     "Pieces": {
         "Line of sight": wrap( require( "./piece_lines_of_sight.js" ) ),
         "Movement":      wrap( require( "./piece_movement.js" ) )        
-    }    
+    },
+    "Stateful": {
+        "Game": wrap( require( "./game.js" ) )    
+        
+    }
 });

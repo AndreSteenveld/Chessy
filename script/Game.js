@@ -3,41 +3,96 @@
  *	Licensed under the MIT public license for the full license see the LICENSE file
  *
  */
-define( [ ".", "lib" ], function( chess, lib ){
+var Compose      = require( "compose" ),
+    EventEmitter = require( "events" ).EventEmitter,
+    chess        = require( "../chessy" );
+    
+function placeHandler( field, piece ){ 
+	this.emit.onIdle( this, [ "Placed", {
+		field: field,
+		piece: piece
+	}]);
+}
+
+function moveHandler( game, piece, move ){
 	
-	chess.Game = lib.declare( [ lib.Evented ], {
-		counter: 0,
+	return function( toField ){
+		
+		var occupant = toField.piece || null,
+			field    = piece.field;
+		
+		if( move.call( piece, toField ) ){
+			
+			var _moved_  = {
+					counter:  game.counter++,
+					color:    game.color,
+					occupant: occupant,       // The current puece on the field
+					piece:    piece,          // The piece we are moving
+					from:     field,          // Where did the moving piece come from
+					to:       toField         // Where are we going?
+				};
+
+			piece.type === "Pawn" && piece.y === 7
+				? game.emit.onIdle( game, [ "Promotion", lib.delegate( _moved_, { color: piece.color } ) ] )
+					.then( game.emit.async( game, [ "Moved", _moved_ ] ) )
+				: game.emit.onIdle( game, [ "Moved", _moved_ ] );
+								
+			return true;
+			
+		} else {
+		
+			game.emit.onIdle( game, [ "IllegalMove", {
+				counter: game.counter,
+				piece: piece,
+				color: game.color,
+				from: field,
+				to: toField						
+			}]);
+			
+			return false;	 
+			
+		}			
+		
+	};
+	
+}
+   
+module.exports = Compose(
+    
+    EventEmitter,
+    
+    function( _game_ ){
+		var board = this.board = _game_.board;
+				
+		Compose.after( placeHandler.bind( this ) ).install.call( board, "place" );
+				
+		board.piecesInPlay.forEach( 
+		    function( piece ){
+		    
+		        Compose.around( moveHandler.bind( null, this, piece ) ).install.call( piece, "move" );
+		        
+		    }
+		    , this
+		);
+					
+		"white" in _game_ && _game_.white.join( this, "white" );
+		"black" in _game_ && _game_.black.join( this, "black" );			
+		
+		"color" in _game_ && ( this.color = _game_.color );
+	},
+    
+    {
+    
+        counter: 0,
 		
 		color: null,
 		
 		board: null,
 		
 		white: null,
-		black: null,
-		
-		constructor: function( _game_ ){
-			var board = this.board = _game_.board;
-					
-			lib.aspect.after( board, "place", this._placeHandler.bind( this ), true );
-			
-			board.piecesInPlay.forEach( 
-				Function.bind( this, function( piece ){
-										
-					lib.aspect.around( piece, "move", this._moveHandler.bind( this, piece ) );				
-				
-				})
-			);
-			
-			this.whiteEmitter = lib.delegate( this );
-			this.blackEmitter = lib.delegate( this );
-			
-			"white" in _game_ && _game_.white.join( this, "white" );
-			"black" in _game_ && _game_.black.join( this, "black" );			
-			
-			"color" in _game_ && ( this.color = _game_.color );
-		},
-		
-		turn: function( ){ 
+		black: null,    
+
+        turn: function( ){ 
 			return this.color && this.color === "white"
 				? ( this.color = "black" )
 				: ( this.color = "white" );	
@@ -80,55 +135,7 @@ define( [ ".", "lib" ], function( chess, lib ){
 		//
 		// Handlers for the place and occupy methods from the board
 		//
-		_placeHandler: function( field, piece ){ 
-			this.emit.onIdle( this, [ "Placed", {
-				field: field,
-				piece: piece
-			}]);
-		},
 		
-		_moveHandler: function( piece, move ){
-			
-			return Function.bind( this, function( toField ){
-				
-				var occupant = toField.piece || null,
-					field    = piece.field;
-				
-				if( move.call( piece, toField ) ){
-					
-					var _moved_  = {
-							counter:  this.counter++,
-							color:    this.color,
-							occupant: occupant,       // The current puece on the field
-							piece:    piece,          // The piece we are moving
-							from:     field,          // Where did the moving piece come from
-							to:       toField         // Where are we going?
-						};
-
-					piece.type === "Pawn" && piece.y === 7
-						? this.emit.onIdle( this, [ "Promotion", lib.delegate( _moved_, { color: piece.color } ) ] )
-							.then( this.emit.async( this, [ "Moved", _moved_ ] ) )
-						: this.emit.onIdle( this, [ "Moved", _moved_ ] );
-										
-					return true;
-					
-				} else {
-				
-					this.emit.onIdle( this, [ "IllegalMove", {
-						counter: this.counter,
-						piece: piece,
-						color: this.color,
-						from: field,
-						to: toField						
-					}]);
-					
-					return false;	 
-					
-				}			
-				
-			});
-			
-		},
 		
 		player: function( args, both, name ){
 			
@@ -301,7 +308,7 @@ define( [ ".", "lib" ], function( chess, lib ){
 			this[ player.color ] = null;
 			this.emit.onIdle( this, [ "PlayerLeave", { player: player } ] );
 		}
-	});
-
-	return chess.Game;
-});
+        
+    }
+    
+);
