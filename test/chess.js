@@ -3,11 +3,54 @@
  *	Licensed under the MIT public license for the full license see the LICENSE file
  *
  */
-var nu = require( "nodeunit" )
+var nu   = require( "nodeunit" ),
+    RSVP = require( "rsvp" );
+    
+    
+function wrap( obj ){
+    
+    var result = { };
+    
+    Object.keys( obj ).forEach( function( key ){
+    
+        if( typeof obj[ key ] === "function" ){
+        
+            result[ key ] = function( test ){
+            
+                var deferred = RSVP.defer( );
+            
+                deferred.promise
+                    .then( obj[ key ].bind( this ) )
+                    .then( 
+                        test.done,
+                        test.done 
+                    );
+                
+                deferred.resolve( test );
+                
+            }                                    
+            
+        } else {
+            
+            wrap( obj[ key ] );    
+        
+        }    
+        
+    });
+    
+    return result;
+    
+}
 
 process.chdir( __dirname );
 
-nu.reporters.tap.run([ "board.js" ]);
+nu.reporters.default.run({
+    "Board": wrap( require( "./board.js" ) ),
+    "Pieces": {
+        "Line of sight": wrap( require( "./piece_lines_of_sight.js" ) ),
+        "Movement":      wrap( require( "./piece_movement.js" ) )        
+    }    
+});
  
 /* 
 define([ "dojo", "doh" ], function( dojo, doh ){

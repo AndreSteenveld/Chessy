@@ -3,21 +3,25 @@
  *	Licensed under the MIT public license for the full license see the LICENSE file
  *
  */
-var chess = require( "chessy" );
+var chess   = require( "../chessy" ),
+    Compose = require( "compose" );
 
-var Piece = lib.declare( [ chess.pieces.Piece ], {
+var Piece = Compose( 
+    
+    require( "../script/pieces/Piece" ), 
+    
+    {
 	
-	type: "Piece",
+    	type: "Piece",
+    	
+    	movement: Compose.around( function( base ){
+    		return function( ){
+    		    return base.call( this, [ this.x, this.y + 1 ] );
+    		};		
+    	})
 	
-	movement: function( ){
-		return this.inherited( arguments, [[
-			
-			[ this.x, this.y + 1 ]
-			
-		]]);		
-	}
-	
-});
+    }
+);
 
 module.exports = {
 
@@ -268,7 +272,7 @@ module.exports = {
 	
 	"moving a rook on an empty this.board": function( test ){
 		
-		var rook = new chess.pieces.Rook({ this.board: this.board, color: "white", field: this.board.fields.h8 });
+		var rook = new chess.pieces.Rook({ board: this.board, color: "white", field: this.board.fields.h8 });
 		
 		test.ok(
 			rook.movement( ).every( function( field ){ 
