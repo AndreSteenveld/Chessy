@@ -16,7 +16,7 @@ var Piece = Compose(
     	
     	movement: Compose.around( function( base ){
     		return function( ){
-    		    return base.call( this, [ this.x, this.y + 1 ] );
+    		    return base.call( this, [[ this.x, this.y + 1 ]] );
     		};		
     	})
 	
@@ -102,8 +102,8 @@ module.exports = {
 		
 		test.ok( bPawn.move( this.board.fields.a5 ), "The move was unsuccessfull" );
 		
-		test.equal( bPawn.attackedBy( ).indexOf( wPawn ),           -1, "Black pawn is not being attacked by white pawn." );
-		test.equal( wPawn.moves( ).indexOf( this.board.fields.a6 ), -1, "White pawn can't move to A6." );
+		test.notEqual( bPawn.attackedBy( ).indexOf( wPawn ),           -1, "Black pawn is not being attacked by white pawn." );
+		test.notEqual( wPawn.moves( ).indexOf( this.board.fields.a6 ), -1, "White pawn can't move to A6." );
 		
 	},
 	
@@ -270,7 +270,7 @@ module.exports = {
 		test.equal( king.moves( ).length, 0, "The king has moves to make" );			
 	},
 	
-	"moving a rook on an empty this.board": function( test ){
+	"moving a rook on an empty board": function( test ){
 		
 		var rook = new chess.pieces.Rook({ board: this.board, color: "white", field: this.board.fields.h8 });
 		
@@ -290,7 +290,7 @@ module.exports = {
 					|| field === this.board.fields.e8
 					|| field === this.board.fields.f8
 					|| field === this.board.fields.g8;
-			}),
+			}, this),
 			"The rook is not looking at all the fields current fields"
 		);
 			
@@ -312,7 +312,7 @@ module.exports = {
 					|| field === this.board.fields.e1
 					|| field === this.board.fields.f1
 					|| field === this.board.fields.g1;
-			}),
+			}, this ),
 			"The rook is not looking at all the new fields"
 		);			
 		
@@ -333,20 +333,20 @@ module.exports = {
 		
 		test.ok( 
 			[
-				board.fields.h7,
-				board.fields.h6,
-				board.fields.h5,
-				board.fields.h4,
-				board.fields.h3,
-				board.fields.h2,
-				board.fields.h1,
-				board.fields.a8,
-				board.fields.b8,
-				board.fields.c8,
-				board.fields.d8,
-				board.fields.e8,
-				board.fields.f8,
-				board.fields.g8
+				this.board.fields.h7,
+				this.board.fields.h6,
+				this.board.fields.h5,
+				this.board.fields.h4,
+				this.board.fields.h3,
+				this.board.fields.h2,
+				this.board.fields.h1,
+				this.board.fields.a8,
+				this.board.fields.b8,
+				this.board.fields.c8,
+				this.board.fields.d8,
+				this.board.fields.e8,
+				this.board.fields.f8,
+				this.board.fields.g8
 			].every( isLooking.bind( rook ) ),
 			"The rook is not looking at all the fields cuurent fields"
 		);
@@ -358,31 +358,31 @@ module.exports = {
 		
 		test.ok(
 			[
-				board.fields.h7,
-				board.fields.h6,
-				board.fields.h5,
-				board.fields.h4,
-				board.fields.h3,
-				board.fields.h2,
-				board.fields.h8,
-				board.fields.a1,
-				board.fields.b1,
-				board.fields.c1,
-				board.fields.d1,
-				board.fields.e1,
-				board.fields.f1,
-				board.fields.g1
-			].every( isLooking.bind( null, rook ) ),
+				this.board.fields.h7,
+				this.board.fields.h6,
+				this.board.fields.h5,
+				this.board.fields.h4,
+				this.board.fields.h3,
+				this.board.fields.h2,
+				this.board.fields.h8,
+				this.board.fields.a1,
+				this.board.fields.b1,
+				this.board.fields.c1,
+				this.board.fields.d1,
+				this.board.fields.e1,
+				this.board.fields.f1,
+				this.board.fields.g1
+			].every( isLooking.bind( rook ) ),
 			"The rook is not looking at all the new fields"
 		);
 		
 		test.ok(
-			rook.movement( ).some( function( field ){ return field === this.board.fields.a1; } ),
+			rook.movement( ).some( function( field ){ return field === this.board.fields.a1; }, this ),
 			"The rook isn't looking at A1"			
 		);
 	
 		test.ok(
-			rook.attacks( ).some( function( field ){ return field === this.board.fields.a1; } ),
+			rook.attacks( ).some( function( field ){ return field === this.board.fields.a1; }, this ),
 			"The rook isn't attacking A1" 
 		);
 	

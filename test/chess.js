@@ -6,7 +6,6 @@
 var nu   = require( "nodeunit" ),
     RSVP = require( "rsvp" );
     
-    
 function wrap( obj ){
     
     var result = { };
@@ -17,13 +16,18 @@ function wrap( obj ){
         
             result[ key ] = function( test ){
             
-                var deferred = RSVP.defer( );
+                var deferred = RSVP.defer( "TEST :: " + key );
             
                 deferred.promise
                     .then( obj[ key ].bind( this ) )
+                    .catch(
+                        function( result ){
+                            test.fail( result );
+                            return result;
+                        }
+                    )
                     .then( 
-                        test.done,
-                        test.done 
+                        test.done
                     );
                 
                 deferred.resolve( test );
@@ -51,42 +55,3 @@ nu.reporters.default.run({
         "Movement":      wrap( require( "./piece_movement.js" ) )        
     }    
 });
- 
-/* 
-define([ "dojo", "doh" ], function( dojo, doh ){
-	
-	dojo.extend( doh.Deferred, {
-		
-		resolve: doh.Deferred.prototype.callback,
-		reject: doh.Deferred.prototype.errback,
-		then: function( ){ return this.addCallbacks.apply( this, arguments ); }
-	});
-	
-	require({ 
-		packages: [
-			{ name: "lib",    location: "../../script/lib" },
-			{ name: "chess",  location: "../../script/chess" }
-		]
-	});
-		
-	var start = ( new Date( ) ).getTime( );
-
-	try {
-		// Do the require methods etc return a deferred
-		require( [ "chess/tests/piece_lines_of_sight" ], function( ){ console.info( "Completed line of sight tests (" + ( ( new Date( ) ).getTime( ) - start ) + "ms)" ); } );
-		require( [ "chess/tests/piece_movement" ], function( ){ console.info( "Completed movement tests (" + ( ( new Date( ) ).getTime( ) - start ) + "ms)" ); } );
-		require( [ "chess/tests/board" ], function( ){ console.info( "Completed board tests (" + ( ( new Date( ) ).getTime( ) - start ) + "ms)" ); } );
-		require( [ "chess/tests/game" ], function( ){ console.info( "Completed game tests (" + ( ( new Date( ) ).getTime( ) - start ) + "ms)" ); } );
-		require( [ "chess/tests/player_and_random_ai" ], function( ){ console.info( "Completed random AI tests (" + ( ( new Date( ) ).getTime( ) - start ) + "ms)" ); } );
-	
-	
-	} catch( exception ){
-		console.error( "An error occured during the testing ::", exception );
-	
-	} finally {
-	
-		
-	}
-
-});
-*/

@@ -310,14 +310,14 @@ module.exports = Compose(
 										
 				if( this.board.isCheck( this.color ) ){
 				
-					console.warn( 
-						"Invalid move causing or unresolving check ::\n\t", 
-						{
-							piece: this,
-							field: toField
-						}, 
-						"\n" + this.board.toString( ) 
-					);
+					//console.warn( 
+					//	"Invalid move causing or unresolving check ::\n\t", 
+					//	{
+					//		piece: this,
+					//		field: toField
+					//	}, 
+					//	"\n" + this.board.toString( ) 
+					//);
 					
 					undo( );
 					
@@ -331,10 +331,10 @@ module.exports = Compose(
 				
 			} else {
 				
-				console.warn( "Invalid move to field ::", {
-					piece: this,
-					field: toField
-				});
+				// console.warn( "Invalid move to field ::", {
+				// 	piece: this.toString( ),
+				// 	field: toField.toString( )
+				// });
 				
 				return false;
 			}

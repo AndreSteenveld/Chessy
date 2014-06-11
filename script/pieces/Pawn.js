@@ -6,7 +6,7 @@
 var Compose = require( "compose" ),
     Piece   = require( "./Piece" );
     
-module.exports = Compose(
+var Pawn = module.exports = Compose(
 
     // The constructor in this case is quite special. We need to know the 
 	// en passant pieces before the rest of initalization of the piece. 
@@ -42,13 +42,13 @@ module.exports = Compose(
     				   fields[ this.x + 1 ]
     				&& fields[ this.x + 1 ][ this.y + 2 ].piece
     				&& fields[ this.x + 1 ][ this.y + 2 ].piece.color !== this.color
-    				&& fields[ this.x + 1 ][ this.y + 2 ].piece.isInstanceOf( pieces.Pawn )
+    				&& fields[ this.x + 1 ][ this.y + 2 ].piece instanceof Pawn
     				&& ( fields[ this.x + 1 ][ this.y + 2 ].piece.enPassant = fields[ this.x ][ this.y + 1 ] );
     				
     				   fields[ this.x - 1 ]
     				&& fields[ this.x - 1 ][ this.y + 2 ].piece
     				&& fields[ this.x - 1 ][ this.y + 2 ].piece.color !== this.color
-    				&& fields[ this.x - 1 ][ this.y + 2 ].piece.isInstanceOf( pieces.Pawn )
+    				&& fields[ this.x - 1 ][ this.y + 2 ].piece instanceof Pawn
     				&& ( fields[ this.x - 1 ][ this.y + 2 ].piece.enPassant = fields[ this.x ][ this.y + 1 ] );				
     			}
     			
