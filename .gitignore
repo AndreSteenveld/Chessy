@@ -1,6 +1,7 @@
-
+/node_modules
 *.bak
 /chess.NB125.ast.pui
 /chess.prj
 /chess.vfs
 /script/dojo*
+npm-debug.log

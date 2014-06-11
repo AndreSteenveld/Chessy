@@ -8,6 +8,3 @@
 	path = script/dijit
 	url = C:/Users/Andre/work/externals/dijit
 
-[submodule "script/util"]
-	path = script/util
-	url = C:/Users/Andre/work/externals/util
