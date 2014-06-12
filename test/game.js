@@ -85,7 +85,7 @@ module.exports = {
 			
 		});
 		
-		game.start( );
+		game.start( ).catch( result.reject );
 		
 		return result.promise;
 	},
@@ -112,7 +112,7 @@ module.exports = {
 			
 		});
 		
-		game.start( );
+		game.start( ).catch( result.reject );
 		
 		return result.promise;			
 	},
@@ -151,7 +151,7 @@ module.exports = {
 		wPlayer.join( game, "white" );
 		bPlayer.join( game, "black" );
 		
-		game.start( );
+		game.start( ).catch( result.reject );
 		
 		return result.promise;
 		
@@ -189,7 +189,7 @@ module.exports = {
 		wPlayer.join( game, "white" );
 		bPlayer.join( game, "black" );
 		
-		game.start( );
+		game.start( ).catch( result.reject );
 		
 		return result.promise;
 	},
@@ -207,7 +207,7 @@ module.exports = {
 				RSVP.defer( "white | D1 - D3" )  
 			];
 			
-		var result = new RSVP.all( moves );
+		var result = RSVP.all( moves );
 		
 		wPlayer.on( "onTurn", function( _turn_ ){
 			
@@ -281,9 +281,7 @@ module.exports = {
 		wPlayer.join( game, "white" );
 		bPlayer.join( game, "black" );
 		
-		game.start( );
-		
-		return result.promise;
+		return RSVP.all([ game.start( ), result.promise ]);
 	},
 	
 	"check event": function( test ){ 
@@ -336,9 +334,7 @@ module.exports = {
 		wPlayer.join( game, "white" );
 		bPlayer.join( game, "black" );
 		
-		game.start( );
-		
-		return result.promise;
+		return RSVP.all([ game.start( ), result.promise ]);
 	},
 	
 	"mate event": function( test ){
@@ -402,9 +398,7 @@ module.exports = {
 		wPlayer.join( game, "white" );
 		bPlayer.join( game, "black" );
 		
-		game.start( );
-		
-		return result.promise;
+		return RSVP.all([ game.start( ), result.promise ]);
 		
 	},
 	
@@ -444,9 +438,7 @@ module.exports = {
 		wPlayer.join( game, "white" );
 		bPlayer.join( game, "black" );
 		
-		game.start( );
-		
-		return result.promise;
+		return RSVP.all([ game.start( ), result.promise ]);
 	},
 	
 	"stale event": function( test ){
@@ -503,9 +495,7 @@ module.exports = {
 		wPlayer.join( game, "white" );
 		bPlayer.join( game, "black" );
 		
-		game.start( );
-		
-		return result.promise;
+		return RSVP.all([ game.start( ), result.promise ]);
 		
 	},
 	
@@ -548,9 +538,7 @@ module.exports = {
 		wPlayer.join( game, "white" );
 		bPlayer.join( game, "black" );
 			
-		game.start( );
-		
-		return result.promise;
+		return RSVP.all([ game.start( ), result.promise ]);
 		
 	}
 	    

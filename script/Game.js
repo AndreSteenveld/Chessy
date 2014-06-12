@@ -121,7 +121,7 @@ module.exports = Compose(
 					? ( this.color = "white" )
 					: ( this.color = "black" );
 					
-				this.onStart({ color: this.color });
+				return this.onStart({ color: this.color });
 				
 			} else {
 				
@@ -145,22 +145,27 @@ module.exports = Compose(
 		// Handlers for the place and occupy methods from the board
 		//
 		
-		dispatch: function( single ){
+		dispatch: function( everyone ){
 		
-		    if( !single ){
+		    var result      = null,
+		        _arguments_ = Array.prototype.slice.call( arguments, 1 );
+		
+		    if( !everyone ){
 		        
 		        var target = this[ arguments[ 2 ].color || arguments[ 2 ].loser ];
 		        
-		        return target.emit.apply( target, Array.prototype.slice.call( arguments, 1 ) );
+		        result = target.emit.apply( target, _arguments_ );
 		        
 		    } else {
 		    
-		        return RSVP.all([
-		            this.white.emit.apply( this.white, Array.prototype.slice.call( arguments, 1 ) ),
-		            this.black.emit.apply( this.black, Array.prototype.slice.call( arguments, 1 ) )
+		        result = RSVP.all([
+		            this.white.emit.apply( this.white, _arguments_ ),
+		            this.black.emit.apply( this.black, _arguments_ )
 		        ]);    
 		        
 		    }
+		    
+		    return result.then( this.emit.apply( this, _arguments_ ) );
 		    
 		},
 		
@@ -175,7 +180,7 @@ module.exports = Compose(
 						
 			var color = this.turn( ),
 				turn  = color === "white" ? "black" : "white",
-				data  = lib.mixin( { }, _moved_ );
+				data  = Object.create( _moved_ );
 
             var dispatched = this.dispatch( true, "onMoved", _moved_ );
 
@@ -286,11 +291,11 @@ module.exports = Compose(
 		},
 		
 		onPlayerJoin: function( _joiningPlayer_ ){ /* When a player joins the game */
-		    return this.emit( "onPlayerJoin", _joiningPlayer_ );
+		    return this.dispatch( false, "onPlayerJoin", _joiningPlayer_ );
 		},
 		
 		onPlayerLeave: function( _leavingPlayer_ ){ /* When a player leaves and the the game wasn't started */ 
-		    return this.emit( "onPlayerLeave", _leavingPlayer_ );
+		    return this.dispatch( false, "onPlayerLeave", _leavingPlayer_ );
 		},
 		
 		//
