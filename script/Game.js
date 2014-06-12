@@ -4,6 +4,7 @@
  *
  */
 var Compose      = require( "compose" ),
+    RSVP         = require( "rsvp" ),
     Promise      = require( "rsvp" ).Promise;
     
 var EventEmitter = require( "./util/AsyncEventEmitter" ),
@@ -120,7 +121,7 @@ module.exports = Compose(
 					? ( this.color = "white" )
 					: ( this.color = "black" );
 					
-				this.emit( "onStart", { color: this.color });
+				this.onStart({ color: this.color });
 				
 			} else {
 				
@@ -131,12 +132,8 @@ module.exports = Compose(
 		
 		end: function( conditions ){
 			
-			if( conditions.result === "Surrender" ){
-				
-				this.emit( "onSurrender", conditions );
-									
-			} 
-			
+			conditions.result === "Surrender"
+			    && this.onSurrender( conditions );
 		},
 		
 		draw: function( ){
@@ -154,33 +151,19 @@ module.exports = Compose(
 		        
 		        var target = this[ arguments[ 2 ].color || arguments[ 2 ].loser ];
 		        
-		        return target.emit.apply( target, arguments.slice( 1 ) );
+		        return target.emit.apply( target, Array.prototype.slice.call( arguments, 1 ) );
 		        
 		    } else {
 		    
 		        return RSVP.all([
-		            this.white.emit.apply( this.white, arguments.slice( 1 ) ),
-		            this.black.emit.apply( this.black, arguments.slice( 1 ) )
+		            this.white.emit.apply( this.white, Array.prototype.slice.call( arguments, 1 ) ),
+		            this.black.emit.apply( this.black, Array.prototype.slice.call( arguments, 1 ) )
 		        ]);    
 		        
 		    }
 		    
 		},
-				
-		player: function( args, both, name ){
-			
-			var event  = name || args.callee.nom.slice( 2 ),
-				player = !both && this[ args[ 0 ].color || args[ 0 ].loser ];
-			
-			return !both
-				? player.emit( event, args[ 0 ] )
-				: RSVP.all([
-					this.white.emit( event, args[ 0 ] ),
-					this.black.emit( event, args[ 0 ] )
-				]);
-			
-		},
-
+		
 		//
 		// Game events
 		//
@@ -205,19 +188,19 @@ module.exports = Compose(
 			if( !this.board.isCheck( turn ) && this.board.isStaleMate( turn ) ){
 			
 			    return dispatched
-			        .then( this.emit.bind( this, "onStaleMate", { result: "StaleMate" } ) );
+			        .then( this.onStaleMate.bind( this, { result: "StaleMate" } ) );
 								
 			} else if( !this.board.isCheckMate( turn ) && this.board.isCheck( turn ) ){
 		
 				return dispatched
-					.then( this.emit.bind( this, "onCheck", data ) )
-					.then( this.emit.bind( this, "onTurn", data ) );
+					.then( this.onCheck.bind( this, data ) )
+					.then( this.onTurn.bind( this, data ) );
 			
 			} else if( this.board.isCheckMate( turn ) ){
 					
 				return dispatched
 					.then( 
-						this.emit.bind( this, "onCheckMate", 
+						this.onCheckMate.bind( this, 
 							{ 
 								result: "CheckMate", 
 									
@@ -230,7 +213,7 @@ module.exports = Compose(
 			} else {
 								
 				return dispatched
-					.then( this.emit.bind( this, "onTurn", data ) );
+					.then( this.onTurn.bind( this, data ) );
 				
 			}
 				
@@ -254,31 +237,31 @@ module.exports = Compose(
 		
 		onStaleMate: function( _result_ ){ /* Fired when there is a stale mate, fired before the onEnd event */ 
 			return this.dispatch( true, "onStaleMate", _result_ )
-				.then( this.emit.bind( this, "onDraw", _result_ ) );	
+				.then( this.onDraw.bind( this, _result_ ) );	
 		},
 		
 		onCheckMate: function( _result_ ){ /* Fired when eiter player is mated, fired before the onEnd event */ 
 			return this.dispatch( false, "onCheckMate", _result_ )
-				.then( this.emit.bind( this, "onEnd", _result_ ) );	
+				.then( this.onEnd.bind( this, _result_ ) );	
 		},
 		
 		onSurrender: function( _result_ ){ /* Fired when a player surrenders the match, fired before the onEnd event */ 
 			return this.dispatch( true, "onSurrender", _result_ )
-				.then( this.emit.bind( this, "onEnd", _result_ ) );
+				.then( this.onEnd.bind( this, _result_ ) );
 		},
 						
 		onStart: function( _start_ ){ 
 			
 			return this.dispatch( true, "onStart", _start_ )
 				.then( 
-				    this.emit.bind( this, "onMoved", { counter: this.counter++, color: _start_.color } )
+				    this.onMoved.bind( this, { counter: this.counter++, color: _start_.color } )
 				);	
 			
 		},
 		
 		onDraw: function( _result_ ){ /* Fired when a game ended in a draw, fired before the onEnd event */ 
 			this.dispatch( true, "onDraw", _result_ )
-				.then( this.emit.bind( this, "onEnd", _result_ ) );
+				.then( this.onEnd.bind( this, _result_ ) );
 		},
 		
 		onEnd: function( _result_ ){ /* Fired when the game has eneded */ 
@@ -302,9 +285,13 @@ module.exports = Compose(
 			
 		},
 		
-		onPlayerJoin: function( _newPlayer_ ){ /* When a player joins the game */},
+		onPlayerJoin: function( _joiningPlayer_ ){ /* When a player joins the game */
+		    return this.emit( "onPlayerJoin", _joiningPlayer_ );
+		},
 		
-		onPlayerLeave: function( ){ /* When a player leaves and the the game wasn't started */ },
+		onPlayerLeave: function( _leavingPlayer_ ){ /* When a player leaves and the the game wasn't started */ 
+		    return this.emit( "onPlayerLeave", _leavingPlayer_ );
+		},
 		
 		//
 		// Actions
@@ -319,14 +306,14 @@ module.exports = Compose(
 			color || ( color = ~~( Math.random( ) * 10 ) % 2 ? "white" : "black" );
 			this[ color ] = player;
 						
-			this.emit( "onPlayerJoin", { color: color, player: player });
+			this.onPlayerJoin({ color: color, player: player });
 			
 			return color;
 		},
 		
 		leave: function( player ){ 
 			this[ player.color ] = null;
-			this.emit( "onPlayerLeave", { player: player });
+			this.onPlayerLeave({ player: player });
 		}
         
     }

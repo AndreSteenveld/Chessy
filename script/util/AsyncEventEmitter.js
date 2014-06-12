@@ -16,7 +16,11 @@ module.exports = Compose(
             
             return function( ){
             
-                return Promise.resolve( base.apply( this, arguments ) );   
+                return Promise.resolve( 
+                
+                    setImmediate( base.apply.bind( base, this, arguments ) )
+                    
+                );
                 
             }; 
             
