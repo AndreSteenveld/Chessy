@@ -104,7 +104,7 @@ module.exports = {
 				
 		var result = RSVP.defer( );
 		
-		game.on( "Start", function( _start_ ){
+		game.on( "onStart", function( _start_ ){
 			
 			"color" in _start_ && _start_.color === "black"
 				? result.resolve( true )
@@ -132,9 +132,9 @@ module.exports = {
 		
 		// We have to setup the handlers before we join the game. The normal and sane way
 		// to do this would be to create a class and implement the methods.			
-		wPlayer.on( "Turn", piece.move.bind( piece, to ) );
+		wPlayer.on( "onTurn", piece.move.bind( piece, to ) );
 		
-		game.on( "Moved", function( _move_ ){ 
+		game.on( "onMoved", function( _move_ ){ 
 				
 			// Check if the event object is more or less sane, if a false is supplied
 			if( _move_.counter ){
@@ -172,15 +172,15 @@ module.exports = {
 		
 		// We have to setup the handlers before we join the game. The normal and sane way
 		// to do this would be to create a class and implement the methods.
-		wPlayer.on( "Turn", piece.move.bind( piece, to ) );
+		wPlayer.on( "onTurn", piece.move.bind( piece, to ) );
 		
-		game.on( "Moved", function( _move_ ){
+		game.on( "onMoved", function( _move_ ){
 			
 			_move_.counter && result.reject( "The move was successfull" );
 			
 		});
 		
-		game.on( "IllegalMove", function( exception ){
+		game.on( "onIllegalMove", function( exception ){
 			
 			result.resolve( true );
 			
@@ -209,7 +209,7 @@ module.exports = {
 			
 		var result = new RSVP.all( moves );
 		
-		wPlayer.on( "Turn", function( _turn_ ){
+		wPlayer.on( "onTurn", function( _turn_ ){
 			
 			if( _turn_.counter === 0 ){
 				
@@ -227,7 +227,7 @@ module.exports = {
 			
 		}, true );
 		
-		bPlayer.on( "Turn", function( _turn_ ){
+		bPlayer.on( "onTurn", function( _turn_ ){
 			
 			if( _turn_.counter === 1 ){
 				
@@ -241,7 +241,7 @@ module.exports = {
 			
 		}, true );
 		
-		game.on( "Moved", function( _move_ ){
+		game.on( "onMoved", function( _move_ ){
 			
 			if( _move_.counter === 1 ){
 				
@@ -305,13 +305,13 @@ module.exports = {
 			turnCheck   = RSVP.defer( ),
 			result      = RSVP.all([ gameCheck.promise, playerCheck.promise, turnCheck.promise ]);
 		
-		wPlayer.on(  "Check", function( ){ 
+		wPlayer.on( "onCheck", function( ){ 
 							
 			playerCheck.resolve( true );
 			
 		});
 		
-		wPlayer.on( "Turn", function( ){
+		wPlayer.on( "onTurn", function( ){
 			
 			// if player check not resolved reject it!
 			playerCheck.then( 
@@ -321,13 +321,13 @@ module.exports = {
 			
 		});
 		
-		bPlayer.on( "Turn", function( ){
+		bPlayer.on( "onTurn", function( ){
 			
 			bQueen.move( board.fields.h1 );
 			
 		});
 		
-		game.on( "Check", function( ){ 
+		game.on( "onCheck", function( ){ 
 			
 			gameCheck.resolve( true );
 			
@@ -381,23 +381,23 @@ module.exports = {
 		// Hacking in the events for the white player, makte sure we are going to check if he
 		// recieves the mate event and then the end event.
 		//
-		wPlayer.on( "CheckMate", function( ){ wMate.resolve( true ); });
+		wPlayer.on( "onCheckMate", function( ){ wMate.resolve( true ); });
 		
-		wPlayer.on( "Lose", function( ){ wLose.resolve( true ); });
+		wPlayer.on( "onLose", function( ){ wLose.resolve( true ); });
 		
-		wPlayer.on( "End", function( ){ wEnd.resolve( true ); });
+		wPlayer.on( "onEnd", function( ){ wEnd.resolve( true ); });
 					
 		// Making sure they are made public on the Game object
-		game.on( "CheckMate", function( ){ gMate.resolve( true ); });
+		game.on( "onCheckMate", function( ){ gMate.resolve( true ); });
 		
-		game.on( "End", function( ){ gEnd.resolve( true ); });
+		game.on( "onEnd", function( ){ gEnd.resolve( true ); });
 		
 		// Wire up the black player to make the move and have a win event.
-		bPlayer.on( "Turn", function( ){ bQueen.move( board.fields.h1 ); });
+		bPlayer.on( "onTurn", function( ){ bQueen.move( board.fields.h1 ); });
 		
-		bPlayer.on( "Win", function( ){ bWin.resolve( true ); });
+		bPlayer.on( "onWin", function( ){ bWin.resolve( true ); });
 		
-		bPlayer.on( "End", function( ){ bEnd.resolve( true ); });
+		bPlayer.on( "onEnd", function( ){ bEnd.resolve( true ); });
 		
 		wPlayer.join( game, "white" );
 		bPlayer.join( game, "black" );
@@ -430,16 +430,16 @@ module.exports = {
 				bEnd.promise, bWin.promise
 			]);
 			
-		game.on( "Surrender", function( ){ gameSurrender.resolve( true ); });
-		game.on( "End", function( ){ gameEnd.resolve( true ); });
+		game.on( "onSurrender", function( ){ gameSurrender.resolve( true ); });
+		game.on( "onEnd", function( ){ gameEnd.resolve( true ); });
 		
-		wPlayer.on( "End", function( ){ wEnd.resolve( true ); });
-		wPlayer.on( "Lose", function( ){ wLose.resolve( true ); });
+		wPlayer.on( "onEnd", function( ){ wEnd.resolve( true ); });
+		wPlayer.on( "onLose", function( ){ wLose.resolve( true ); });
 		
-		bPlayer.on( "End", function( ){ bEnd.resolve( true ); });
-		bPlayer.on( "Win", function( ){ bWin.resolve( true ); });
+		bPlayer.on( "onEnd", function( ){ bEnd.resolve( true ); });
+		bPlayer.on( "onWin", function( ){ bWin.resolve( true ); });
 		
-		wPlayer.on( "Turn", function( ){ wPlayer.surrender( ); });		
+		wPlayer.on( "onTurn", function( ){ wPlayer.surrender( ); });		
 		
 		wPlayer.join( game, "white" );
 		bPlayer.join( game, "black" );
@@ -487,18 +487,18 @@ module.exports = {
 				bEnd.promise, bStaleMate.promise, bDraw.promise
 			]);			
 		
-		game.on( "End", function( ){ gEnd.resolve( true ); });
-		game.on( "StaleMate", function( ){ gStaleMate.resolve( true ); });
-		game.on( "Draw", function( ){ gDraw.resolve( true ); });
+		game.on( "onEnd", function( ){ gEnd.resolve( true ); });
+		game.on( "onStaleMate", function( ){ gStaleMate.resolve( true ); });
+		game.on( "onDraw", function( ){ gDraw.resolve( true ); });
 		
-		wPlayer.on( "End", function( ){ wEnd.resolve( true ); });
-		bPlayer.on( "End", function( ){ bEnd.resolve( true ); });
+		wPlayer.on( "onEnd", function( ){ wEnd.resolve( true ); });
+		bPlayer.on( "onEnd", function( ){ bEnd.resolve( true ); });
 		
-		wPlayer.on( "StaleMate", function( ){ wStaleMate.resolve( true ); });
-		bPlayer.on( "StaleMate", function( ){ bStaleMate.resolve( true ); });
+		wPlayer.on( "onStaleMate", function( ){ wStaleMate.resolve( true ); });
+		bPlayer.on( "onStaleMate", function( ){ bStaleMate.resolve( true ); });
 		
-		wPlayer.on( "Draw", function( ){ wDraw.resolve( true ); });
-		bPlayer.on( "Draw", function( ){ bDraw.resolve( true ); });
+		wPlayer.on( "onDraw", function( ){ wDraw.resolve( true ); });
+		bPlayer.on( "onDraw", function( ){ bDraw.resolve( true ); });
 					
 		wPlayer.join( game, "white" );
 		bPlayer.join( game, "black" );
@@ -527,7 +527,7 @@ module.exports = {
 			promoted = RSVP.defer( ),
 			result   = RSVP.all([ moved.promise, promoted.promise ]);
 		
-		wPlayer.on( "Turn", function( ){
+		wPlayer.on( "onTurn", function( ){
 			
 			pawn.move( board.fields.a8 );
 			
@@ -535,7 +535,7 @@ module.exports = {
 			
 		});
 		
-		wPlayer.on( "Promotion", function( _moved_ ){
+		wPlayer.on( "onPromotion", function( _moved_ ){
 			
 			board.replace( _moved_.piece, new chess.pieces.Queen({ color: "white" }) );
 

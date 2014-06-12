@@ -148,9 +148,9 @@ module.exports = Compose(
 		// Handlers for the place and occupy methods from the board
 		//
 		
-		dispatch: function( who ){
+		dispatch: function( single ){
 		
-		    if( who ){
+		    if( !single ){
 		        
 		        var target = this[ arguments[ 2 ].color || arguments[ 2 ].loser ];
 		        
@@ -185,7 +185,7 @@ module.exports = Compose(
 		// Game events
 		//
 		onPlaced: function( _placed_ ){ /* When a piece is placed on the board (setup or pawn promotion) */ 
-			return this.player( arguments, true );	
+			return this.dispatch( true, "onPlaced", _placed_ );
 		},
 				
 		onMoved: function( _moved_ ){ 
