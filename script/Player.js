@@ -3,20 +3,26 @@
  *	Licensed under the MIT public license for the full license see the LICENSE file
  *
  */
-define( [ ".", "lib" ], function( chess, lib ){
-
-	chess.Player = lib.declare( [ lib.Evented ], {
+var Compose      = require( "compose" ),
+    EventEmitter = require( "./util/AsyncEventEmitter" ),
+    chess        = require( "../chessy" );
+         
+module.exports = Compose(
+    
+    EventEmitter,
+    
+    function( _player_ ){ 
+		"color" in _player_ && ( this.color = _player_.color );
+		"game" in _player_ && this.join( _player_.game );		
+	},
+    
+    {
 		
 		game: null,
 		
 		color: null,
 		board: null,
-		
-		constructor: function( _player_ ){ 
-			"color" in _player_ && ( this.color = _player_.color );
-			"game" in _player_ && this.join( _player_.game );		
-		},
-		
+				
 		//
 		// Player methods
 		// 
@@ -105,8 +111,6 @@ define( [ ".", "lib" ], function( chess, lib ){
 		
 		onStaleMate: function( ){ /* Called when you are stale mated */ }
 		
-	});
-
-
-	return chess.Player;
-});
+	}
+	
+);
