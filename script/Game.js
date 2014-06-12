@@ -4,11 +4,11 @@
  *
  */
 var Compose      = require( "compose" ),
-    EventEmitter = require( "./util/AsyncEventEmitter" ),
-    chess        = require( "../chessy" ),
     Promise      = require( "rsvp" ).Promise;
     
-    
+var EventEmitter = require( "./util/AsyncEventEmitter" ),
+    Player       = require( "./Player" );
+        
 function placeHandler( field, piece ){ 
     this.emit( "onPlaced", {
    		field: field,
@@ -112,8 +112,8 @@ module.exports = Compose(
 		
 		start: function( ){
 			if(
-				   this.white && this.white instanceof chess.Player 
-				&& this.black && this.black instanceof chess.Player
+				   this.white && this.white instanceof Player 
+				&& this.black && this.black instanceof Player
 			){
 				// Flip the color, hackish but effective
 				!this.color || this.color === "white"

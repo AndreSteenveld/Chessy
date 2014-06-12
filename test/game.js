@@ -77,7 +77,7 @@ module.exports = {
 				
 		var result = RSVP.defer( );
 				
-		game.on( "Start", function( _start_ ){
+		game.on( "onStart", function( _start_ ){
 			
 			"color" in _start_ && _start_.color === "white"
 				? result.resolve( true )
