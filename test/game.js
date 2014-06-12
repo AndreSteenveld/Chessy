@@ -87,7 +87,7 @@ module.exports = {
 		
 		game.start( );
 		
-		return result;
+		return result.promise;
 	},
 	
 	"starting the game with black on move": function( test ){
@@ -114,7 +114,7 @@ module.exports = {
 		
 		game.start( );
 		
-		return result;			
+		return result.promise;			
 	},
 	
 	"making a move": function( test ){
@@ -153,7 +153,7 @@ module.exports = {
 		
 		game.start( );
 		
-		return result;
+		return result.promise;
 		
 	},
 	
@@ -191,7 +191,7 @@ module.exports = {
 		
 		game.start( );
 		
-		return result;
+		return result.promise;
 	},
 	
 	"play a few moves": function( test ){
@@ -283,7 +283,7 @@ module.exports = {
 		
 		game.start( );
 		
-		return result;
+		return result.promise;
 	},
 	
 	"check event": function( test ){ 
@@ -338,7 +338,7 @@ module.exports = {
 		
 		game.start( );
 		
-		return result;
+		return result.promise;
 	},
 	
 	"mate event": function( test ){
@@ -446,7 +446,7 @@ module.exports = {
 		
 		game.start( );
 		
-		return result;
+		return result.promise;
 	},
 	
 	"stale event": function( test ){
@@ -505,7 +505,7 @@ module.exports = {
 		
 		game.start( );
 		
-		return result;
+		return result.promise;
 		
 	},
 	
@@ -550,7 +550,7 @@ module.exports = {
 			
 		game.start( );
 		
-		return result;
+		return result.promise;
 		
 	}
 	    
