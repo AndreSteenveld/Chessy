@@ -12,7 +12,11 @@ function wrap( obj ){
     
     Object.keys( obj ).forEach( function( key ){
     
-        if( typeof obj[ key ] === "function" ){
+        if( /^(setUp|tearDown)$/.test( key ) ){
+            
+            result[ key ] = obj[ key ];
+        
+        } else if( typeof obj[ key ] === "function" ){
         
             result[ key ] = function( test ){
             
@@ -26,9 +30,11 @@ function wrap( obj ){
                             return result;
                         }
                     )
-                    .then( 
-                        test.done
-                    );
+                    .then( function( result ){ 
+                        result instanceof Error 
+                            ? test.done( result )
+                            : test.done( );
+                    });
                 
                 deferred.resolve( test );
                 
@@ -36,7 +42,7 @@ function wrap( obj ){
             
         } else {
             
-            wrap( obj[ key ] );    
+            result[ key ] = wrap( obj[ key ] );    
         
         }    
         

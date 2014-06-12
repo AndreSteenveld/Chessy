@@ -112,8 +112,8 @@ module.exports = Compose(
 		
 		start: function( ){
 			if(
-				   this.white && this.white.isInstanceOf( chess.Player )
-				&& this.black && this.black.isInstanceOf( chess.Player )				
+				   this.white && this.white instanceof chess.Player 
+				&& this.black && this.black instanceof chess.Player
 			){
 				// Flip the color, hackish but effective
 				!this.color || this.color === "white"
