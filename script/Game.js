@@ -4,14 +4,16 @@
  *
  */
 var Compose      = require( "compose" ),
-    EventEmitter = require( "events" ).EventEmitter,
-    chess        = require( "../chessy" );
+    EventEmitter = require( "./util/AsyncEventEmitter" ),
+    chess        = require( "../chessy" ),
+    Promise      = require( "rsvp" ).Promise;
+    
     
 function placeHandler( field, piece ){ 
-	this.emit.onIdle( this, [ "Placed", {
-		field: field,
-		piece: piece
-	}]);
+    this.emit( "onPlaced", {
+   		field: field,
+   		piece: piece
+    });
 }
 
 function moveHandler( game, piece, move ){
@@ -32,22 +34,32 @@ function moveHandler( game, piece, move ){
 					to:       toField         // Where are we going?
 				};
 
-			piece.type === "Pawn" && piece.y === 7
-				? game.emit.onIdle( game, [ "Promotion", lib.delegate( _moved_, { color: piece.color } ) ] )
-					.then( game.emit.async( game, [ "Moved", _moved_ ] ) )
-				: game.emit.onIdle( game, [ "Moved", _moved_ ] );
+			if( piece.type === "Pawn" && piece.y === 7 ){
+			    
+			    var _promotion_ = Object.create( _moved_ );
+			    
+			    _promotion_.color = piece.color;
+			    
+			    game.emit( "onPromotion", _promotion_ )
+			        .then( game.emit.bind( game, "onMoved", _moved_ ) );
+			        
+			} else {
+			    
+			    game.emit( "onMoved", _moved_ );
+			
+		    }
 								
 			return true;
 			
 		} else {
 		
-			game.emit.onIdle( game, [ "IllegalMove", {
+			game.emit( "onIllegalMove", {
 				counter: game.counter,
 				piece: piece,
 				color: game.color,
 				from: field,
 				to: toField						
-			}]);
+			});
 			
 			return false;	 
 			
@@ -108,7 +120,7 @@ module.exports = Compose(
 					? ( this.color = "white" )
 					: ( this.color = "black" );
 					
-				this.emit.onIdle( this, [ "Start", { color: this.color } ] );
+				this.emit( "onStart", { color: this.color });
 				
 			} else {
 				
@@ -121,7 +133,7 @@ module.exports = Compose(
 			
 			if( conditions.result === "Surrender" ){
 				
-				this.emit.onIdle( this, [ "Surrender", conditions ] );
+				this.emit( "onSurrender", conditions );
 									
 			} 
 			
@@ -136,18 +148,36 @@ module.exports = Compose(
 		// Handlers for the place and occupy methods from the board
 		//
 		
+		dispatch: function( who ){
 		
+		    if( who ){
+		        
+		        var target = this[ arguments[ 2 ].color || arguments[ 2 ].loser ];
+		        
+		        return target.emit.apply( target, arguments.slice( 1 ) );
+		        
+		    } else {
+		    
+		        return RSVP.all([
+		            this.white.emit.apply( this.white, arguments.slice( 1 ) ),
+		            this.black.emit.apply( this.black, arguments.slice( 1 ) )
+		        ]);    
+		        
+		    }
+		    
+		},
+				
 		player: function( args, both, name ){
 			
 			var event  = name || args.callee.nom.slice( 2 ),
 				player = !both && this[ args[ 0 ].color || args[ 0 ].loser ];
 			
 			return !both
-				? player.emit.onIdle( player, [ event, args[ 0 ] ] )
-				: lib.Deferred.all(
-					this.white.emit.onIdle( this.white, [ event, args[ 0 ] ] ),
-					this.black.emit.onIdle( this.black, [ event, args[ 0 ] ] )
-				);
+				? player.emit( event, args[ 0 ] )
+				: RSVP.all([
+					this.white.emit( event, args[ 0 ] ),
+					this.black.emit( event, args[ 0 ] )
+				]);
 			
 		},
 
@@ -164,6 +194,8 @@ module.exports = Compose(
 				turn  = color === "white" ? "black" : "white",
 				data  = lib.mixin( { }, _moved_ );
 
+            var dispatched = this.dispatch( true, "onMoved", _moved_ );
+
 			// 
 			// We do want to make sure that the check event is triggered befire the
 			// actual turn event. This is becuase a player has to know he is check
@@ -172,112 +204,100 @@ module.exports = Compose(
 			//
 			if( !this.board.isCheck( turn ) && this.board.isStaleMate( turn ) ){
 			
-				return this.player( arguments, true )
-					.then( this.emit.async( this, [ "StaleMate", { result: "StaleMate" } ] ) );
+			    return dispatched
+			        .then( this.emit.bind( this, "onStaleMate", { result: "StaleMate" } ) );
 								
 			} else if( !this.board.isCheckMate( turn ) && this.board.isCheck( turn ) ){
-			
-				return this.player( arguments, true )
-					.then( this.emit.async( this, [ "Check", data ] ) )
-					.then( this.emit.async( this, [ "Turn", data ] ) );
+		
+				return dispatched
+					.then( this.emit.bind( this, "onCheck", data ) )
+					.then( this.emit.bind( this, "onTurn", data ) );
 			
 			} else if( this.board.isCheckMate( turn ) ){
 					
-				return this.player( arguments, true )
+				return dispatched
 					.then( 
-						this.emit.async( this, [ "CheckMate", 
+						this.emit.bind( this, "onCheckMate", 
 							{ 
 								result: "CheckMate", 
 									
 								winner: color,
 								loser:  turn 
 							}
-						]) 
+						) 
 					);
 							
 			} else {
 								
-				return this.player( arguments, true )
-					.then( this.emit.async( this, [ "Turn", data ]) );
+				return dispatched
+					.then( this.emit.bind( this, "onTurn", data ) );
 				
 			}
 				
 		},
 		
 		onIllegalMove: function( _illegal_ ){ /* When a player makes an illegal move */ 
-			return this.player( arguments );	
+			return this.dispatch( false, "onIllegalMove", _illegal_ );
 		},
 			
 		onTurn: function( _turn_ ){ // The event that is triggered when te turn is passed to the other player
-			return this.player( arguments );
+			return this.dispatch( false, "onTurn", _turn_ );
 		},
 		
 		onPromotion: function( _turn_ ){ // When a promotion has happended on the board
-			return this.player( arguments );			
+			return this.dispatch( false, "onPromotion", _turn_ );
 		},
 						
 		onCheck: function( _turn_ ){ /* Fired when any player is checked */ 
-			return this.player( arguments );	
+			return this.dispatch( false, "onCheck", _turn_ );
 		},
 		
 		onStaleMate: function( _result_ ){ /* Fired when there is a stale mate, fired before the onEnd event */ 
-			return this.player( arguments, true )
-				.then( this.emit.async( this, [ "Draw", _result_ ] ) );	
+			return this.dispatch( true, "onStaleMate", _result_ )
+				.then( this.emit.bind( this, "onDraw", _result_ ) );	
 		},
 		
 		onCheckMate: function( _result_ ){ /* Fired when eiter player is mated, fired before the onEnd event */ 
-			return this.player( arguments )
-				.then( this.emit.async( this, [ "End", _result_ ] ) );	
+			return this.dispatch( false, "onCheckMate", _result_ )
+				.then( this.emit.bind( this, "onEnd", _result_ ) );	
 		},
 		
 		onSurrender: function( _result_ ){ /* Fired when a player surrenders the match, fired before the onEnd event */ 
-			return this.player( arguments, true )
-				.then( this.emit.async( this, [ "End", _result_ ] ) );
+			return this.dispatch( true, "onSurrender", _result_ )
+				.then( this.emit.bind( this, "onEnd", _result_ ) );
 		},
 						
 		onStart: function( _start_ ){ 
 			
-			this.player( arguments, true )
+			return this.dispatch( true, "onStart", _start_ )
 				.then( 
-					this.emit.async( this, 
-						[
-							"Moved", 
-							{ 
-								counter: this.counter++,
-								color:   _start_.color	
-							}				
-						]
-					)
+				    this.emit.bind( this, "onMoved", { counter: this.counter++, color: _start_.color } )
 				);	
 			
 		},
 		
 		onDraw: function( _result_ ){ /* Fired when a game ended in a draw, fired before the onEnd event */ 
-			this.player( arguments, true )
-				.then( this.emit.async( this, [ "End", _result_ ] ) );
+			this.dispatch( true, "onDraw", _result_ )
+				.then( this.emit.bind( this, "onEnd", _result_ ) );
 		},
 		
 		onEnd: function( _result_ ){ /* Fired when the game has eneded */ 
 						
 			if( _result_.result === "Draw" || _result_.result === "StaleMate" ){
 			
-				return this.player( arguments, true );
+				return this.dispatch( true, "onEnd", _result_ );
 				
 			} else {
 						
 				var winner = this[ _result_.winner ],
 					loser  = this[ _result_.loser ];
 						
-				return ( 
-					lib.Deferred.all(
-						winner.emit.onIdle( winner, [ "Win", _result_ ] ),
-						loser.emit.onIdle( loser, [ "Lose", _result_ ] )
-					)
-				).then( this.player.async( this, [ arguments, true, "End" ] ) );
+				return RSVP.all([
+    					winner.emit.bind( winner, "onWin", _result_ ),
+    					loser.emit.bind( loser, "onLose", _result_ )
+    				])
+                    .then( this.dispatch.bind( this, true, "onEnd", _result_ ) );
 				
-				// For reasons that are still unclear to me it seemt that it is not possible to
-				// bind an arguments object with additional properties attached to it.
-			
 			}
 			
 		},
@@ -299,14 +319,14 @@ module.exports = Compose(
 			color || ( color = ~~( Math.random( ) * 10 ) % 2 ? "white" : "black" );
 			this[ color ] = player;
 						
-			this.emit.onIdle( this, [ "PlayerJoin", { color: color, player: player } ] );
+			this.emit( "onPlayerJoin", { color: color, player: player });
 			
 			return color;
 		},
 		
 		leave: function( player ){ 
 			this[ player.color ] = null;
-			this.emit.onIdle( this, [ "PlayerLeave", { player: player } ] );
+			this.emit( "onPlayerLeave", { player: player });
 		}
         
     }

@@ -49,11 +49,11 @@ module.exports = {
 			bPlayer = new chess.Player({ color: "black" }),
 			game    = new chess.Game({ board: board });
 			
-		var wPlayerAdded = new doh.Deferred( ),
-			bPlayerAdded = new doh.Deferred( ),
-			playersAdded = new lib.DeferredList([ wPlayerAdded, bPlayerAdded ]);
+		var wPlayerAdded = RSVP.defer( "White player added" ),
+			bPlayerAdded = RSVP.defer( "Black player added" ),
+			playersAdded = RSVP.all([ wPlayerAdded.promise, bPlayerAdded.promise ]);
 			
-		game.on( "PlayerJoin", function( playerJoined ){
+		game.on( "onPlayerJoin", function( playerJoined ){
 			playerJoined.color === "white"
 				? wPlayerAdded.resolve( true )
 				: bPlayerAdded.resolve( true );
@@ -75,7 +75,7 @@ module.exports = {
 					black: bPlayer					
 				});
 				
-		var result = new doh.Deferred( );
+		var result = RSVP.defer( );
 				
 		game.on( "Start", function( _start_ ){
 			
@@ -102,7 +102,7 @@ module.exports = {
 					color: "black"
 				});
 				
-		var result = new doh.Deferred( );
+		var result = RSVP.defer( );
 		
 		game.on( "Start", function( _start_ ){
 			
@@ -124,7 +124,7 @@ module.exports = {
 			bPlayer = new chess.Player({ color: "black" }),
 			game    = new chess.Game({ board: board });
 		
-		var result = new doh.Deferred( );
+		var result = RSVP.defer( );
 		
 		var piece = board.fields.d2.piece,
 			from  = board.fields.d2,
@@ -164,7 +164,7 @@ module.exports = {
 			bPlayer = new chess.Player({ color: "black" }),
 			game    = new chess.Game({ board: board });
 		
-		var result = new doh.Deferred( );
+		var result = RSVP.defer( );
 		
 		var piece = board.fields.d2.piece,
 			from  = board.fields.d2,
@@ -202,12 +202,12 @@ module.exports = {
 			game    = new chess.Game({ board: board });
 		
 		var moves = [
-				new doh.Deferred( ), // white | D2 - D4
-				new doh.Deferred( ), // black | D7 - D5
-				new doh.Deferred( )  // white | D1 - D3
+				RSVP.defer( "white | D2 - D4" ), 
+				RSVP.defer( "black | D7 - D5" ), 
+				RSVP.defer( "white | D1 - D3" )  
 			];
 			
-		var result = new lib.DeferredList( moves, false, true, false );
+		var result = new RSVP.all( moves );
 		
 		wPlayer.on( "Turn", function( _turn_ ){
 			
@@ -283,16 +283,7 @@ module.exports = {
 		
 		game.start( );
 		
-		// Wrap the deferred list or else the runner will explode in a ball of fire
-		// and sadness.
-		var r = new doh.Deferred( );
-		
-		result.then(
-			r.callback.bind( r ),
-			r.errback.bind( r )
-		);
-		
-		return r;			
+		return result;
 	},
 	
 	"check event": function( test ){ 
@@ -309,10 +300,10 @@ module.exports = {
 				color: "black" 
 			});
 		
-		var gameCheck   = new doh.Deferred( ),
-			playerCheck = new doh.Deferred( ),			
-			turnCheck   = new doh.Deferred( ),
-			result      = new lib.DeferredList([ gameCheck, playerCheck, turnCheck ], false, true, false ); // list, fire on one, fire on one err, consume err
+		var gameCheck   = RSVP.defer( ),
+			playerCheck = RSVP.defer( ),			
+			turnCheck   = RSVP.defer( ),
+			result      = RSVP.all([ gameCheck.promise, playerCheck.promise, turnCheck.promise ]);
 		
 		wPlayer.on(  "Check", function( ){ 
 							
@@ -347,16 +338,7 @@ module.exports = {
 		
 		game.start( );
 		
-		// For some reason the non-doh Deferreds don't play nice with testing, wrap the DeferredList
-		// so that the test doesn't freeze.			
-		var r = new doh.Deferred( );
-		
-		result.then( 
-			r.callback.bind( r ), 
-			r.errback.bind( r ) 
-		);
-		
-		return r;			
+		return result;
 	},
 	
 	"mate event": function( test ){
@@ -379,23 +361,21 @@ module.exports = {
 				color: "black" 
 			});
 		
-		var wMate = new doh.Deferred( ),
-			wLose = new doh.Deferred( ),
-			wEnd  = new doh.Deferred( ),
+		var wMate = RSVP.defer( ),
+			wLose = RSVP.defer( ),
+			wEnd  = RSVP.defer( ),
 			
-			bWin = new doh.Deferred( ),
-			bEnd = new doh.Deferred( ),
+			bWin = RSVP.defer( ),
+			bEnd = RSVP.defer( ),
 			
-			gMate = new doh.Deferred( ),
-			gEnd  = new doh.Deferred( ),
+			gMate = RSVP.defer( ),
+			gEnd  = RSVP.defer( ),
 			
-			result = new lib.DeferredList([
-					wMate, wLose, wEnd,
-					bWin, bEnd,
-					gMate, gEnd
-				],
-				false, true, false
-			);
+			result = RSVP.all([
+				wMate.promise, wLose.promise, wEnd.promise,
+				bWin.promise, bEnd.promise,
+				gMate.promise, gEnd.promise
+			]);
 		
 		//
 		// Hacking in the events for the white player, makte sure we are going to check if he
@@ -424,16 +404,7 @@ module.exports = {
 		
 		game.start( );
 		
-		// For some reason the non-doh Deferreds don't play nice with testing, wrap the DeferredList
-		// so that the test doesn't freeze.			
-		var r = new doh.Deferred( );
-		
-		result.then( 
-			r.callback.bind( r ), 
-			r.errback.bind( r ) 
-		);
-		
-		return r;
+		return result.promise;
 		
 	},
 	
@@ -444,22 +415,20 @@ module.exports = {
 			
 		var game = new chess.Game({ board: board });
 			
-		var gameSurrender = new lib.Deferred( ),
-			gameEnd       = new lib.Deferred( ),
+		var gameSurrender = RSVP.defer( ),
+			gameEnd       = RSVP.defer( ),
 			
-			wEnd = new lib.Deferred( ),
-			wLose = new lib.Deferred( ),
+			wEnd = RSVP.defer( ),
+			wLose = RSVP.defer( ),
 			
-			bEnd = new lib.Deferred( ),
-			bWin = new lib.Deferred( ),
+			bEnd = RSVP.defer( ),
+			bWin = RSVP.defer( ),
 			
-			result = new lib.DeferredList([
-					gameSurrender, gameEnd,
-					wEnd, wLose,
-					bEnd, bWin
-				], 
-				false, true, false 
-			);
+			result = RSVP.all([
+				gameSurrender.promise, gameEnd.promise,
+				wEnd.promise, wLose.promise,
+				bEnd.promise, bWin.promise
+			]);
 			
 		game.on( "Surrender", function( ){ gameSurrender.resolve( true ); });
 		game.on( "End", function( ){ gameEnd.resolve( true ); });
@@ -477,16 +446,7 @@ module.exports = {
 		
 		game.start( );
 		
-		// For some reason the non-doh Deferreds don't play nice with testing, wrap the DeferredList
-		// so that the test doesn't freeze.			
-		var r = new doh.Deferred( );
-		
-		result.then( 
-			r.callback.bind( r ), 
-			r.errback.bind( r ) 
-		);
-		
-		return r;			
+		return result;
 	},
 	
 	"stale event": function( test ){
@@ -509,25 +469,23 @@ module.exports = {
 		
 		var game = new chess.Game({ board: board });
 		
-		var gEnd = new lib.Deferred( ),
-			gStaleMate = new lib.Deferred( ),
-			gDraw = new lib.Deferred( ),
+		var gEnd = RSVP.defer( ),
+			gStaleMate = RSVP.defer( ),
+			gDraw = RSVP.defer( ),
 			
-			wEnd = new lib.Deferred( ),
-			wStaleMate = new lib.Deferred( ),
-			wDraw = new lib.Deferred( ),
+			wEnd = RSVP.defer( ),
+			wStaleMate = RSVP.defer( ),
+			wDraw = RSVP.defer( ),
 			
-			bEnd = new lib.Deferred( ),
-			bStaleMate = new lib.Deferred( ),
-			bDraw = new lib.Deferred( ),
+			bEnd = RSVP.defer( ),
+			bStaleMate = RSVP.defer( ),
+			bDraw = RSVP.defer( ),
 			
-			result = new lib.DeferredList([
-					gEnd, gStaleMate, gDraw,
-					wEnd, wStaleMate, wDraw,
-					bEnd, bStaleMate, bDraw
-				],
-				false, true, false
-			);			
+			result = RSVP.all([
+				gEnd.promise, gStaleMate.promise, gDraw.promise,
+				wEnd.promise, wStaleMate.promise, wDraw.promise,
+				bEnd.promise, bStaleMate.promise, bDraw.promise
+			]);			
 		
 		game.on( "End", function( ){ gEnd.resolve( true ); });
 		game.on( "StaleMate", function( ){ gStaleMate.resolve( true ); });
@@ -547,16 +505,7 @@ module.exports = {
 		
 		game.start( );
 		
-		// For some reason the non-doh Deferreds don't play nice with testing, wrap the DeferredList
-		// so that the test doesn't freeze.			
-		var r = new doh.Deferred( );
-		
-		result.then( 
-			r.callback.bind( r ), 
-			r.errback.bind( r ) 
-		);
-		
-		return r;
+		return result;
 		
 	},
 	
@@ -574,9 +523,9 @@ module.exports = {
 			
 		var game = new chess.Game({ board: board });
 		
-		var moved    = new lib.Deferred( ),
-			promoted = new lib.Deferred( ),
-			result   = new lib.DeferredList([ moved, promoted ], false, true, false );
+		var moved    = RSVP.defer( ),
+			promoted = RSVP.defer( ),
+			result   = RSVP.all([ moved.promise, promoted.promise ]);
 		
 		wPlayer.on( "Turn", function( ){
 			
@@ -601,19 +550,10 @@ module.exports = {
 			
 		game.start( );
 		
-		// For some reason the non-doh Deferreds don't play nice with testing, wrap the DeferredList
-		// so that the test doesn't freeze.			
-		var r = new doh.Deferred( );
-		
-		result.then( 
-			r.callback.bind( r ), 
-			r.errback.bind( r ) 
-		);
-		
-		return r;
+		return result;
 		
 	}
-    
+	    
 };
 
  
